@@ -1,0 +1,8 @@
+global:
+  context: ~
+leaf: true
+branch: true
+basic:
+  github: ~
+  quay: ~
+  redhat: ~

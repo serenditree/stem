@@ -1,0 +1,23 @@
+global:
+  context: ~
+rootSeed:
+  cd: false
+  app: false
+  mongodb: false
+mongodb:
+  clusterDomain: cluster.local
+  fullnameOverride: root-seed
+  architecture: "replicaset"
+  replicaCount: 2
+  persistence:
+    size: 10Gi
+  initdbScriptsConfigMap: root-seed-init
+  serviceAccount:
+    create: false
+  auth:
+    enabled: true
+    existingSecret: root-seed
+    databases:
+      - serenditree
+    usernames: []
+

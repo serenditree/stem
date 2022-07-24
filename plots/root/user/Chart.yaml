@@ -1,0 +1,22 @@
+apiVersion: v2
+type: application
+name: root-user
+description: Mariadb resources
+version: 0.0.1
+appVersion: "v0.0.1"
+
+dependencies:
+  - name: root-user-cd
+    repository: "file://charts/cd"
+    version: 0.0.1
+    condition: rootUser.cd
+
+  - name: root-user-app
+    repository: "file://charts/app"
+    version: 0.0.1
+    condition: rootUser.app
+
+  - name: mariadb-galera
+    repository: https://charts.bitnami.com/bitnami
+    version: 7.3.6
+    condition: rootUser.mariadb

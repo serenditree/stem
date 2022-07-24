@@ -1,0 +1,7 @@
+global:
+  context: ~
+clusterDomain: ~
+auth:
+  usernames: ~
+  passwords: ~
+  rootPassword: ~

@@ -1,0 +1,36 @@
+{{- if hasPrefix "serenditree-kubernetes" .Values.global.context }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: branch
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/from-to-www-redirect: "true"
+    cert-manager.io/issuer: "lets-encrypt-{{ .Values.ingress.letsencrypt.issuer }}"
+spec:
+  {{- if hasSuffix "local" .Values.global.context }}
+  tls:
+    - hosts:
+        - www.serenditree.io
+        - serenditree.io
+      secretName: serenditree-tls-{{ .Values.ingress.letsencrypt.issuer }}
+  {{- end }}
+  rules:
+    - host: serenditree.io
+      http:
+        paths:
+          {{- range .Values.global.branches }}
+          - path: /api/v1/{{ . }}
+            pathType: Prefix
+            backend:
+              service:
+                {{- if eq "garden" . }}
+                name: branch-seed
+                {{- else }}
+                name: branch-{{ . }}
+                {{- end}}
+                port:
+                  number: 8080
+          {{- end }}
+{{- end }}

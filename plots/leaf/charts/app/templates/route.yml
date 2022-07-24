@@ -1,0 +1,26 @@
+{{- if hasPrefix "serenditree-openshift" .Values.global.context }}
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: leaf
+  namespace: serenditree
+  labels:
+    app.kubernetes.io/name: leaf
+    app.kubernetes.io/version: v0.0.1
+    app.kubernetes.io/component: leaf
+    app.kubernetes.io/part-of: serenditree
+spec:
+  host: ""
+  subdomain: ""
+  port:
+    targetPort: 8080
+  tls:
+    insecureEdgeTerminationPolicy: Redirect
+    termination: edge
+  to:
+    kind: Service
+    name: leaf
+    weight: 100
+  wildcardPolicy: None
+{{- end}}

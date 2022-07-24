@@ -1,0 +1,15 @@
+data:
+  resource.exclusions: |
+    - apiGroups:
+      - tekton.dev
+      kinds:
+      - PipelineRun
+      - TaskRun
+      clusters:
+      - "*"
+    - apiGroups:
+      - cilium.io
+      kinds:
+      - CiliumIdentity
+      clusters:
+      - "*"

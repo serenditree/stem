@@ -1,0 +1,104 @@
+{{ range without .Values.global.branches "garden" }}
+{{- $branchName := printf "%s-%s" "branch" . }}
+{{- $branch := . }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $branchName }}
+  labels:
+    app.kubernetes.io/name: {{ $branchName }}
+    app.kubernetes.io/version: {{ $.Chart.AppVersion }}
+    app.kubernetes.io/component: branch
+    app.kubernetes.io/part-of: serenditree
+spec:
+  replicas: {{ $.Values.branch.replicas }}
+  revisionHistoryLimit: 3
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      name: {{ $branchName }}
+  template:
+    metadata:
+      labels:
+        name: {{ $branchName }}
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: {{ $branchName }}
+          image: "quay.io/serenditree/{{ $branchName }}:latest"
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          env:
+            - name: SERENDITREE_JSON_WEB_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: json-web-key
+                  name: branch
+            {{- range $.Values.branch.oidc }}
+            - name: QUARKUS_OIDC_{{ .country | upper }}_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  key: {{ .idRef }}
+                  name: branch
+            - name: QUARKUS_OIDC_{{ .country | upper }}_CREDENTIALS_SECRET
+              valueFrom:
+                secretKeyRef:
+                  key: {{ .secretRef }}
+                  name: branch
+            - name: QUARKUS_OIDC_{{ .country | upper }}_AUTH_SERVER_URL
+              valueFrom:
+                secretKeyRef:
+                  key: {{ .urlRef }}
+                  name: branch
+            - name: QUARKUS_OIDC_{{ .country | upper }}_APPLICATION_TYPE
+              value: web-app
+            {{- end}}
+            - name: SERENDITREE_ROOT_USER_USER
+              valueFrom:
+                secretKeyRef:
+                  key: database-user
+                  name: root-user
+            - name: SERENDITREE_ROOT_USER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: database-password
+                  name: root-user
+            - name: SERENDITREE_ROOT_SEED_USER
+              valueFrom:
+                secretKeyRef:
+                  key: database-user
+                  name: root-seed
+            - name: SERENDITREE_ROOT_SEED_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: database-password
+                  name: root-seed
+          resources:
+            requests:
+              cpu: 500m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: 8080
+            timeoutSeconds: 1
+          readinessProbe:
+            httpGet:
+              port: 8080
+              path: "/api/v1/{{ $branch }}"
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+{{- end }}

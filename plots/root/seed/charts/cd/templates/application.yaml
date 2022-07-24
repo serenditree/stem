@@ -1,0 +1,34 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: root-seed
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: 'git@github.com:serenditree/stem.git'
+    path: plots/root/seed
+    targetRevision: dev
+    helm:
+      valueFiles:
+        - values.yaml
+      parameters:
+        - name: rootSeed.app
+          value: "true"
+        - name: global.context
+          value: {{ .Values.global.context }}
+        - name: mongodb.clusterDomain
+          value: {{ .Values.clusterDomain }}
+        - name: mongodb.auth.usernames[0]
+          value: {{ .Values.auth.usernames }}
+        - name: root-seed-app.auth.usernames
+          value: {{ .Values.auth.usernames }}
+        - name: root-seed-app.auth.passwords
+          value: {{ .Values.auth.passwords }}
+        - name: root-seed-app.auth.rootPassword
+          value: {{ .Values.auth.rootPassword }}
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: serenditree

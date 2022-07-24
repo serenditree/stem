@@ -1,0 +1,77 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: root-map
+  labels:
+    app.kubernetes.io/name: root-map
+    app.kubernetes.io/version: v0.0.1
+    app.kubernetes.io/component: root
+    app.kubernetes.io/part-of: serenditree
+spec:
+  replicas: {{ .Values.rootMap.replicas }}
+  revisionHistoryLimit: 3
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      name: root-map
+  template:
+    metadata:
+      labels:
+        name: root-map
+    spec:
+      restartPolicy: Always
+      securityContext:
+        fsGroup: 1001
+      containers:
+        - name: root-map
+          image: "quay.io/serenditree/root-map:latest"
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          env:
+            - name: SERENDITREE_DATA_URL
+              value: {{ .Values.rootMap.data }}
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: 8080
+            timeoutSeconds: 1
+          readinessProbe:
+            httpGet:
+              port: 8080
+              path: "/index.json"
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          startupProbe:
+            httpGet:
+              port: 8080
+              path: "/index.json"
+            failureThreshold: 20
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: 500m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          securityContext:
+            runAsGroup: 1001
+            runAsUser: 1001
+          volumeMounts:
+            - mountPath: {{ .Values.rootMap.dataMountPath }}
+              name: root-map
+      volumes:
+        - name: root-map
+          persistentVolumeClaim:
+            claimName: root-map
+

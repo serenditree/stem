@@ -1,0 +1,26 @@
+{{- with .Values.kafka }}
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: seed-created
+  labels:
+    strimzi.io/cluster: {{ .name }}
+spec:
+  partitions: {{ .partitions }}
+  replicas: {{ .replicas }}
+  config:
+    retention.ms: {{ mul .logRetentionHours 60 60 1000 }}
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: seed-deleted
+  labels:
+    strimzi.io/cluster: {{ .name }}
+spec:
+  partitions: {{ .partitions }}
+  replicas: {{ .replicas }}
+  config:
+    retention.ms: {{ mul .logRetentionHours 60 60 1000 }}
+{{- end }}

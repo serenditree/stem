@@ -1,0 +1,33 @@
+{{ if hasPrefix "serenditree-openshift" $.Values.global.context }}
+{{ range .Values.global.branches }}
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: branch-{{ . }}
+  namespace: serenditree
+  labels:
+    app.kubernetes.io/name: branch-{{ . }}
+    app.kubernetes.io/version: v0.0.1
+    app.kubernetes.io/component: branch
+    app.kubernetes.io/part-of: serenditree
+spec:
+  host: ""
+  subdomain: ""
+  path: /api/v1/{{ . }}
+  port:
+    targetPort: 8080
+  tls:
+    insecureEdgeTerminationPolicy: Redirect
+    termination: edge
+  to:
+    kind: Service
+    {{- if eq "garden" . }}
+    name: branch-seed
+    {{- else }}
+    name: branch-{{ . }}
+    {{- end}}
+    weight: 100
+  wildcardPolicy: None
+{{- end }}
+{{- end }}

@@ -1,0 +1,6 @@
+apiVersion: v2
+type: application
+name: tekton-leaf
+description: "Resources for tekton-leaf"
+version: 0.0.1
+appVersion: "0.0.1"

@@ -1,0 +1,11 @@
+apiVersion: v2
+type: application
+name: terra-https
+description: "HTTPS resources"
+version: 0.0.1
+appVersion: "0.0.1"
+
+dependencies:
+  - name: cert-manager
+    repository: https://charts.jetstack.io
+    version: 1.8.2

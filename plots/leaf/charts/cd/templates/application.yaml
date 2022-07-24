@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: leaf
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: 'git@github.com:serenditree/stem.git'
+    path: plots/leaf
+    targetRevision: dev
+    helm:
+      valueFiles:
+        - values.yaml
+      parameters:
+        - name: leaf.app
+          value: "true"
+        - name: global.context
+          value: {{ .Values.global.context }}
+        - name: leaf-app.leaf.replicas
+          value: {{ .Values.leaf.replicas | quote }}
+        - name: leaf-app.leaf.stage
+          value: {{ .Values.leaf.stage }}
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: serenditree

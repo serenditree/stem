@@ -1,0 +1,6 @@
+apiVersion: v2
+type: application
+name: branch-app
+description: "Custom resources for branch."
+version: 0.0.1
+appVersion: "v0.0.1"

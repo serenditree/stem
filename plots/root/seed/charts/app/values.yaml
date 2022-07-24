@@ -1,0 +1,5 @@
+auth:
+  databases: serenditree
+  usernames: ~
+  passwords: ~
+  rootPassword: ~

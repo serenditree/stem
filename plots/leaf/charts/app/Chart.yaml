@@ -1,0 +1,6 @@
+apiVersion: v2
+type: application
+name: leaf-app
+description: "Custom resources for leaf."
+version: 0.0.1
+appVersion: "v0.0.1"

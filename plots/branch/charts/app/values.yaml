@@ -1,0 +1,24 @@
+global:
+  context: ~
+  branches:
+    - user
+    - seed
+    - garden
+    - poll
+branch:
+  replicas: 1
+  stage: dev
+  jsonWebKey:
+    encryption: ~
+    signature: ~
+  oidc:
+    - country: ~
+      idRef: ~
+      id: ~
+      secretRef: ~
+      secret: ~
+      url: ~
+      urlRef: ~
+ingress:
+  letsencrypt:
+    issuer: prod

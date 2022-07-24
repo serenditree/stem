@@ -1,0 +1,32 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: terra-strimzi
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: 'git@github.com:serenditree/stem.git'
+    path: plots/terra/charts/strimzi
+    targetRevision: dev
+    helm:
+      valueFiles:
+        - values.yaml
+      parameters:
+        - name: global.context
+          value: {{ .Values.global.context }}
+        - name: global.clusterDomain
+          value: {{ .Values.global.clusterDomain }}
+        - name: strimzi-kafka-operator.kubernetesServiceDnsDomain
+          value: {{ .Values.global.clusterDomain }}
+        - name: kafdrop.enabled
+          value: {{ .Values.strimzi.kafdrop.enabled }}
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: strimzi
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true

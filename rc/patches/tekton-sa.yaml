@@ -1,0 +1,4 @@
+secrets:
+  - name: github-token
+  - name: quay-token
+  - name: redhat-token

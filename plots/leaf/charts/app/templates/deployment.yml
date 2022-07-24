@@ -1,0 +1,38 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: leaf
+  labels:
+    app.kubernetes.io/name: leaf
+    app.kubernetes.io/version: v0.0.1
+    app.kubernetes.io/component: leaf
+    app.kubernetes.io/part-of: serenditree
+spec:
+  replicas: {{ .Values.leaf.replicas }}
+  revisionHistoryLimit: 3
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      name: leaf
+  template:
+    metadata:
+      labels:
+        name: leaf
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: leaf
+          image: "quay.io/serenditree/leaf:latest"
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 500m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi

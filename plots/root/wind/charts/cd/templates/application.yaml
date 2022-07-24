@@ -1,0 +1,25 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: root-wind
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: 'git@github.com:serenditree/stem.git'
+    path: plots/root/wind
+    targetRevision: dev
+    helm:
+      valueFiles:
+        - values.yaml
+      parameters:
+        - name: rootWind.app
+          value: "true"
+        - name: global.context
+          value: {{ .Values.global.context }}
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: serenditree

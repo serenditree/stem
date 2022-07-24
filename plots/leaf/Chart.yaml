@@ -1,0 +1,17 @@
+apiVersion: v2
+type: application
+name: leaf
+description: "Resources for leaf."
+version: 0.0.1
+appVersion: "v0.0.1"
+
+dependencies:
+  - name: leaf-cd
+    repository: "file://charts/cd"
+    version: 0.0.1
+    condition: leaf.cd
+
+  - name: leaf-app
+    repository: "file://charts/app"
+    version: 0.0.1
+    condition: leaf.app

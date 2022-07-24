@@ -1,0 +1,8 @@
+global:
+  context: ~
+rootWind:
+  cd: false
+  app: false
+
+
+

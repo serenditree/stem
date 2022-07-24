@@ -1,0 +1,19 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: root-map
+  labels:
+    app.kubernetes.io/name: root-map
+    app.kubernetes.io/version: v0.0.1
+    app.kubernetes.io/component: root
+    app.kubernetes.io/part-of: serenditree
+spec:
+  type: ClusterIP
+  selector:
+    name: root-map
+  ports:
+    - name: root-map
+      port: 8080
+      targetPort: 8080
+      protocol: TCP

@@ -1,0 +1,123 @@
+version: '3'
+services:
+
+  leaf:
+    image: localhost/serenditree/leaf:compose
+    hostname: leaf
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: curl localhost:8080
+
+  branch-user:
+    image: localhost/serenditree/branch-user:latest
+    hostname: branch-user
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+    env_file:
+      - ../../plots/branch/plot.env
+    environment:
+      - SERENDITREE_STAGE=compose
+    healthcheck:
+      test: curl localhost:8080/q/health/ready
+    depends_on:
+      - root-user
+      - root-wind
+
+  branch-seed:
+    image: localhost/serenditree/branch-seed:latest
+    hostname: branch-seed
+    restart: unless-stopped
+    ports:
+      - "8082:8080"
+    env_file:
+      - ../../plots/branch/plot.env
+    environment:
+      - SERENDITREE_STAGE=compose
+    healthcheck:
+      test: curl localhost:8080/q/health/ready
+    depends_on:
+      - root-seed
+      - root-wind
+
+  branch-poll:
+    image: localhost/serenditree/branch-poll:latest
+    hostname: branch-poll
+    restart: unless-stopped
+    ports:
+      - "8083:8080"
+    env_file:
+      - ../../plots/branch/plot.env
+    environment:
+      - SERENDITREE_STAGE=compose
+    healthcheck:
+      test: curl localhost:8080/q/health/ready
+    depends_on:
+      - root-user
+      - root-wind
+
+  root-map:
+    image: localhost/serenditree/root-map:latest
+    hostname: root-map
+    restart: unless-stopped
+    ports:
+      - "8084:8080"
+    environment:
+      - SERENDITREE_DATA_URL=${SERENDITREE_DATA_URL}
+    volumes:
+      - root-map:/serenditree/data
+    healthcheck:
+      test: curl localhost:8080/index.json
+
+  root-user:
+    image: localhost/serenditree/root-user:latest
+    hostname: root-user
+    restart: unless-stopped
+    ports:
+      - "8085:3306"
+    env_file:
+      - ../../plots/root/user/plot.env
+    volumes:
+      - root-user:/bitnami/mariadb
+    healthcheck:
+      test: mysqladmin status -uroot -proot
+
+  root-seed:
+    image: localhost/serenditree/root-seed:latest
+    hostname: root-seed
+    restart: unless-stopped
+    ports:
+      - "8086:27017"
+    env_file:
+      - ../../plots/root/seed/plot.env
+    volumes:
+      - root-seed:/bitnami/mongodb
+    healthcheck:
+      test: mongo --disableImplicitSessions --eval 'db.hello().isWritablePrimary' | grep -q true
+    ulimits:
+      nproc: 64000
+      nofile: 64000
+
+  root-wind:
+    image: localhost/serenditree/root-wind:latest
+    hostname: root-wind
+    restart: unless-stopped
+    ports:
+      - "9092:9092"
+    environment:
+      - KAFKA_HOST=root-wind
+    healthcheck:
+      test: bash health.sh
+
+  kafdrop:
+    image: docker.io/obsidiandynamics/kafdrop:latest
+    restart: unless-stopped
+    hostname: kafdrop
+    ports:
+      - "9000:9000"
+    environment:
+      KAFKA_BROKERCONNECT: root-wind:9092
+    depends_on:
+      - root-wind

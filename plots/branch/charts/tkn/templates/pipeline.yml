@@ -1,0 +1,74 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: branch
+  labels:
+    app.kubernetes.io/component: tekton
+spec:
+  params:
+    - name: config
+      type: string
+      description: Name of the Job and the ConfigMap to use.
+    - name: image
+      type: string
+      description: Reference of the image buildah will produce.
+    - name: repo-url
+      type: string
+      description: The git repository URL to clone from.
+    - name: repo-branch
+      type: string
+      description: The git branch to clone.
+  workspaces:
+    - name: pipeline
+  tasks:
+    ####################################################################################################################
+    # FETCH-SC
+    ####################################################################################################################
+    - name: fetch-sc
+      taskRef:
+        kind: ClusterTask
+        name: serenditree-git
+      params:
+        - name: url
+          value: https://github.com/serenditree/stem.git
+        - name: subdirectory
+          value: sc
+      workspaces:
+        - name: git
+          workspace: pipeline
+    ####################################################################################################################
+    # FETCH-SRC
+    ####################################################################################################################
+    - name: fetch-src
+      taskRef:
+        kind: ClusterTask
+        name: serenditree-git
+      params:
+        - name: url
+          value: $(params.repo-url)
+        - name: revision
+          value: $(params.repo-branch)
+        - name: subdirectory
+          value: src
+      workspaces:
+        - name: git
+          workspace: pipeline
+    ####################################################################################################################
+    # BUILD
+    ####################################################################################################################
+    - name: build
+      runAfter:
+        - fetch-sc
+        - fetch-src
+      taskRef:
+        kind: ClusterTask
+        name: serenditree-builder
+      params:
+        - name: config
+          value: $(params.config)
+        - name: image
+          value: $(params.image)
+      workspaces:
+        - name: buildah
+          workspace: pipeline

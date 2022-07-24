@@ -1,0 +1,17 @@
+apiVersion: v2
+type: application
+name: root-wind
+description: "Resources for root-wind"
+version: 0.0.1
+appVersion: "v0.0.1"
+
+dependencies:
+  - name: root-wind-cd
+    repository: "file://charts/cd"
+    version: 0.0.1
+    condition: rootWind.cd
+
+  - name: root-wind-app
+    repository: "file://charts/app"
+    version: 0.0.1
+    condition: rootWind.app

@@ -1,0 +1,17 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: root-map
+  labels:
+    app.kubernetes.io/name: root-map
+    app.kubernetes.io/version: v0.0.1
+    app.kubernetes.io/component: root
+    app.kubernetes.io/part-of: serenditree
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  volumeMode: Filesystem

@@ -1,0 +1,10 @@
+global:
+  context: ~
+rootMap:
+  replicas: 1
+  stage: ~
+  data: ~
+  dataMountPath: ~
+ingress:
+  letsencrypt:
+    issuer: prod

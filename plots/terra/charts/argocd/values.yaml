@@ -1,0 +1,14 @@
+global:
+  context: ~
+  clusterDomain: ~
+ingress:
+  letsencrypt:
+    email: ~
+strimzi:
+  kafdrop:
+    enabled: false
+tekton:
+  basic:
+    github: ~
+    quay: ~
+    redhat: ~

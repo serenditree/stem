@@ -1,0 +1,5 @@
+global:
+  context: ~
+leaf:
+  cd: false
+  app: false

@@ -1,0 +1,39 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: terra-tekton
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: 'git@github.com:serenditree/stem.git'
+    path: plots/terra/charts/tekton
+    targetRevision: dev
+    helm:
+      valueFiles:
+        - values.yaml
+      parameters:
+        - name: global.context
+          value: {{ .Values.global.context }}
+        - name: leaf
+          value: 'true'
+        - name: branch
+          value: 'true'
+        - name: basic.github
+          value: {{ .Values.tekton.basic.github }}
+        - name: basic.quay
+          value: {{ .Values.tekton.basic.quay }}
+        - name: basic.redhat
+          value: {{ .Values.tekton.basic.redhat }}
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: tekton-pipelines
+  ignoreDifferences:
+    - group: tekton.dev
+      kind: ClusterTask
+      jqPathExpressions:
+        - '.spec.steps[].workingdir'
+        - '.spec.steps[].resources'

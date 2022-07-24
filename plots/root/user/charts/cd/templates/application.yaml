@@ -1,0 +1,34 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: root-user
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: 'git@github.com:serenditree/stem.git'
+    path: plots/root/user
+    targetRevision: dev
+    helm:
+      valueFiles:
+        - values.yaml
+      parameters:
+        - name: rootUser.app
+          value: "true"
+        - name: global.context
+          value: {{ .Values.global.context }}
+        - name: mariadb-galera.clusterDomain
+          value: {{ .Values.clusterDomain }}
+        - name: mariadb-galera.db.user
+          value: {{ .Values.db.user }}
+        - name: root-user-app.db.user
+          value: {{ .Values.db.user }}
+        - name: root-user-app.db.password
+          value: {{ .Values.db.password }}
+        - name: root-user-app.rootUser.password
+          value: {{ .Values.rootUser.password }}
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: serenditree

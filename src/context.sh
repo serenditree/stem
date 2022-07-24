@@ -1,0 +1,94 @@
+#!/usr/bin/env bash
+########################################################################################################################
+# CONTEXT
+# Define and use serenditree contexts.
+########################################################################################################################
+
+function sc_context_init_generic() {
+    local -r _from=$1
+    local -r _to=$2
+    kubectl config get-contexts "$_to" &>/dev/null && kubectl config delete-context "$_to"
+    kubectl config rename-context "$_from" "$_to"
+    kubectl config set-context "$_to"
+    kubectl create namespace serenditree
+    kubectl config set-context --current --namespace=serenditree
+}
+export -f sc_context_init_generic
+
+function sc_context_init_kube() {
+    echo -n "Fetching kubeconfig..."
+    local -r _config=~/.kube/config.sks
+    if exo compute sks kubeconfig serenditree kube-admin --group system:masters --zone at-vie-1 >$_config; then
+        echo "${_BOLD}done${_NORMAL}"
+        local -r _sks_id="$(sed -En 's/.*current-context: (.*)/\1/p' $_config)"
+        # shellcheck disable=SC2155,SC2011
+        export KUBECONFIG="$(ls ~/.kube/config* | xargs echo | tr ' ' ':')"
+        sc_context_init_generic "$_sks_id" "$_ST_CONTEXT_KUBERNETES"
+        echo  "Waiting for nodes..."
+        sleep 1m
+        kubectl wait --for=condition=ready --all-namespaces --all nodes
+    fi
+}
+export -f sc_context_init_kube
+
+function sc_context_init() {
+    for _context in "${_ST_CONTEXTS[@]}"; do
+        kubectl config set-context $_context --namespace serenditree
+    done
+
+    if [[ -n "$_ARG_SETUP" ]]; then
+        if [[ -n "$_ST_CONTEXT_KUBERNETES" ]]; then
+            sc_context_init_kube
+        elif [[ -n "$_ST_CONTEXT_KUBERNETES_LOCAL" ]] &&
+            ! kubectl config get-contexts "$_ST_CONTEXT_KUBERNETES_LOCAL" &>/dev/null; then
+            sc_context_init_generic minikube "$_ST_CONTEXT_KUBERNETES_LOCAL"
+        elif [[ -n "$_ST_CONTEXT_OPENSHIFT_LOCAL" ]] &&
+            ! oc config get-contexts "$_ST_CONTEXT_OPENSHIFT_LOCAL" &>/dev/null; then
+            oc login -u kubeadmin -p crc.testing https://api.crc.testing:6443
+            sc_context_init_generic default/api-crc-testing:6443/kubeadmin "$_ST_CONTEXT_OPENSHIFT_LOCAL"
+        fi
+    fi
+}
+export -f sc_context_init
+
+# Selects a context.
+# $1: Pattern or index for context selection
+function sc_context_use() {
+    if [[ $1 =~ [[:digit:]] ]]; then
+        local -r _pattern=serenditree
+        local -r _index=$1
+    else
+        local -r _pattern=$1
+        local -r _index=1
+    fi
+    kubectl config get-contexts --no-headers |
+        grep -E "$_pattern" |
+        sed -En -e 's/[* ]+(\S+).*/\1/' -e "${_index}p" |
+        xargs -I{} bash -c "[[ \"$(kubectl config current-context)\" != \"{}\" ]] && kubectl config use-context {}"
+}
+export -f sc_context_use
+
+# Shows and/or sets the cluster context.
+# $1: Optional ID (unpadded number) of the context to set.
+function sc_context() {
+    if [[ -n "${_ARG_INIT}" ]]; then
+        sc_context_init
+    fi
+    # Set context!
+    if [[ -n "$1" ]]; then
+        sc_context_use "$1"
+    elif [[ $_ST_CONTEXT =~ ^serenditree ]]; then
+        sc_context_use "[[:space:]]${_ST_CONTEXT}[[:space:]]"
+    fi
+    # Show contexts!
+    kubectl config get-contexts --no-headers |
+        grep -E "serenditree" |
+        sed -E 's/([* ]+\S+).*/\1/' |
+        nl -w2 -s' ' -n'rz'
+
+    local _authenticated=1
+    sc_cluster_status && _authenticated=0
+
+    return $_authenticated
+}
+export -f sc_context

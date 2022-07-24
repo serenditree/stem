@@ -1,0 +1,40 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: branch
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: 'git@github.com:serenditree/stem.git'
+    path: plots/branch
+    targetRevision: dev
+    helm:
+      valueFiles:
+        - values.yaml
+      parameters:
+        - name: branch.app
+          value: "true"
+        - name: global.context
+          value: {{ .Values.global.context }}
+        - name: branch-app.branch.replicas
+          value: {{ .Values.branch.replicas | quote }}
+        - name: branch-app.branch.stage
+          value: {{ .Values.branch.stage }}
+        - name: branch-app.branch.jsonWebKey.encryption
+          value: {{ .Values.branch.jsonWebKey.encryption }}
+        - name: branch-app.branch.jsonWebKey.signature
+          value: {{ .Values.branch.jsonWebKey.signature }}
+        {{- $index := 0 }}
+        {{- range $oidc := .Values.branch.oidc }}
+        {{- range $key, $value := $oidc }}
+        - name: branch-app.branch.oidc[{{ $index }}].{{ $key }}
+          value: {{ $value }}
+        {{- end}}
+        {{- $index = add1 $index }}
+        {{- end}}
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: serenditree

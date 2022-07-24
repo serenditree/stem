@@ -1,0 +1,7 @@
+apiVersion: v2
+type: application
+name: terra-issuer
+description: "Issuer resources"
+version: 0.0.1
+appVersion: "0.0.1"
+

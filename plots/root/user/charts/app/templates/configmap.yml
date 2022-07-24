@@ -1,0 +1,13 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: root-user-init
+  labels:
+    app.kubernetes.io/name: mariadb-galera
+    app.kubernetes.io/version: v0.0.1
+    app.kubernetes.io/component: root
+    app.kubernetes.io/part-of: serenditree
+data:
+  init.sql: |-
+{{ .Files.Get "resources/0.0.1-init.sql" | indent 4 }}

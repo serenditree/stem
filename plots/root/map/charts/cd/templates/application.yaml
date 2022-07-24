@@ -1,0 +1,32 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: root-map
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: 'git@github.com:serenditree/stem.git'
+    path: plots/root/map
+    targetRevision: dev
+    helm:
+      valueFiles:
+        - values.yaml
+      parameters:
+        - name: rootMap.app
+          value: "true"
+        - name: global.context
+          value: {{ .Values.global.context }}
+        - name: root-map-app.rootMap.replicas
+          value: {{ .Values.rootMap.replicas | quote }}
+        - name: root-map-app.rootMap.data
+          value: {{ .Values.rootMap.data }}
+        - name: root-map-app.rootMap.dataMountPath
+          value: {{ .Values.rootMap.dataMountPath }}
+        - name: root-map-app.rootMap.stage
+          value: {{ .Values.rootMap.stage }}
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: serenditree

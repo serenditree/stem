@@ -1,0 +1,6 @@
+apiVersion: v2
+type: application
+name: root-seed-cd
+description: "ArgoCD application for root-user."
+version: 0.0.1
+appVersion: "v0.0.1"

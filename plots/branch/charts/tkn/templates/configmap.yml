@@ -1,0 +1,8 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tekton-branch
+data:
+  _ST_CONTEXT_TKN: "on"
+  _ST_HOME: /workspace/buildah

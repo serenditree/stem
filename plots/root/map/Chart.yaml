@@ -1,0 +1,17 @@
+apiVersion: v2
+type: application
+name: root-map
+description: "Resources for root-map."
+version: 0.0.1
+appVersion: "v0.0.1"
+
+dependencies:
+  - name: root-map-cd
+    repository: "file://charts/cd"
+    version: 0.0.1
+    condition: rootMap.cd
+
+  - name: root-map-app
+    repository: "file://charts/app"
+    version: 0.0.1
+    condition: rootMap.app

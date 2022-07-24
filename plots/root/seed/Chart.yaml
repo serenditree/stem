@@ -1,0 +1,22 @@
+apiVersion: v2
+type: application
+name: root-seed
+description: MongoDB resources
+version: 0.0.1
+appVersion: "v0.0.1"
+
+dependencies:
+  - name: root-seed-cd
+    repository: "file://charts/cd"
+    version: 0.0.1
+    condition: rootSeed.cd
+
+  - name: root-seed-app
+    repository: "file://charts/app"
+    version: 0.0.1
+    condition: rootSeed.app
+
+  - name: mongodb
+    repository: https://charts.bitnami.com/bitnami
+    version: 10.31.2
+    condition: rootSeed.mongodb

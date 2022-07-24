@@ -1,0 +1,29 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  generateName: branch-seed-
+  labels:
+    app.kubernetes.io/component: tekton
+spec:
+  pipelineRef:
+    name: branch
+  podTemplate:
+    securityContext:
+      runAsUser: 1000
+      runAsGroup: 0
+      fsGroup: 1000
+  serviceAccountName: pipelines
+  params:
+    - name: config
+      value: tekton-branch
+    - name: image
+      value: branch-seed
+    - name: repo-url
+      value: https://github.com/serenditree/branch.git
+    - name: repo-branch
+      value: dev
+  workspaces:
+    - name: pipeline
+      persistentVolumeClaim:
+        claimName: tekton-branch-workspace

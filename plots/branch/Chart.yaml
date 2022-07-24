@@ -1,0 +1,17 @@
+apiVersion: v2
+type: application
+name: branch
+description: "Resources for branch."
+version: 0.0.1
+appVersion: "v0.0.1"
+
+dependencies:
+  - name: branch-cd
+    repository: "file://charts/cd"
+    version: 0.0.1
+    condition: branch.cd
+
+  - name: branch-app
+    repository: "file://charts/app"
+    version: 0.0.1
+    condition: branch.app

@@ -1,0 +1,50 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: ClusterTask
+metadata:
+  name: serenditree-git
+  labels:
+    app.kubernetes.io/component: tekton
+spec:
+  workspaces:
+    - name: git
+      description: The git repository will be fetched onto the volume backing this workspace.
+  params:
+    - name: url
+      description: Git url to fetch.
+      type: string
+    - name: revision
+      description: Git revision to checkout (branch, tag, sha, ref…).
+      type: string
+      default: dev
+    - name: subdirectory
+      description: Subdirectory inside the repository workspace to clone the git repo into.
+      type: string
+      default: ""
+    - name: clone
+      description: Clean out the contents of the repositorie's destination directory!
+      type: string
+      default: ""
+  results:
+    - name: commit
+      description: The commit SHA that was fetched by this task.
+  steps:
+    - name: fetch
+      image: alpine/git
+      workingdir: $(workspaces.git.path)
+      script: |
+        mkdir -pv $(params.subdirectory)
+        cd $(params.subdirectory) || exit 1
+
+        if [[ -d .git ]] && [[ -n "$(params.clone)" ]]; then
+          echo "Cleaning repository..."
+          rm -rf .
+        fi
+        if [[ ! -d .git ]]; then
+          git clone $(params.url) . || exit 1
+        fi
+
+        git checkout $(params.revision) || exit 1
+        git pull --ff-only || exit 1
+
+        git rev-parse HEAD | tr -d '\n'

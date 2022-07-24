@@ -1,0 +1,64 @@
+{{- with .Values.kafka }}
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: Kafka
+metadata:
+  name: {{ .name }}
+spec:
+  entityOperator:
+    topicOperator: { }
+    userOperator: { }
+  kafka:
+    config:
+      default.replication.factor: {{ .replicas }}
+      log.retention.bytes: {{ mulf (div (mul .storage 1000000000) (mul .topics .partitions .replicas)) 0.8 | int }}
+      log.retention.check.interval.ms: 60000
+      log.retention.hours: {{ .logRetentionHours | int }}
+      num.partitions: {{ .partitions | int }}
+      transaction.state.log.replication.factor: {{ .replicas }}
+      transaction.state.log.min.isr: {{ .replicas }}
+      offsets.topic.replication.factor: {{ .replicas }}
+      compression.type: {{ .compressionType }}
+      fetch.max.bytes: {{ .messageMaxBytes | int }}
+      message.max.bytes: {{ .messageMaxBytes | int }}
+      replica.fetch.max.bytes: {{ .messageMaxBytes | int }}
+      replica.fetch.min.bytes: 1
+      replica.fetch.response.max.bytes: {{ .messageMaxBytes | int }}
+      request.timeout.ms: {{ .requestTimeoutMs | int }}
+      consumer.fetch.max.bytes: {{ .messageMaxBytes | int }}
+      consumer.max.partition.fetch.bytes: {{ .messageMaxBytes | int }}
+      consumer.request.timeout.ms: {{ .requestTimeoutMs | int }}
+      producer.batch.size: {{ mul .messageMaxBytes .messageBatchFactor | int }}
+      producer.buffer.memory: {{ mulf .messageMaxBytes .messageBatchFactor 1.2 | int }}
+      producer.compression.type: {{ .compressionType }}
+      producer.max.request.size: {{ .messageMaxBytes | int }}
+      producer.request.timeout.ms: {{ .requestTimeoutMs | int }}
+    jvmOptions:
+      gcLoggingEnabled: false
+    listeners:
+      - name: plain
+        port: 9092
+        type: internal
+        tls: false
+    replicas: {{ .replicas }}
+    {{- if hasSuffix "local" $.Values.global.context }}
+    storage:
+      type: ephemeral
+    {{- else }}
+    storage:
+      deleteClaim: true
+      size: "{{ .storage | int }}Gi"
+      type: persistent-claim
+    {{- end }}
+  zookeeper:
+    replicas: {{ .replicas }}
+    {{- if hasSuffix "local" $.Values.global.context }}
+    storage:
+      type: ephemeral
+    {{- else }}
+    storage:
+      deleteClaim: true
+      size: "{{ div .storage 2 | int }}Gi"
+      type: persistent-claim
+    {{- end }}
+{{- end }}

@@ -1,0 +1,17 @@
+apiVersion: v2
+type: application
+name: terra-tekton
+description: "Tekton resources"
+version: 0.0.1
+appVersion: "0.0.1"
+
+dependencies:
+  - name: tekton-leaf
+    repository: "file://../../../leaf/charts/tkn"
+    version: 0.0.1
+    condition: leaf
+
+  - name: tekton-branch
+    repository: "file://../../../branch/charts/tkn"
+    version: 0.0.1
+    condition: branch

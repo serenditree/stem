@@ -1,0 +1,5 @@
+global:
+  context: ~
+branch:
+  cd: false
+  app: false
