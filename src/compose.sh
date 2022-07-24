@@ -6,14 +6,14 @@
 
 _SC_COMPOSE='--file rc/compose/compose.yml --project-name serenditree'
 
-function sc_compose() {
-    podman-compose $_SC_COMPOSE "$@"
-}
-
 function sc_compose_up() {
-    [[ -n "$_ARG_INIT" ]] && SERENDITREE_DATA_URL="$(pass serenditree/data.url)"
-    export SERENDITREE_DATA_URL
-    podman-compose $_SC_COMPOSE up --detach "$@"
+    source ${_ST_HOME_STEM}/plots/branch/plot-branch-src.sh
+
+    local _podman_args
+    _podman_args=$(sc_branch_secrets podman)
+    [[ -n "$_ARG_INIT" ]] && _podman_args+="--env SERENDITREE_DATA_URL=$(pass serenditree/data.url)"
+
+    podman-compose $_SC_COMPOSE --podman-run-args "$_podman_args" up --detach "$@"
 }
 
 function sc_compose_down() {

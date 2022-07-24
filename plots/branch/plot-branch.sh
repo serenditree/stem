@@ -92,44 +92,13 @@ if [[ " $* " =~ " build " ]]; then
 # UP
 ########################################################################################################################
 elif [[ " $* " =~ " up " ]]; then
-    function sc_branch_secrets() {
-        local _env=$1
-        local _index=0
-        pass serenditree/oidc | sed -En 's/.*(\w{2}\.\w+)/\1/p' | while read -r _item; do
-            _country="${_item%.*}"
-            if [[ -n "$_env" ]]; then
-                _country="${_country^^}"
-                if [[ "${_item#*.}" == "id" ]]; then
-                    _env="QUARKUS_OIDC_${_country}_CLIENT_ID"
-                elif [[ "${_item#*.}" == "secret" ]]; then
-                    _env="QUARKUS_OIDC_${_country}_CREDENTIALS_SECRET"
-                else
-                    echo -n "--env QUARKUS_OIDC_${_country}_APPLICATION_TYPE=web-app "
-                    _env="QUARKUS_OIDC_${_country}_AUTH_SERVER_URL"
-                fi
-                echo -n "--env ${_env}=$(pass serenditree/oidc/${_item}) "
-            else
-                if [[ "${_item#*.}" == "id" ]]; then
-                    echo -n "--set \"branch.oidc[${_index}].country=${_country}\" "
-                    echo -n "--set \"branch.oidc[${_index}].id=$(pass serenditree/oidc/${_item})\" "
-                    echo -n "--set \"branch.oidc[${_index}].idRef=oidc-id-${_country}\" "
-                elif [[ "${_item#*.}" == "secret" ]]; then
-                    echo -n "--set \"branch.oidc[${_index}].secret=$(pass serenditree/oidc/${_item})\" "
-                    echo -n "--set \"branch.oidc[${_index}].secretRef=oidc-secret-${_country}\" "
-                else
-                    echo -n "--set \"branch.oidc[${_index}].url=$(pass serenditree/oidc/${_item})\" "
-                    echo -n "--set \"branch.oidc[${_index}].urlRef=oidc-url-${_country}\" "
-                    ((_index++))
-                fi
-            fi
-        done
-    }
+    source ./plot-branch-src.sh
     if [[ -z "$_ST_CONTEXT_CLUSTER" ]]; then
         sc_heading 1 "Starting ${_SERVICE}:${_TAG}"
         sc_container_rm $_CONTAINER
         _EXPOSE="$((${_EXPOSE%/*} + _OFFSET))"
 
-        cat <(sc_branch_secrets env) <(echo "serenditree/java-builder:latest bash wrapper.sh") | xargs \
+        cat <(sc_branch_secrets podman) <(echo "serenditree/java-builder:latest bash wrapper.sh") | xargs \
             podman run \
             --user 0:0 \
             --log-level $_ST_LOG_LEVEL \
@@ -157,14 +126,14 @@ elif [[ " $* " =~ " up " ]]; then
         sc_heading 1 "Setting up branch"
 
         [[ -z "$_ARG_DRYRUN" ]] && _ST_HELM_NAME=branch
-        sc_branch_secrets | xargs \
+        sc_branch_secrets helm | xargs \
             helm $_ST_HELM_CMD $_ST_HELM_NAME ./charts/cd \
             --set "global.context=$_ST_CONTEXT" \
             --set "branch.jsonWebKey.encryption=$(pass serenditree/json.web.key)" \
             --set "branch.jsonWebKey.signature=$(pass serenditree/json.web.key)" | $_ST_HELM_PIPE
 
         if [[ -n "$_ARG_DRYRUN" ]]; then
-            sc_branch_secrets | xargs \
+            sc_branch_secrets helm | xargs \
                 helm $_ST_HELM_CMD $_ST_HELM_NAME ./charts/app \
                 --set "global.context=$_ST_CONTEXT" \
                 --set "branch.jsonWebKey.encryption=$(pass serenditree/json.web.key)" \
