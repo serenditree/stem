@@ -15,12 +15,12 @@ function sc_git() {
 export -f sc_git
 
 # Updates the submodules in root to point to HEAD and pushes root.
-function sc_git_bump() {
+function sc_git_release() {
     cd $_ST_HOME
     git submodule update --recursive --remote
     git submodule foreach --recursive \
         'git checkout $(git config -f $toplevel/.gitmodules submodule.$name.branch || echo dev)'
-    git commit -am 'release'
+    git commit -am 'Release;'
     git push
 }
-export -f sc_git_bump
+export -f sc_git_release

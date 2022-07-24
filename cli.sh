@@ -584,7 +584,7 @@ registry)
     time sc_registry_inspect "$(sc_args_to_pattern ${_ARG_LEFTOVERS[*]})"
     ;;
 release)
-    sc_git_bump
+    sc_git_release
     ;;
 reset)
     sc_pod_down
