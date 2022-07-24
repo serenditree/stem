@@ -23,7 +23,7 @@ spec:
         - name: strimzi-kafka-operator.kubernetesServiceDnsDomain
           value: {{ .Values.global.clusterDomain }}
         - name: kafdrop.enabled
-          value: {{ .Values.strimzi.kafdrop.enabled }}
+          value: {{ .Values.strimzi.kafdrop.enabled | squote }}
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: strimzi
