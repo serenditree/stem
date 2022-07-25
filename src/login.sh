@@ -84,7 +84,7 @@ function sc_login_db() {
     seed | mongo)
         if [[ "$_ctx" == "cluster" ]]; then
             local -r _credentials=$(pass serenditree/root.seed)
-            kubectl port-forward svc/root-seed 27017:27017 &
+            kubectl port-forward pod/root-seed-0 27017:27017 &
             sleep 1s
             mongo -u"${_credentials%%:*}" -p"${_credentials#*:}" serenditree
             killall kubectl && echo "Port-forwarding stopped"

@@ -21,4 +21,4 @@ branch:
       urlRef: ~
 ingress:
   letsencrypt:
-    issuer: prod
+    issuer: staging
