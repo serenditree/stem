@@ -40,6 +40,7 @@ if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "$_ARG_SET
             --name stem
     fi
 
+    _cluster_domain=$(sc_context_cluster_domain)
     _github_token=$(pass serenditree/github.com)
     _quay_token=$(pass serenditree/quay.io)
     _redhat_token=$(pass serenditree/registry.redhat.io)
@@ -47,7 +48,7 @@ if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "$_ARG_SET
     [[ -z "$_ARG_DRYRUN" ]] && _ST_HELM_NAME=argocd
     helm $_ST_HELM_CMD $_ST_HELM_NAME . \
         --set "global.context=$_ST_CONTEXT" \
-        --set "global.clusterDomain=$_ST_CLUSTER_DOMAIN" \
+        --set "global.clusterDomain=$_cluster_domain" \
         --set "ingress.letsencrypt.email=$(pass serenditree/contact)" \
         --set "tekton.basic.github=${_github_token#*:}" \
         --set "tekton.basic.quay=${_quay_token#*:}" \

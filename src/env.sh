@@ -112,13 +112,6 @@ elif [[ "$_ST_CONTEXT" == "$_openshift_local" ]]; then
     export _ST_REGISTRY=default-route-openshift-image-registry.apps-crc.testing
 fi
 
-if [[ -z "${_ST_CONTEXT_IS_LOCAL}${_ST_CONTEXT_TKN}" ]]; then
-    # shellcheck disable=SC2155
-    export _ST_CLUSTER_DOMAIN="$(yq eval '.current-context' ~/.kube/config.sks).cluster.local"
-else
-    export _ST_CLUSTER_DOMAIN="cluster.local"
-fi
-
 ########################################################################################################################
 # DEBUG
 ########################################################################################################################

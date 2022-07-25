@@ -57,16 +57,17 @@ elif [[ " $* " =~ " up " ]]; then
     elif [[ -n "$_ARG_SETUP" ]]; then
         sc_heading 1 "Setting up ${_SERVICE}"
 
-        _CREDENTIALS=$(pass serenditree/root.user)
-        _CREDENTIALS_ROOT="$(pass serenditree/root.user.root)"
+        _cluster_domain=$(sc_context_cluster_domain)
+        _credentials=$(pass serenditree/root.user)
+        _credentials_root="$(pass serenditree/root.user.root)"
 
         [[ -z "$_ARG_DRYRUN" ]] && _ST_HELM_NAME=root-user
         helm $_ST_HELM_CMD $_ST_HELM_NAME ./charts/cd \
             --set "global.context=$_ST_CONTEXT" \
-            --set "clusterDomain=$_ST_CLUSTER_DOMAIN" \
-            --set "db.user=${_CREDENTIALS%%:*}" \
-            --set "db.password=${_CREDENTIALS#*:}" \
-            --set "rootUser.password=$_CREDENTIALS_ROOT" | $_ST_HELM_PIPE
+            --set "clusterDomain=$_cluster_domain" \
+            --set "db.user=${_credentials%%:*}" \
+            --set "db.password=${_credentials#*:}" \
+            --set "rootUser.password=$_credentials_root" | $_ST_HELM_PIPE
 
         if [[ -z "$_ARG_DRYRUN" ]]; then
             argocd app sync root-user

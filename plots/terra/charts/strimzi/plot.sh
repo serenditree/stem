@@ -22,8 +22,9 @@ if [[ -n "$_ST_CONTEXT_CLUSTER" ]]; then
                 argocd app sync "$_SERVICE"
                 argocd app wait "$_SERVICE" --health
             else
+                _cluster_domain=$(sc_context_cluster_domain)
                 helm template . \
-                    --set "global.clusterDomain=$_ST_CLUSTER_DOMAIN" \
+                    --set "global.clusterDomain=$_cluster_domain" \
                     --set "kafdrop.enabled=true" | yq eval '.' -
             fi
         fi

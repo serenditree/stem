@@ -4,6 +4,15 @@
 # Define and use serenditree contexts.
 ########################################################################################################################
 
+function sc_context_cluster_domain() {
+    if [[ -z "${_ST_CONTEXT_IS_LOCAL}${_ST_CONTEXT_TKN}" ]]; then
+        echo "$(yq eval '.current-context' ~/.kube/config.sks).cluster.local"
+    else
+        echo "cluster.local"
+    fi
+}
+export -f sc_context_cluster_domain
+
 function sc_context_init_generic() {
     local -r _from=$1
     local -r _to=$2

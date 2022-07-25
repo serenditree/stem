@@ -34,7 +34,7 @@ variable "service_level" {
 variable "cni" {
   description = "Container network interface plugin to use."
   type        = string
-  default     = "calico"
+  default     = "cilium"
 }
 
 variable "base_domain" {

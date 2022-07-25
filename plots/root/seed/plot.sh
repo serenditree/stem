@@ -60,16 +60,17 @@ elif [[ " $* " =~ " up " ]]; then
         sc_heading 1 "Setting up ${_SERVICE}"
         #helm dependency update rc
 
-        _CREDENTIALS=$(pass serenditree/root.seed)
-        _CREDENTIALS_ROOT=$(pass serenditree/root.seed.root)
+        _cluster_domain=$(sc_context_cluster_domain)
+        _credentials=$(pass serenditree/root.seed)
+        _credentials_root=$(pass serenditree/root.seed.root)
 
         [[ -z "$_ARG_DRYRUN" ]] && _ST_HELM_NAME=root-seed
         helm $_ST_HELM_CMD $_ST_HELM_NAME ./charts/cd \
             --set "global.context=$_ST_CONTEXT" \
-            --set "clusterDomain=$_ST_CLUSTER_DOMAIN" \
-            --set "auth.usernames=${_CREDENTIALS%%:*}" \
-            --set "auth.passwords=${_CREDENTIALS#*:}" \
-            --set "auth.rootPassword=$_CREDENTIALS_ROOT" | $_ST_HELM_PIPE
+            --set "clusterDomain=$_cluster_domain" \
+            --set "auth.usernames=${_credentials%%:*}" \
+            --set "auth.passwords=${_credentials#*:}" \
+            --set "auth.rootPassword=$_credentials_root" | $_ST_HELM_PIPE
 
         if [[ -z "$_ARG_DRYRUN" ]]; then
             argocd app sync root-seed
