@@ -86,10 +86,10 @@ function sc_login_db() {
             local -r _credentials=$(pass serenditree/root.seed)
             kubectl port-forward pod/root-seed-0 27017:27017 &
             sleep 1s
-            mongo -u"${_credentials%%:*}" -p"${_credentials#*:}" serenditree
+            mongosh --username="${_credentials%%:*}" --password="${_credentials#*:}" serenditree
             killall kubectl && echo "Port-forwarding stopped"
         else
-            mongo -uuser -puser --port=8086 serenditree
+            mongosh --username=user --password=user --port=8086  serenditree
         fi
         ;;
     esac
