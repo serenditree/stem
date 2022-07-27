@@ -115,11 +115,15 @@ function sc_terra_down_bucket() {
     fi
 }
 
+function sc_terra_down_loadbalancer() {
+    exo compute nlb list --output-template '{{.ID}}' | xargs exo compute nlb rm --force
+}
+
 function sc_terra_down_dns() {
-    echo "Removing A record(s)..."
-    exo dns remove "serenditree.io" A
+    echo "Removing A record..."
+    exo dns show serenditree.io A --output-template '{{.ID}}' | xargs exo dns remove serenditree.io --force
     echo "Removing CNAME record \"www\"..."
-    exo dns remove "serenditree.io" "www"
+    exo dns remove serenditree.io www --force
 }
 
 function sc_terra_down() {
@@ -129,7 +133,7 @@ function sc_terra_down() {
             -var="api_secret=${_ST_TERRA_API_SECRET}"
 
         if [[ -n "${_ST_CONTEXT_KUBERNETES}" ]]; then
-            sc_prompt "Delete loadbalancer?" exo compute nlb delete serenditree --force
+            sc_prompt "Delete loadbalancer?" sc_terra_down_loadbalancer
         fi
         sc_prompt "Remove DNS records?" sc_terra_down_dns
         if [[ -n "${_ST_CONTEXT_OPENSHIFT}" ]]; then
