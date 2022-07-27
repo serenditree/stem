@@ -597,7 +597,7 @@ update)
     if [[ -n "$_ARG_HELP" ]]; then
         sc_heading 2 "sc update <comp>"
         echo "Update components."
-        printf '\n\t%-20s%s' "{image* | img}" "Update base images."
+        printf '\n\t%-20s%s' "{image* | img}" "Update base images or check for upgrades. [--upgrade]"
         printf '\n\t%-20s%s\n' "helm" "Check latest chart versions."
     else
         case ${_ARG_SUB_COMMAND} in

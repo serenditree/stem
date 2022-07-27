@@ -4,6 +4,7 @@
 # Define and use serenditree contexts.
 ########################################################################################################################
 
+# Returns the kubernetes cluster domain depending on the current context.
 function sc_context_cluster_domain() {
     if [[ -z "${_ST_CONTEXT_IS_LOCAL}${_ST_CONTEXT_TKN}" ]]; then
         echo "$(yq eval '.current-context' ~/.kube/config.sks).cluster.local"
@@ -13,6 +14,7 @@ function sc_context_cluster_domain() {
 }
 export -f sc_context_cluster_domain
 
+# Initializes or resets available contexts.
 function sc_context_init_generic() {
     local -r _from=$1
     local -r _to=$2
@@ -24,6 +26,7 @@ function sc_context_init_generic() {
 }
 export -f sc_context_init_generic
 
+# Initializes the context of the remote kubernetes cluster.
 function sc_context_init_kube() {
     echo -n "Fetching kubeconfig..."
     local -r _config=~/.kube/config.sks
@@ -40,6 +43,7 @@ function sc_context_init_kube() {
 }
 export -f sc_context_init_kube
 
+# Initializes available contexts.
 function sc_context_init() {
     for _context in "${_ST_CONTEXTS[@]}"; do
         kubectl config set-context $_context --namespace serenditree
