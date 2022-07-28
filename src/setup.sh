@@ -88,7 +88,7 @@ function sc_setup_image_update() {
 function sc_setup_maven_update() {
     pushd $_ST_HOME_BRANCH &>/dev/null
     echo "Searching dependency updates..."
-    mvn validate -Pversion-update |
+    mvn validate -Pversion |
         sed -rn '/\[INFO\] The following version/,/\[INFO\] +$/p' |
         sed -r -e 's/\[INFO\] +//' -e 's/.*available version.*/Latest:/' -e 's/.*are available.*/Updates:/' |
         head -n-1
