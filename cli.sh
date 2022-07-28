@@ -25,6 +25,7 @@ _ST_HELP="Please type 'sc <help>' for a list of commands or $_ST_HELP_DETAIL"
 # ARG_OPTIONAL_BOOLEAN([imperative],[],[Imperative flag.])
 # ARG_OPTIONAL_SINGLE([data],[d],[Pass arbitrary data.])
 # ARG_OPTIONAL_BOOLEAN([compose],[],[Run or build for podman-compose.])
+# ARG_OPTIONAL_BOOLEAN([integration],[],[Run for integration testing.])
 # ARG_OPTIONAL_BOOLEAN([kubernetes],[k],[Use vanilla kubernetes.])
 # ARG_OPTIONAL_BOOLEAN([openshift],[o],[Use openshift.])
 # ARG_OPTIONAL_BOOLEAN([local],[l],[Target local cluster.])
@@ -86,6 +87,7 @@ _arg_delete="off"
 _arg_imperative="off"
 _arg_data=
 _arg_compose="off"
+_arg_integration="off"
 _arg_kubernetes="off"
 _arg_openshift="off"
 _arg_local="off"
@@ -95,7 +97,7 @@ _arg_help="off"
 
 print_help()
 {
-    printf 'Usage: %s [-T|--test] [-P|--prod] [-D|--dryrun] [-v|--verbose] [-a|--all] [-y|--assume-yes] [--expose] [--open] [-w|--watch] [--init] [--setup] [--upgrade] [--reset] [--delete] [--imperative] [-d|--data <arg>] [--compose] [-k|--kubernetes] [-o|--openshift] [-l|--local] [--dashboard] [-h|--help] [--] <command> ... \n' " sc" && echo
+    printf 'Usage: %s [-T|--test] [-P|--prod] [-D|--dryrun] [-v|--verbose] [-a|--all] [-y|--assume-yes] [--expose] [--open] [-w|--watch] [--init] [--setup] [--upgrade] [--reset] [--delete] [--imperative] [-d|--data <arg>] [--compose] [--integration] [-k|--kubernetes] [-o|--openshift] [-l|--local] [--dashboard] [-h|--help] [--] <command> ... \n' " sc" && echo
     printf '\t%-20s%s\n' "<command>:" "Command to execute. Please type sc <help> for a list of commands!"
     printf '\t%-20s%s\n' "... :" "Other arguments passed to command."
     printf '\t%-20s%s\n' "-T, --test:" "Sets the target stage to test. (default is dev)"
@@ -115,6 +117,7 @@ print_help()
     printf '\t%-20s%s\n' "--imperative:" "Imperative flag."
     printf '\t%-20s%s\n' "-d, --data:" "Pass arbitrary data. (no default)"
     printf '\t%-20s%s\n' "--compose:" "Run or build for podman-compose."
+    printf '\t%-20s%s\n' "--integration:" "Run for integration testing."
     printf '\t%-20s%s\n' "-k, --kubernetes:" "Use vanilla kubernetes."
     printf '\t%-20s%s\n' "-o, --openshift:" "Use openshift."
     printf '\t%-20s%s\n' "-l, --local:" "Target local cluster."
@@ -274,6 +277,10 @@ parse_commandline()
                 _arg_compose="on"
                 test "${1:0:5}" = "--no-" && _arg_compose="off"
                 ;;
+            --no-integration|--integration)
+                _arg_integration="on"
+                test "${1:0:5}" = "--no-" && _arg_integration="off"
+                ;;
             -k|--no-kubernetes|--kubernetes)
                 _arg_kubernetes="on"
                 test "${1:0:5}" = "--no-" && _arg_kubernetes="off"
@@ -406,6 +413,7 @@ export _ARG_IMPERATIVE=${_arg_imperative/off/}
 export _ARG_WATCH=${_arg_watch/off/}
 export _ARG_DATA=$_arg_data
 export _ARG_COMPOSE=${_arg_compose/off/}
+export _ARG_INTEGRATION=${_arg_integration/off/}
 export _ARG_KUBERNETES=${_arg_kubernetes/off/}
 export _ARG_OPENSHIFT=${_arg_openshift/off/}
 export _ARG_LOCAL=${_arg_local/off/}
@@ -448,9 +456,9 @@ function sc_help() {
 
     local _options
     printf '\n\t%s\n' "${_BOLD}Local commands:${_NORMAL}"
-    _options='[--expose] [--watch] [--compose]'
+    _options='[--expose] [--watch] [--compose] [--integration]'
     printf '\t%-20s%s\n' "up [svc]:" "Starts a local development stack or a single container. $_options"
-    _options='[--compose] Stop cluster too: [--all]'
+    _options='[--compose] [--integration] Stop cluster too: [--all]'
     printf '\t%-20s%s\n\n' "down [svc]:" "Stops local stack or single containers. $_options"
 
     printf '\t%-20s%s\n' "build [svc]:" "Builds all or individual images."
@@ -503,17 +511,21 @@ case ${_ARG_COMMAND} in
 # LOCAL
 ########################################################################################################################
 up)
-    if [[ -z "$_ARG_COMPOSE" ]]; then
-        time sc_pod_up ${_ARG_LEFTOVERS[*]}
-    else
+    if [[ -n "$_ARG_INTEGRATION" ]]; then
+        sc_pod_integration_up ${_ARG_LEFTOVERS[*]}
+    elif [[ -n "$_ARG_COMPOSE" ]]; then
         time sc_compose_up ${_ARG_LEFTOVERS[*]}
+    else
+        time sc_pod_up ${_ARG_LEFTOVERS[*]}
     fi
     ;;
 down)
-    if [[ -z "$_ARG_COMPOSE" ]]; then
-        time sc_pod_down ${_ARG_LEFTOVERS[*]}
-    else
+    if [[ -n "$_ARG_INTEGRATION" ]]; then
+        sc_pod_integration_down ${_ARG_LEFTOVERS[*]}
+    elif [[ -n "$_ARG_COMPOSE" ]]; then
         time sc_compose_down ${_ARG_LEFTOVERS[*]}
+    else
+        time sc_pod_down ${_ARG_LEFTOVERS[*]}
     fi
     ;;
 build)
@@ -601,11 +613,14 @@ update)
         printf '\n\t%-20s%s\n' "helm" "Check latest chart versions."
     else
         case ${_ARG_SUB_COMMAND} in
-        image* | img)
-            sc_update_base_images
-            ;;
         helm)
             sc_setup_helm_update
+            ;;
+        image* | img)
+            sc_setup_image_update
+            ;;
+        maven | mvn)
+            sc_setup_maven_update
             ;;
         esac
     fi

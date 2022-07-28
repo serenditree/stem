@@ -102,7 +102,7 @@ elif [[ " $* " =~ " up " ]]; then
             podman run \
             --user 0:0 \
             --log-level $_ST_LOG_LEVEL \
-            --pod serenditree \
+            --pod $_ST_POD \
             --name $_CONTAINER \
             --label serenditree.io/service=${_SERVICE} \
             --env-file ./plot.env \

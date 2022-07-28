@@ -12,6 +12,65 @@ function sc_pod_list() {
         <(podman ps --filter label=serenditree.io/service --format "$_columns") | column -ts';'
 }
 
+# Spins up all or defined containers/services inside the local pod by executing the "run" action of the corresponding
+# plot. If the  local pod does not yet exist, it is created.
+# $*: Optional list of services.
+function sc_pod_up() {
+    local -r _plots="$(sc_args_to_pattern "$*")"
+
+    if ! podman pod exists $_ST_POD; then
+        sc_heading 1 "Creating pod"
+
+        [[ -n "$_ARG_EXPOSE" ]] &&
+            local -r _expose='--publish 8085:3306 --publish 8086:27017 --publish 9092:9092' &&
+            echo "Exposing ports..."
+
+        podman pod create \
+            --name $_ST_POD \
+            --add-host root-user:127.0.0.1 \
+            --add-host root-seed:127.0.0.1 \
+            --add-host root-wind:127.0.0.1 \
+            --add-host branch-poll:127.0.0.1 \
+            --publish 8080-8084:8080-8084 $_expose
+    fi
+
+    sc_plots_do "${_plots}" up
+
+    sc_heading 1 "Up and running"
+    sc_pod_list
+    if [[ -n "$_ARG_WATCH" ]]; then
+        _ST_START="$(date +%s)"
+        export _ST_START
+        watch -tn1 sc_pod_health
+    fi
+}
+
+function sc_pod_integration_up() {
+    local -r _build=/tmp/serenditree-build-${1//:/-}.log
+    local -r _dir=$2
+    local -r _down_after_each=$3
+
+    if [[ ! -f $_build ]] && ! podman pod exists $_ST_POD; then
+        pushd $_dir &>/dev/null
+        if [[ "$_down_after_each" == "false" ]]; then
+            echo "[INFO] Saving build order..."
+            mapfile -t _reactor \
+                < <(mvn validate | sed -rn -e '/Reactor Build Order/,/-{2,}/p' | sed -rn 's/.+ (\S+) +\[.+/\1/p')
+        fi
+        if [[ -n "${_reactor[*]}" ]]; then
+            echo "[INFO] First: ${_reactor[0]}"
+            echo "[INFO] Last : ${_reactor[-1]}"
+            echo "${_reactor[-1]}" >$_build
+        else
+            touch $_build
+        fi
+        echo "[INFO] Starting pod..."
+        popd &>/dev/null
+    else
+        echo "[WARN] Reusing existing pod..."
+    fi
+}
+
 # Stops and removes a single container.
 # $1: Name of the container to remove.
 function sc_pod_down_sub() {
@@ -32,7 +91,7 @@ function sc_pod_down() {
 
     [[ -n "$_ARG_ALL" ]] && sc_heading 1 "Shutting pod down..."
 
-    if podman pod exists serenditree; then
+    if podman pod exists $_ST_POD; then
         podman container ls -a --format '{{.Names}} {{.Image}}' |
             grep serenditree |
             grep -E "${_containers}" |
@@ -41,50 +100,41 @@ function sc_pod_down() {
 
         if [ -z "$*" ]; then
             echo -n "Removing pod..."
-            podman pod rm --force serenditree >/dev/null && echo "${_BOLD}done${_NORMAL}"
+            podman pod rm --force $_ST_POD >/dev/null && echo "${_BOLD}done${_NORMAL}"
         fi
     else
         echo "Nothing to shut down."
     fi
 }
 
-# Spins up all or defined containers/services inside the local pod by executing the "run" action of the corresponding
-# plot. If the  local pod does not yet exist, it is created.
-# $*: Optional list of services.
-function sc_pod_up() {
-    local -r _plots="$(sc_args_to_pattern "$*")"
+function sc_pod_integration_down() {
+    local -r _build=/tmp/serenditree-build-${1//:/-}.log
+    local -r _artifact=$2
+    local _down_after_all=$3
+    local _down_after_each=$4
 
-    if ! podman pod exists serenditree; then
-        sc_heading 1 "Creating pod"
+    [[ "$_down_after_each" == "true" ]] &&
+        [[ "$_down_after_all" == "false" ]] &&
+        echo "[WARN] Invalid parameter combination..." &&
+        _down_after_all=true
 
-        [[ -n "$_ARG_EXPOSE" ]] &&
-            local -r _expose='--publish 8085:3306 --publish 8086:27017 --publish 9092:9092' &&
-            echo "Exposing ports..."
-
-        podman pod create \
-            --name serenditree \
-            --add-host root-user:127.0.0.1 \
-            --add-host root-seed:127.0.0.1 \
-            --add-host root-wind:127.0.0.1 \
-            --add-host branch-poll:127.0.0.1 \
-            --publish 8080-8084:8080-8084 $_expose
-    fi
-
-    sc_plots_do "${_plots}" up
-
-    sc_heading 1 "Up and running"
-    sc_pod_list
-    if [[ -n "$_ARG_WATCH" ]]; then
-        _ST_START="$(date +%s)"
-        export _ST_START
-        watch -tn1 sc_pod_health
+    if [[ -f $_build ]]; then
+        local -r _last_artifact="$(cat $_build)"
+        if [[ "$_down_after_each" == "true" ]] ||
+                [[ -z "$_last_artifact" ]] ||
+                [[ "$_last_artifact" == "$_artifact" ]]; then
+            if [[ "$_down_after_all" == "true" ]]; then
+                echo "[INFO] Shutting down..."
+            fi
+            rm $_build
+        fi
     fi
 }
 
 # Executes deployment scripts within all or defined Java containers/services.
 # $*: Optional list of services.
 function sc_pod_deploy() {
-    podman pod exists serenditree ||
+    podman pod exists $_ST_POD ||
         { echo "ERROR: Local pod does not exists. Did you mean sc cluster deploy...?" && exit 1; }
     sc_pod_up "$*"
 }

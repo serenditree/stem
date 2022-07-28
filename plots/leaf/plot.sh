@@ -71,7 +71,7 @@ elif [[ " $* " =~ " up " ]]; then
         podman run \
             --user 0:0 \
             --log-level $_ST_LOG_LEVEL \
-            --pod serenditree \
+            --pod $_ST_POD \
             --name $_CONTAINER \
             --label serenditree.io/service=${_SERVICE} \
             --volume ${_VOLUME_SRC}:${_VOLUME_DST}:Z \

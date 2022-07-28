@@ -221,19 +221,3 @@ function sc_distro_sync() {
     buildah run --user 0:0 $_container_ref -- $_pkg_mgr clean all --noplugins
 }
 export -f sc_distro_sync
-
-# Updates base images or checks for upgrades.
-function sc_update_base_images() {
-    if [[ -n "$_ARG_UPGRADE" ]]; then
-        env | grep "_ST_FROM_" | cut -d'=' -f2 | while read -r _image; do
-            sc_heading 2 "$_image"
-            skopeo inspect docker://${_image%:*} |
-                jq -r '.RepoTags[]' |
-                sort -V |
-                sed -rn '/^[[:digit:]]+\.[[:digit:]]+\.?[[:digit:]]*$/p' |
-                tail -n5
-        done
-    else
-        env | grep "_ST_FROM_" | cut -d'=' -f2 | xargs podman pull
-    fi
-}

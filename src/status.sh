@@ -119,7 +119,7 @@ function sc_status() {
     sc_plots_inspect
 
     sc_heading 1 n "Local Pod"
-    if podman pod exists serenditree; then
+    if podman pod exists $_ST_POD; then
         sc_pod_list
     else
         echo "down"

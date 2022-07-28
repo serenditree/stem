@@ -20,6 +20,7 @@ else
     export _ST_HOME_LEAF=$_ST_HOME/src
 fi
 export _ST_LOG_LEVEL=${_ST_LOG_LEVEL:-info}
+export _ST_POD=serenditree
 
 ########################################################################################################################
 # VERSIONS

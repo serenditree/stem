@@ -68,3 +68,29 @@ function sc_setup_helm_update() {
         helm search repo $_repo --output json | jq -r '.[0] | .version'; } | column -t -s ':' -l 2 && echo
     done
 }
+
+# Updates base images or checks for upgrades.
+function sc_setup_image_update() {
+    if [[ -n "$_ARG_UPGRADE" ]]; then
+        env | grep "_ST_FROM_" | cut -d'=' -f2 | while read -r _image; do
+            sc_heading 2 "$_image"
+            skopeo inspect docker://${_image%:*} |
+                jq -r '.RepoTags[]' |
+                sort -V |
+                sed -rn '/^[[:digit:]]+\.[[:digit:]]+\.?[[:digit:]]*$/p' |
+                tail -n5
+        done
+    else
+        env | grep "_ST_FROM_" | cut -d'=' -f2 | xargs podman pull
+    fi
+}
+
+function sc_setup_maven_update() {
+    pushd $_ST_HOME_BRANCH &>/dev/null
+    echo "Searching dependency updates..."
+    mvn validate -Pversion-update |
+        sed -rn '/\[INFO\] The following version/,/\[INFO\] +$/p' |
+        sed -r -e 's/\[INFO\] +//' -e 's/.*available version.*/Latest:/' -e 's/.*are available.*/Updates:/' |
+        head -n-1
+    popd &>/dev/null
+}

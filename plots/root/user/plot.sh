@@ -45,7 +45,7 @@ elif [[ " $* " =~ " up " ]]; then
 
         podman run \
             --log-level $_ST_LOG_LEVEL \
-            --pod serenditree \
+            --pod $_ST_POD \
             --name $_CONTAINER \
             --env-file ./plot.env \
             --volume ${_VOLUME_SRC}:${_VOLUME_DST}:Z \
