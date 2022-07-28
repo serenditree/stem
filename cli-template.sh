@@ -278,9 +278,10 @@ status)
 update)
     if [[ -n "$_ARG_HELP" ]]; then
         sc_heading 2 "sc update <comp>"
-        echo "Update components."
+        echo "Update components. Without specification, all components are updated or checked for latest versions."
+        printf '\n\t%-20s%s\n' "helm" "Check for latest chart versions."
         printf '\n\t%-20s%s' "{image* | img}" "Update base images or check for upgrades. [--upgrade]"
-        printf '\n\t%-20s%s\n' "helm" "Check latest chart versions."
+        printf '\n\t%-20s%s' "{maven | mvn}" "Check for maven dependency updates."
     else
         case ${_ARG_SUB_COMMAND} in
         helm)
@@ -292,6 +293,13 @@ update)
         maven | mvn)
             sc_setup_maven_update
             ;;
+        *)
+            sc_heading 1 helm
+            sc_setup_helm_update
+            sc_heading 1 images
+            sc_setup_image_update
+            sc_heading 1 maven
+            sc_setup_maven_update
         esac
     fi
     ;;
