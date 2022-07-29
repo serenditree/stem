@@ -9,7 +9,8 @@
 function sc_git() {
     cd $_ST_HOME
     sc_heading 1 "root"
-    git "$*"
+    # shellcheck disable=SC2048
+    git $*
     git submodule foreach --recursive "sc_heading 1 \$name && git $*"
 }
 export -f sc_git

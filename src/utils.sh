@@ -40,7 +40,8 @@ function sc_prompt() {
     if [[ "$_proceed" == "y" ]]; then
         local _function=$2
         shift 2
-        $_function $*
+        # shellcheck disable=SC2068
+        $_function $@
         _exit=$?
     fi
     unset _proceed

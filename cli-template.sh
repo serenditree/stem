@@ -7,6 +7,7 @@
 _ST_HELP_DETAIL="'sc <command> --help' for details about a certain command!"
 _ST_HELP="Please type 'sc <help>' for a list of commands or $_ST_HELP_DETAIL"
 # m4_ignore(
+_ST_ARGBASH=true
 echo -n "Building Serenditree CLI..."
 argbash cli-template.sh --output cli.sh
 sed -Ei \
@@ -46,10 +47,9 @@ echo "Done"
 # ARG_OPTIONAL_BOOLEAN([dashboard], [], [Open dashboard.])
 # ARG_OPTIONAL_BOOLEAN([help], [h], [Command help. Please type sc <help> for a list of commands!])
 # ARG_LEFTOVERS([Other arguments passed to command.])
-# ARG_RESTRICT_VALUES([no-any-options])
 # ARGBASH_SET_INDENT([    ])
-# ARG_POSITIONAL_DOUBLEDASH
-# ARG_DEFAULTS_POS
+# ARG_POSITIONAL_DOUBLEDASH()
+# ARG_DEFAULTS_POS()
 # ARGBASH_GO
 # [
 
@@ -57,7 +57,7 @@ echo "Done"
 cd "$(dirname $(realpath $0))"
 
 ########################################################################################################################
-# GLOBALS
+# ARGUMENTS
 ########################################################################################################################
 
 export _ARG_COMMAND=$_arg_command
@@ -89,14 +89,6 @@ export _ARG_OPENSHIFT=${_arg_openshift/off/}
 export _ARG_LOCAL=${_arg_local/off/}
 export _ARG_DASHBOARD=${_arg_dashboard/off/}
 export _ARG_HELP=${_arg_help/off/}
-
-_ST_STAGE="dev"
-if [[ -n "$_ARG_TEST" ]]; then
-    _ST_STAGE="test"
-elif [[ -n "$_ARG_PROD" ]]; then
-    _ST_STAGE="prod"
-fi
-export _ST_STAGE
 
 ########################################################################################################################
 # IMPORT
@@ -133,13 +125,13 @@ function sc_help() {
 
     printf '\t%-20s%s\n' "build [svc]:" "Builds all or individual images."
     printf '\t%-20s%s\n' "completion:" "Adds bash-completion script to /etc/bash_completion.d/. [--all]"
-    printf '\t%-20s%s\n' "compose <cmd>:" "Run podman-compose commands."
+    printf '\t%-20s%s\n' "compose [--] <cmd>:" "Run podman-compose commands."
     printf '\t%-20s%s\n' "context|ctx [id]:" "Switch or display contexts."
     printf '\t%-20s%s\n' "database|db <db>:" "Open local database console. {user|maria|seed|mongo}"
     printf '\t%-20s%s\n' "deploy [svc]:" "Deploys all or individual services to the local stack."
     printf '\t%-20s%s\n' "env:" "Prints global environment variables based on context."
     printf '\t%-20s%s\n' "expose:" "Port-forward operational services. [--reset|--delete]"
-    printf '\t%-20s%s\n' "git <cmd>:" "Execute arbitrary git commands."
+    printf '\t%-20s%s\n' "git [--] <cmd>:" "Execute arbitrary git commands."
     printf '\t%-20s%s\n' "health|hc:" "Runs health-checks on services. [--watch]"
     printf '\t%-20s%s\n' "loc:" "Prints lines of code."
     printf '\t%-20s%s\n' "login <reg>:" "Login to configured registries."
@@ -386,10 +378,20 @@ cluster)
     tekton | tkn)
         time sc_plots_do "$(sc_args_to_pattern ${_ARG_LEFTOVERS[*]})" tekton
         ;;
+    *)
+        sc_heading 2 "Unknown cluster command: ${_ARG_SUB_COMMAND}"
+        print_help
+        ;;
     esac
     ;;
 help)
     sc_help
+    ;;
+*)
+    if [[ -z "$_ST_ARGBASH" ]]; then
+        sc_heading 2 "Unknown command: ${_ARG_COMMAND}"
+        print_help
+    fi
     ;;
 esac
 
