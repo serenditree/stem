@@ -21,7 +21,7 @@ function sc_pod_up() {
     if ! podman pod exists $_ST_POD; then
         sc_heading 1 "Creating pod"
 
-        [[ -n "$_ARG_EXPOSE" ]] &&
+        [[ -n "${_ARG_EXPOSE}${_ARG_INTEGRATION}" ]] &&
             local -r _expose='--publish 8085:3306 --publish 8086:27017 --publish 9092:9092' &&
             echo "Exposing ports..."
 
@@ -48,11 +48,22 @@ function sc_pod_up() {
 function sc_pod_integration_up() {
     local -r _build=/tmp/serenditree-build-${1//:/-}.log
     local -r _dir=$2
-    local -r _down_after_each=$3
+    local _down_after_all=$3
+    local _down_after_each=$4
 
-    if [[ ! -f $_build ]] && ! podman pod exists $_ST_POD; then
+    [[ "$_down_after_each" == "true" ]] &&
+        [[ "$_down_after_all" == "false" ]] &&
+        echo "[WARN] Invalid parameter combination..." &&
+        _down_after_all=true
+
+    if podman pod exists $_ST_POD; then
+        echo "[WARN] Reusing existing pod..."
+        local -r _pod_exists=true
+    fi
+
+    if [[ ! -f $_build ]]; then
         pushd $_dir &>/dev/null
-        if [[ "$_down_after_each" == "false" ]]; then
+        if [[ "$_down_after_all" == "true" ]]; then
             echo "[INFO] Saving build order..."
             mapfile -t _reactor \
                 < <(mvn validate | sed -rn -e '/Reactor Build Order/,/-{2,}/p' | sed -rn 's/.+ (\S+) +\[.+/\1/p')
@@ -64,10 +75,14 @@ function sc_pod_integration_up() {
         else
             touch $_build
         fi
-        echo "[INFO] Starting pod..."
         popd &>/dev/null
-    else
-        echo "[WARN] Reusing existing pod..."
+        if [[ -z "$_pod_exists" ]]; then
+            echo "[INFO] Starting pod..."
+            sc_pod_up ""
+            echo -n "[INFO] Waiting for pod..."
+            until ! sc_pod_health | grep -Eq '(starting|unhealthy)'; do :; done
+            sc_heading 2 ok
+        fi
     fi
 }
 
@@ -115,16 +130,16 @@ function sc_pod_integration_down() {
 
     [[ "$_down_after_each" == "true" ]] &&
         [[ "$_down_after_all" == "false" ]] &&
-        echo "[WARN] Invalid parameter combination..." &&
         _down_after_all=true
 
     if [[ -f $_build ]]; then
         local -r _last_artifact="$(cat $_build)"
         if [[ "$_down_after_each" == "true" ]] ||
-                [[ -z "$_last_artifact" ]] ||
-                [[ "$_last_artifact" == "$_artifact" ]]; then
+            [[ -z "$_last_artifact" ]] ||
+            [[ "$_last_artifact" == "$_artifact" ]]; then
             if [[ "$_down_after_all" == "true" ]]; then
-                echo "[INFO] Shutting down..."
+                echo "[INFO] Shutting pod down..."
+                sc_pod_down ""
             fi
             rm $_build
         fi
