@@ -61,17 +61,18 @@ if [[ " $* " =~ " build " ]]; then
     # STEP PACKAGE
     _CONTAINER_REF=$(buildah from $_BUILDAH_ARGS ${_QUALIFIED}serenditree/java-base)
 
+    echo "Adding artifacts to production image..."
     buildah add --chown 1001:0 $_CONTAINER_REF \
-        ${_MOUNT_REF_1:?}/serenditree/src/leaves/leaf-${_BRANCH}/target/quarkus-app/lib/ \
+        ${_MOUNT_REF_1:?}/serenditree/src/leaves/leaf-${_BRANCH}/target/serenditree/lib/ \
         ${_ST_CONTAINER_ROOT}/lib/
     buildah add --chown 1001:0 $_CONTAINER_REF \
-        ${_MOUNT_REF_1:?}/serenditree/src/leaves/leaf-${_BRANCH}/target/quarkus-app/*.jar \
+        ${_MOUNT_REF_1:?}/serenditree/src/leaves/leaf-${_BRANCH}/target/serenditree/*.jar \
         ${_ST_CONTAINER_ROOT}/
     buildah add --chown 1001:0 $_CONTAINER_REF \
-        ${_MOUNT_REF_1:?}/serenditree/src/leaves/leaf-${_BRANCH}/target/quarkus-app/app/ \
+        ${_MOUNT_REF_1:?}/serenditree/src/leaves/leaf-${_BRANCH}/target/serenditree/app/ \
         ${_ST_CONTAINER_ROOT}/app/
     buildah add --chown 1001:0 $_CONTAINER_REF \
-        ${_MOUNT_REF_1:?}/serenditree/src/leaves/leaf-${_BRANCH}/target/quarkus-app/quarkus/ \
+        ${_MOUNT_REF_1:?}/serenditree/src/leaves/leaf-${_BRANCH}/target/serenditree/quarkus/ \
         ${_ST_CONTAINER_ROOT}/quarkus/
 
     buildah config --user 1001:0 $_CONTAINER_REF

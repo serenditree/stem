@@ -39,16 +39,17 @@ if [[ " $* " =~ " build " ]]; then
 # UP
 ########################################################################################################################
 elif [[ " $* " =~ " up " ]]; then
-    if  [[ -z "$_ST_CONTEXT_CLUSTER" ]]; then
+    if [[ -z "$_ST_CONTEXT_CLUSTER" ]]; then
         sc_heading 1 "Starting ${_SERVICE}:${_TAG}"
         sc_container_rm $_CONTAINER
 
+        # shellcheck disable=SC2046
         podman run \
             --log-level $_ST_LOG_LEVEL \
             --pod $_ST_POD \
             --name $_CONTAINER \
             --env-file ./plot.env \
-            --volume ${_VOLUME_SRC}:${_VOLUME_DST}:Z \
+            $([[ -z "$_ARG_INTEGRATION" ]] && echo --volume ${_VOLUME_SRC}:${_VOLUME_DST}:Z) \
             --health-cmd 'mysqladmin status -uroot -p"${MARIADB_ROOT_PASSWORD}"' \
             --health-interval 3s \
             --health-retries 1 \
@@ -77,4 +78,3 @@ elif [[ " $* " =~ " up " ]]; then
         fi
     fi
 fi
-

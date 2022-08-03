@@ -46,10 +46,11 @@ function sc_pod_up() {
 }
 
 function sc_pod_integration_up() {
-    local -r _build=/tmp/serenditree-build-${1//:/-}.log
-    local -r _dir=$2
-    local _down_after_all=$3
-    local _down_after_each=$4
+    local -r _build_arg=${1:-manual}
+    local -r _build=/tmp/serenditree-build-${_build_arg//:/-}.log
+    local -r _dir="${2:-.}"
+    local _down_after_all="${3:-false}"
+    local _down_after_each="${4:-false}"
 
     [[ "$_down_after_each" == "true" ]] &&
         [[ "$_down_after_all" == "false" ]] &&
@@ -57,7 +58,7 @@ function sc_pod_integration_up() {
         _down_after_all=true
 
     if podman pod exists $_ST_POD; then
-        echo "[WARN] Reusing existing pod..."
+        echo "[INFO] Reusing existing pod..."
         local -r _pod_exists=true
     fi
 
@@ -78,9 +79,9 @@ function sc_pod_integration_up() {
         popd &>/dev/null
         if [[ -z "$_pod_exists" ]]; then
             echo "[INFO] Starting pod..."
-            sc_pod_up ""
-            echo -n "[INFO] Waiting for pod..."
-            until ! sc_pod_health | grep -Eq '(starting|unhealthy)'; do :; done
+            sc_pod_up root-{user,seed,wind} branch
+            echo -n "Waiting for pod..."
+            until sc_pod_health >/dev/null; do :; done
             sc_heading 2 ok
         fi
     fi
@@ -120,10 +121,12 @@ function sc_pod_down() {
     else
         echo "Nothing to shut down."
     fi
+    rm -f /tmp/serenditree-build-manual.log
 }
 
 function sc_pod_integration_down() {
-    local -r _build=/tmp/serenditree-build-${1//:/-}.log
+    local -r _build_arg=${1:-manual}
+    local -r _build=/tmp/serenditree-build-${_build_arg//:/-}.log
     local -r _artifact=$2
     local _down_after_all=$3
     local _down_after_each=$4
@@ -175,7 +178,11 @@ function sc_pod_logs() {
 }
 
 # Runs health-checks on services.
+# Return codes:
+# 0: All containers are healthy
+# 1: One or more containers are unhealthy
 function sc_pod_health() {
+    local _exit=0
     if [[ -n "${_ARG_WATCH}${_ARG_COMPOSE}" ]]; then
         if [[ -n "${_ARG_COMPOSE}" ]]; then
             local -r _filter="label=io.podman.compose.project=serenditree"
@@ -191,9 +198,21 @@ function sc_pod_health() {
             sort |
             column -t
     else
-        for _branch in root-{seed,user,wind} branch-{seed,user,poll} leaf; do
-            echo "$_branch: $(podman healthcheck run $_branch && echo healthy)"
+        if [[ -z "$_ARG_INTEGRATION" ]]; then
+            local -r _containers=( root-{seed,user,wind,map} branch-{seed,user,poll} leaf )
+        else
+            local -r _containers=( root-{seed,user,wind} branch-{seed,user,poll} )
+        fi
+        for _container in "${_containers[@]}"; do
+            if podman healthcheck run $_container >/dev/null; then
+                local _status=healthy
+            else
+                local _status=unhealthy
+                _exit=1
+            fi
+            echo "$_container: $_status"
         done
     fi
+    return $_exit
 }
 export -f sc_pod_health

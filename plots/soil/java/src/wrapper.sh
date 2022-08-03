@@ -9,7 +9,7 @@ mvn clean install --also-make --projects leaves/leaf-${SERENDITREE_BRANCH}
 popd >/dev/null
 
 echo "Moving build artifacts..."
-mv src/leaves/leaf-${SERENDITREE_BRANCH}/target/quarkus-app/* .
+mv src/leaves/leaf-${SERENDITREE_BRANCH}/target/serenditree/* .
 
 echo "Starting ${SERENDITREE_SERVICE}..."
 bash run.sh
