@@ -29,7 +29,7 @@ echo "Done"
 # ARG_OPTIONAL_BOOLEAN([verbose], [v], [Verbose flag.])
 # ARG_OPTIONAL_BOOLEAN([all], [a], [All...])
 # ARG_OPTIONAL_BOOLEAN([assume-yes], [y], [Assumes yes on prompts.])
-# ARG_OPTIONAL_BOOLEAN([expose], [], [Exposes database ports on local pods.])
+# ARG_OPTIONAL_BOOLEAN([expose], [E], [Exposes database ports on local pods.])
 # ARG_OPTIONAL_BOOLEAN([open], [], [Open plots.])
 # ARG_OPTIONAL_BOOLEAN([watch], [w], [Watch supported commands.])
 # ARG_OPTIONAL_BOOLEAN([init], [], [Initialization flag.])

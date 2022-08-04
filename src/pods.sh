@@ -38,10 +38,18 @@ function sc_pod_up() {
 
     sc_heading 1 "Up and running"
     sc_pod_list
-    if [[ -n "$_ARG_WATCH" ]]; then
-        _ST_START="$(date +%s)"
-        export _ST_START
-        watch -tn1 sc_pod_health
+    if [[ -n "${_ARG_WATCH}${_ARG_INTEGRATION}" ]]; then
+        sc_heading 1 "Waiting for readiness"
+        echo -n 'Running health-checks...'
+        until sc_pod_health >/dev/null; do echo -n '.'; done
+        local -r _exit=$?
+        echo 'done'
+        sc_pod_health 'done'
+        if [[ $_exit -ne 0 ]]; then
+            # Cancel integration tests!
+            sc_heading 2 "Error during startup!"
+            exit 1
+        fi
     fi
 }
 
@@ -80,9 +88,6 @@ function sc_pod_integration_up() {
         if [[ -z "$_pod_exists" ]]; then
             echo "[INFO] Starting pod..."
             sc_pod_up root-{user,seed,wind} branch
-            echo -n "Waiting for pod..."
-            until sc_pod_health >/dev/null; do :; done
-            sc_heading 2 ok
         fi
     fi
 }
@@ -178,18 +183,21 @@ function sc_pod_logs() {
 }
 
 # Runs health-checks on services.
+# $1: Argument 'done' activates the 'quick' display (see function body) when --watch is set during startup.
 # Return codes:
 # 0: All containers are healthy
 # 1: One or more containers are unhealthy
 function sc_pod_health() {
     local _exit=0
-    if [[ -n "${_ARG_WATCH}${_ARG_COMPOSE}" ]]; then
+    # quick (probably outdated health status depending on interval)
+    if [[ "${_ARG_COMMAND}${1}" != "up" ]] &&
+            { [[ -n "${_ARG_WATCH}${_ARG_COMPOSE}" ]] || [[ "$1" == "done" ]]; }; then
         if [[ -n "${_ARG_COMPOSE}" ]]; then
             local -r _filter="label=io.podman.compose.project=serenditree"
         else
             local -r _filter="pod=serenditree"
         fi
-        if [[ -n "${_ARG_WATCH}" ]]; then
+        if [[ "${1}" != "done" ]] && [[ -n "${_ARG_WATCH}" ]]; then
             local -r _duration=$(date -d "@$(($(date +%s) - _ST_START))" "+%Mm %Ss")
             echo -e "Monitoring health... ${_duration}\n"
         fi
@@ -197,11 +205,12 @@ function sc_pod_health() {
             sed -rn 's/^(\S+).*\((starting|unhealthy|healthy)\)$/\1 \2/p' |
             sort |
             column -t
+    # latest (actively run health-checks)
     else
         if [[ -z "$_ARG_INTEGRATION" ]]; then
-            local -r _containers=( root-{seed,user,wind,map} branch-{seed,user,poll} leaf )
+            local -r _containers=(root-{seed,user,wind,map} branch-{seed,user,poll} leaf)
         else
-            local -r _containers=( root-{seed,user,wind} branch-{seed,user,poll} )
+            local -r _containers=(root-{seed,user,wind} branch-{seed,user,poll})
         fi
         for _container in "${_containers[@]}"; do
             if podman healthcheck run $_container >/dev/null; then
