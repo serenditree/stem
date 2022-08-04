@@ -3,4 +3,4 @@ leaf:
   stage: dev
 ingress:
   letsencrypt:
-    issuer: staging
+    issuer: prod

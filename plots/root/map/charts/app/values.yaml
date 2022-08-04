@@ -7,4 +7,4 @@ rootMap:
   dataMountPath: ~
 ingress:
   letsencrypt:
-    issuer: staging
+    issuer: prod
