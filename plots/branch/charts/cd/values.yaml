@@ -6,7 +6,8 @@ global:
     - garden
     - poll
 branch:
-  replicas: 1
+  minReplicas: 1
+  maxReplicas: 3
   stage: dev
   jsonWebKey:
     encryption: ~

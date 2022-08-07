@@ -19,8 +19,10 @@ spec:
           value: "true"
         - name: global.context
           value: {{ .Values.global.context }}
-        - name: root-map-app.rootMap.replicas
-          value: {{ .Values.rootMap.replicas | quote }}
+        - name: root-map-app.rootMap.minReplicas
+          value: {{ .Values.rootMap.minReplicas | quote }}
+        - name: root-map-app.rootMap.maxReplicas
+          value: {{ .Values.rootMap.maxReplicas | quote }}
         - name: root-map-app.rootMap.data
           value: {{ .Values.rootMap.data }}
         - name: root-map-app.rootMap.dataMountPath

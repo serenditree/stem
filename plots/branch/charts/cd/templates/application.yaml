@@ -19,8 +19,10 @@ spec:
           value: "true"
         - name: global.context
           value: {{ .Values.global.context }}
-        - name: branch-app.branch.replicas
-          value: {{ .Values.branch.replicas | quote }}
+        - name: branch-app.branch.minReplicas
+          value: {{ .Values.branch.minReplicas | quote }}
+        - name: branch-app.branch.maxReplicas
+          value: {{ .Values.branch.maxReplicas | quote }}
         - name: branch-app.branch.stage
           value: {{ .Values.branch.stage }}
         - name: branch-app.branch.jsonWebKey.encryption

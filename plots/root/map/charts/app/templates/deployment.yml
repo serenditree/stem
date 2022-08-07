@@ -9,7 +9,7 @@ metadata:
     app.kubernetes.io/component: root
     app.kubernetes.io/part-of: serenditree
 spec:
-  replicas: {{ .Values.rootMap.replicas }}
+  replicas: {{ .Values.rootMap.minReplicas }}
   revisionHistoryLimit: 3
   strategy:
     type: RollingUpdate

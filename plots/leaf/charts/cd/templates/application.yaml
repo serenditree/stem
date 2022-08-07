@@ -19,8 +19,10 @@ spec:
           value: "true"
         - name: global.context
           value: {{ .Values.global.context }}
-        - name: leaf-app.leaf.replicas
-          value: {{ .Values.leaf.replicas | quote }}
+        - name: leaf-app.leaf.minReplicas
+          value: {{ .Values.leaf.minReplicas | quote }}
+        - name: leaf-app.leaf.maxReplicas
+          value: {{ .Values.leaf.maxReplicas | quote }}
         - name: leaf-app.leaf.stage
           value: {{ .Values.leaf.stage }}
   destination:
