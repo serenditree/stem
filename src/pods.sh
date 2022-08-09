@@ -53,12 +53,16 @@ function sc_pod_up() {
     fi
 }
 
+# Spins up a pod for integration testing.
+# $1 Timestamp of the build to be tested.
+# $2 The projects base-directory.
+# $3 Flag that indicates if the pod should be shut down after each artifact.
+# $4 Flag that indicates if the pod should be shut down after all artifacts were tested.
 function sc_pod_integration_up() {
-    local -r _build_arg=${1:-manual}
-    local -r _build=/tmp/serenditree-build-${_build_arg//:/-}.log
-    local -r _dir="${2:-.}"
-    local _down_after_all="${3:-false}"
-    local _down_after_each="${4:-false}"
+    local -r _build=/tmp/serenditree-build-${1//:/-}.log
+    local -r _dir="$2"
+    local _down_after_all=$3
+    local _down_after_each=$4
 
     [[ "$_down_after_each" == "true" ]] &&
         [[ "$_down_after_all" == "false" ]] &&
@@ -72,7 +76,7 @@ function sc_pod_integration_up() {
 
     if [[ ! -f $_build ]]; then
         pushd $_dir &>/dev/null
-        if [[ "$_down_after_all" == "true" ]]; then
+        if [[ "$_down_after_each" == "false" ]] && [[ "$_down_after_all" == "true" ]]; then
             echo "[INFO] Saving build order..."
             mapfile -t _reactor \
                 < <(mvn validate | sed -rn -e '/Reactor Build Order/,/-{2,}/p' | sed -rn 's/.+ (\S+) +\[.+/\1/p')
@@ -126,13 +130,17 @@ function sc_pod_down() {
     else
         echo "Nothing to shut down."
     fi
-    rm -f /tmp/serenditree-build-manual.log
 }
 
+# Shuts down the pod for integration testing after failure or each/all artifacts.
+# $1 Timestamp of the build to be tested.
+# $2 The projects base-directory and artifact id separated by '::'.
+# $3 Flag that indicates if the pod should be shut down after each artifact.
+# $4 Flag that indicates if the pod should be shut down after all artifacts were tested.
 function sc_pod_integration_down() {
-    local -r _build_arg=${1:-manual}
-    local -r _build=/tmp/serenditree-build-${_build_arg//:/-}.log
-    local -r _artifact=$2
+    local -r _build=/tmp/serenditree-build-${1//:/-}.log
+    local -r _dir="${2%::*}"
+    local -r _artifact="${2#*::}"
     local _down_after_all=$3
     local _down_after_each=$4
 
@@ -140,17 +148,28 @@ function sc_pod_integration_down() {
         [[ "$_down_after_all" == "false" ]] &&
         _down_after_all=true
 
+    # Shut down after each or all!
     if [[ -f $_build ]]; then
         local -r _last_artifact="$(cat $_build)"
-        if [[ "$_down_after_each" == "true" ]] ||
-            [[ -z "$_last_artifact" ]] ||
-            [[ "$_last_artifact" == "$_artifact" ]]; then
-            if [[ "$_down_after_all" == "true" ]]; then
-                echo "[INFO] Shutting pod down..."
-                sc_pod_down ""
-            fi
-            rm $_build
+    fi
+    if [[ "$_down_after_each" == "true" ]] ||
+        [[ "$_last_artifact" == "$_artifact" ]]; then
+        if [[ "$_down_after_all" == "true" ]]; then
+            echo "[INFO] Shutting pod down..."
+            sc_pod_down ""
         fi
+        rm -f $_build
+    fi
+
+    # Shut down if tests failed!
+    # shellcheck disable=SC2038
+    if [[ "$_down_after_all" == "true" ]] &&
+        ! find ${_dir}/target/failsafe-reports -name '*.txt' \
+            -exec sed -rn 's/.*Failures: ([0-9]+), Errors: ([0-9]+).*/\1\2/p' {} ';' |
+        xargs -I{} test "{}" == "00"; then
+        echo "[INFO] Shutting pod down..."
+        sc_pod_down ""
+        rm -f $_build
     fi
 }
 
@@ -191,7 +210,7 @@ function sc_pod_health() {
     local _exit=0
     # quick (probably outdated health status depending on interval)
     if [[ "${_ARG_COMMAND}${1}" != "up" ]] &&
-            { [[ -n "${_ARG_WATCH}${_ARG_COMPOSE}" ]] || [[ "$1" == "done" ]]; }; then
+        { [[ -n "${_ARG_WATCH}${_ARG_COMPOSE}" ]] || [[ "$1" == "done" ]]; }; then
         if [[ -n "${_ARG_COMPOSE}" ]]; then
             local -r _filter="label=io.podman.compose.project=serenditree"
         else
