@@ -47,10 +47,13 @@ function sc_terra_up_ingress() {
         [[ $(exo compute nlb list | wc -l) -gt 0 ]] &&
         echo "Found existing load-balancer. Aborting..." &&
         exit 1
+    echo "Deploying nginx ingress..."
     local _ingress_rc
     _ingress_rc='https://raw.githubusercontent.com/kubernetes/ingress-nginx'
     _ingress_rc+='/master/deploy/static/provider/exoscale/deploy.yaml'
     kubectl apply --filename $_ingress_rc
+    echo "Patching nginx ingress..."
+    sc_cluster_patch nginx-ingress
 
     echo "Waiting for load-balancer..."
     until [[ $(exo compute nlb list | wc -l) -gt 0 ]]; do
@@ -59,7 +62,11 @@ function sc_terra_up_ingress() {
     local _nlb_id
     _nlb_id="$(exo compute nlb list --output-template '{{.ID}}')"
     echo "Load-balancer ID: ${_nlb_id}"
-    _nlb_ip=$(exo compute nlb show "$_nlb_id" --output-format json | jq -r '.ip_address')
+    local _nlb_ip
+    until [[ -n "$_nlb_ip" ]]; do
+        _nlb_ip=$(exo compute nlb show "$_nlb_id" --output-format json | jq -r '.ip_address')
+        sleep 1s
+    done
     echo "Load-balancer IP: ${_nlb_ip}"
     echo "Updating load-balancer name..."
     exo compute nlb update "${_nlb_id}" --name serenditree
