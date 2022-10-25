@@ -28,7 +28,7 @@ variable "zone" {
 variable "service_level" {
   description = "Service level."
   type        = string
-  default     = "starter"
+  default     = "pro"
 }
 
 variable "cni" {
