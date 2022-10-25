@@ -15,8 +15,12 @@ mariadb-galera:
   existingSecret: root-user
   galera:
     name: serenditree
+    bootstrap:
+      forceBootstrap: false
+      bootstrapFromNode: 0
+      forceSafeToBootstrap: false
     mariabackup:
-      forcePassword: true
+      forcePassword: false
   db:
     name: serenditree
     user: ~

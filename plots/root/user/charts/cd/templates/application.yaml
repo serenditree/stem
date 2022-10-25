@@ -23,6 +23,12 @@ spec:
           value: {{ .Values.clusterDomain }}
         - name: mariadb-galera.db.user
           value: {{ .Values.db.user }}
+        - name: mariadb-galera.galera.bootstrap.forceBootstrap
+          value: {{ .Values.bootstrap.forceBootstrap }}
+        - name: mariadb-galera.galera.bootstrap.bootstrapFromNode
+          value: {{ .Values.bootstrap.bootstrapFromNode }}
+        - name: mariadb-galera.galera.bootstrap.forceSafeToBootstrap
+          value: {{ .Values.bootstrap.forceSafeToBootstrap }}
         - name: root-user-app.db.user
           value: {{ .Values.db.user }}
         - name: root-user-app.db.password
