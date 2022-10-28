@@ -53,5 +53,6 @@ elif [[ " $* " =~ " down " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]]; then
     elif [[ -n "${_ST_CONTEXT_IS_REMOTE}" ]]; then
         source ./terra.sh
         sc_prompt "Delete cluster?" sc_terra_down
+        sc_heading 2 "Cluster removed"
     fi
 fi

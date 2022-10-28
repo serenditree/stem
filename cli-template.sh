@@ -327,6 +327,8 @@ cluster)
             printf '\t%-20s%s\n' "--reset" "Resets the cluster in the current context."
             printf '\t%-20s%s\n' "--delete" "Deletes the cluster in the current context."
             printf '\t%-20s%s\n' "--imperative" "Use imperative scripts for cloud deletion."
+        elif [[ -n "$_ARG_DELETE" ]]; then
+            time sc_plots_do "terra-base" down
         else
             time sc_plots_do "$(sc_args_to_pattern ${_ARG_LEFTOVERS[*]})" down
         fi
