@@ -103,8 +103,8 @@ function sc_pod_down_sub() {
     local -r _start=$(date +'%s')
 
     echo "Shutting down ${_container}..."
-    podman container exists $_container && podman container stop $_container >/dev/null
-    podman container rm $_container >/dev/null &&
+    podman container exists $_container && podman container stop --time 5 $_container >/dev/null
+    podman container rm --force $_container >/dev/null &&
         echo "Shut down ${_container}...${_BOLD}ok${_NORMAL} ($(($(date +'%s') - _start))s)"
 }
 export -f sc_pod_down_sub
