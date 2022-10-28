@@ -25,6 +25,12 @@ variable "zone" {
   default     = "at-vie-1"
 }
 
+variable "kubernetes_version" {
+  description = "Kubernetes version."
+  type        = string
+  default     = "1.24.4"
+}
+
 variable "service_level" {
   description = "Service level."
   type        = string

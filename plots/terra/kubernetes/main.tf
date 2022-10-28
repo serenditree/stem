@@ -89,6 +89,7 @@ resource "exoscale_affinity" "serenditree" {
 ########################################################################################################################
 resource "exoscale_sks_cluster" "serenditree" {
   name          = "serenditree"
+  version       = var.kubernetes_version
   cni           = var.cni
   zone          = var.zone
   service_level = var.service_level
