@@ -24,11 +24,11 @@ spec:
         - name: mariadb-galera.db.user
           value: {{ .Values.db.user }}
         - name: mariadb-galera.galera.bootstrap.forceBootstrap
-          value: {{ .Values.bootstrap.forceBootstrap }}
+          value: {{ .Values.bootstrap.forceBootstrap | quote }}
         - name: mariadb-galera.galera.bootstrap.bootstrapFromNode
-          value: {{ .Values.bootstrap.bootstrapFromNode }}
+          value: {{ .Values.bootstrap.bootstrapFromNode | quote }}
         - name: mariadb-galera.galera.bootstrap.forceSafeToBootstrap
-          value: {{ .Values.bootstrap.forceSafeToBootstrap }}
+          value: {{ .Values.bootstrap.forceSafeToBootstrap | quote }}
         - name: root-user-app.db.user
           value: {{ .Values.db.user }}
         - name: root-user-app.db.password
