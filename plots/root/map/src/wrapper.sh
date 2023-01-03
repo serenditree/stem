@@ -3,7 +3,6 @@
 _MBTILES_FILE=data/osm.mbtiles
 
 if [[ -n "$SERENDITREE_DATA_URL" ]] && [[ ! -e $_MBTILES_FILE ]]; then
-    touch $_LOCK_FILE
     echo "Downloading MBtiles..."
     curl -L "$SERENDITREE_DATA_URL" -o $_MBTILES_FILE
 fi
