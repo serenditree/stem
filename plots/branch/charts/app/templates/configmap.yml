@@ -1,0 +1,12 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: branch
+  labels:
+    app.kubernetes.io/name: branch
+    app.kubernetes.io/version: {{ .Chart.AppVersion }}
+    app.kubernetes.io/component: branch
+    app.kubernetes.io/part-of: serenditree
+data:
+  SERENDITREE_SEED_WATER_RETENTION: "on"
