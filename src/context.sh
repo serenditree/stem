@@ -30,7 +30,9 @@ export -f sc_context_init_generic
 function sc_context_init_kube() {
     echo -n "Fetching kubeconfig..."
     local -r _config=~/.kube/config.sks
-    if exo compute sks kubeconfig serenditree kube-admin --group system:masters --zone at-vie-1 >$_config; then
+    local -r _ttl="$((60 * 60 * 24 * 90))"
+    if exo compute sks kubeconfig serenditree kube-admin --ttl $_ttl --group system:masters --zone at-vie-1 >$_config
+    then
         echo "${_BOLD}done${_NORMAL}"
         local -r _sks_id="$(sed -En 's/.*current-context: (.*)/\1/p' $_config)"
         # shellcheck disable=SC2155,SC2011
