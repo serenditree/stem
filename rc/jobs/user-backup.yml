@@ -15,8 +15,16 @@ spec:
       initContainers:
         - name: mariadb
           image: docker.io/bitnami/mariadb:10.6
-          command: [ "/bin/sh", "-c" ]
-          args: [ "mysqldump -h root-user -u root -p$(ROOT_PASSWORD) serenditree | gzip > /user-backup/user-backup.gz" ]
+          command:
+            - /bin/sh
+            - -c
+          args:
+           - >- 
+             mysqldump 
+             -h root-user 
+             -u root 
+             -p$(ROOT_PASSWORD) 
+             serenditree | gzip > /user-backup/user-backup.gz
           env:
             - name: ROOT_PASSWORD
               valueFrom:

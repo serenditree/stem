@@ -15,8 +15,20 @@ spec:
       initContainers:
         - name: mongodb
           image: docker.io/bitnami/mongodb:5.0
-          command: [ "/bin/sh", "-c" ]
-          args: [ "mongodump mongodb://root-seed-0.root-seed-headless:27017,root-seed-1.root-seed-headless:27017 --username root --password $(ROOT_PASSWORD) --authenticationMechanism SCRAM-SHA-256 --authenticationDatabase admin --db serenditree --archive=/seed-backup/seed-backup.gz --gzip" ]
+          command:
+           - /bin/sh
+           - -c
+          args:
+            - >-
+              mongodump
+              mongodb://root-seed-0.root-seed-headless:27017,root-seed-1.root-seed-headless:27017
+              --username root 
+              --password $(ROOT_PASSWORD)
+              --authenticationMechanism SCRAM-SHA-256 
+              --authenticationDatabase admin 
+              --db serenditree 
+              --archive=/seed-backup/seed-backup.gz
+              --gzip
           env:
             - name: ROOT_PASSWORD
               valueFrom:
@@ -30,10 +42,10 @@ spec:
         - name: exo
           image: docker.io/exoscale/cli:latest
           args:
-            - "storage"
-            - "upload"
-            - "/seed-backup/seed-backup.gz"
-            - "sos://serenditree-backup"
+            - storage
+            - upload
+            - /seed-backup/seed-backup.gz
+            - sos://serenditree-backup
           env:
             - name: EXOSCALE_CONFIG
               value: /exoscale-config/exoscale.toml
