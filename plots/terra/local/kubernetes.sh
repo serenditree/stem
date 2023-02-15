@@ -7,8 +7,6 @@
 function sc_kubernetes_local_up() {
     minikube start --profile "$_ST_CONTEXT_KUBERNETES_LOCAL" \
         --namespace serenditree \
-        --driver podman \
-        --container-runtime cri-o \
         --addons dashboard \
         --addons metrics-server \
         --addons ingress 2>&1 | sed '/#8426/d'
