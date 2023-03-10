@@ -9,8 +9,7 @@ metadata:
     app.kubernetes.io/component: leaf
     app.kubernetes.io/part-of: serenditree
 spec:
-  replicas: {{ .Values.leaf.minReplicas }}
-  revisionHistoryLimit: 3
+  revisionHistoryLimit: 1
   strategy:
     type: RollingUpdate
   selector:

@@ -12,8 +12,7 @@ metadata:
     app.kubernetes.io/component: branch
     app.kubernetes.io/part-of: serenditree
 spec:
-  replicas: {{ $.Values.branch.minReplicas }}
-  revisionHistoryLimit: 3
+  revisionHistoryLimit: 1
   strategy:
     type: RollingUpdate
   selector:
