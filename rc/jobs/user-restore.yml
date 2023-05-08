@@ -1,0 +1,53 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: user-restore
+spec:
+  template:
+    spec:
+      volumes:
+        - name: user-backup
+          emptyDir: { }
+        - name: exoscale-config
+          secret:
+            secretName: exoscale-config
+      restartPolicy: Never
+      initContainers:
+        - name: exo
+          image: docker.io/exoscale/cli:latest
+          args:
+            - storage
+            - download
+            - sos://serenditree-backup/user-backup.gz
+            - /user-backup/user-backup.gz
+          env:
+            - name: EXOSCALE_CONFIG
+              value: /exoscale-config/exoscale.toml
+          volumeMounts:
+            - mountPath: "/user-backup"
+              name: user-backup
+            - mountPath: "/exoscale-config"
+              name: exoscale-config
+      containers:
+        - name: mariadb
+          image: docker.io/bitnami/mariadb:10.6
+          command:
+            - /bin/sh
+            - -c
+          args:
+            - >-
+              gunzip < /user-backup/user-backup.gz |
+              mysql 
+              -h root-user 
+              -u root 
+              -p$(ROOT_PASSWORD) 
+              serenditree
+          env:
+            - name: ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: root-user
+                  key: database-root-password
+          volumeMounts:
+            - mountPath: "/user-backup"
+              name: user-backup

@@ -1,53 +1,56 @@
 apiVersion: batch/v1
-kind: Job
+kind: CronJob
 metadata:
   name: user-backup
 spec:
-  template:
+  schedule: "0 0 * * *"
+  jobTemplate:
     spec:
-      volumes:
-        - name: user-backup
-          emptyDir: { }
-        - name: exoscale-config
-          secret:
-            secretName: exoscale-config
-      restartPolicy: Never
-      initContainers:
-        - name: mariadb
-          image: docker.io/bitnami/mariadb:10.6
-          command:
-            - /bin/sh
-            - -c
-          args:
-           - >- 
-             mysqldump 
-             -h root-user 
-             -u root 
-             -p$(ROOT_PASSWORD) 
-             serenditree | gzip > /user-backup/user-backup.gz
-          env:
-            - name: ROOT_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: root-user
-                  key: database-root-password
-          volumeMounts:
-            - mountPath: "/user-backup"
-              name: user-backup
-      containers:
-        - name: exo
-          image: docker.io/exoscale/cli:latest
-          args:
-            - "storage"
-            - "upload"
-            - "/user-backup/user-backup.gz"
-            - "sos://serenditree-backup"
-          env:
-            - name: EXOSCALE_CONFIG
-              value: /exoscale-config/exoscale.toml
-          volumeMounts:
-            - mountPath: "/user-backup"
-              name: user-backup
-            - mountPath: "/exoscale-config"
-              name: exoscale-config
+      template:
+        spec:
+          volumes:
+            - name: user-backup
+              emptyDir: { }
+            - name: exoscale-config
+              secret:
+                secretName: exoscale-config
+          restartPolicy: OnFailure
+          initContainers:
+            - name: mariadb
+              image: docker.io/bitnami/mariadb:10.6
+              command:
+                - /bin/sh
+                - -c
+              args:
+               - >- 
+                 mysqldump 
+                 -h root-user 
+                 -u root 
+                 -p$(ROOT_PASSWORD) 
+                 serenditree | gzip > /user-backup/user-backup.gz
+              env:
+                - name: ROOT_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: root-user
+                      key: database-root-password
+              volumeMounts:
+                - mountPath: "/user-backup"
+                  name: user-backup
+          containers:
+            - name: exo
+              image: docker.io/exoscale/cli:latest
+              args:
+                - storage
+                - upload
+                - /user-backup/user-backup.gz
+                - sos://serenditree-backup
+              env:
+                - name: EXOSCALE_CONFIG
+                  value: /exoscale-config/exoscale.toml
+              volumeMounts:
+                - mountPath: "/user-backup"
+                  name: user-backup
+                - mountPath: "/exoscale-config"
+                  name: exoscale-config
 # kubectl create secret generic exoscale-config --from-file=$EXOSCALE_CONFIG --namespace serenditree

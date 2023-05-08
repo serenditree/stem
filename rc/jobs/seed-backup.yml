@@ -1,57 +1,60 @@
 apiVersion: batch/v1
-kind: Job
+kind: CronJob
 metadata:
   name: seed-backup
 spec:
-  template:
+  schedule: "0 0 * * *"
+  jobTemplate:
     spec:
-      volumes:
-        - name: seed-backup
-          emptyDir: { }
-        - name: exoscale-config
-          secret:
-            secretName: exoscale-config
-      restartPolicy: Never
-      initContainers:
-        - name: mongodb
-          image: docker.io/bitnami/mongodb:5.0
-          command:
-           - /bin/sh
-           - -c
-          args:
-            - >-
-              mongodump
-              mongodb://root-seed-0.root-seed-headless:27017,root-seed-1.root-seed-headless:27017
-              --username root 
-              --password $(ROOT_PASSWORD)
-              --authenticationMechanism SCRAM-SHA-256 
-              --authenticationDatabase admin 
-              --db serenditree 
-              --archive=/seed-backup/seed-backup.gz
-              --gzip
-          env:
-            - name: ROOT_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: root-seed
-                  key: database-root-password
-          volumeMounts:
-            - mountPath: "/seed-backup"
-              name: seed-backup
-      containers:
-        - name: exo
-          image: docker.io/exoscale/cli:latest
-          args:
-            - storage
-            - upload
-            - /seed-backup/seed-backup.gz
-            - sos://serenditree-backup
-          env:
-            - name: EXOSCALE_CONFIG
-              value: /exoscale-config/exoscale.toml
-          volumeMounts:
-            - mountPath: "/seed-backup"
-              name: seed-backup
-            - mountPath: "/exoscale-config"
-              name: exoscale-config
+      template:
+        spec:
+          volumes:
+            - name: seed-backup
+              emptyDir: { }
+            - name: exoscale-config
+              secret:
+                secretName: exoscale-config
+          restartPolicy: OnFailure
+          initContainers:
+            - name: mongodb
+              image: docker.io/bitnami/mongodb:5.0
+              command:
+               - /bin/sh
+               - -c
+              args:
+                - >-
+                  mongodump
+                  mongodb://root-seed-0.root-seed-headless:27017,root-seed-1.root-seed-headless:27017
+                  --username root 
+                  --password $(ROOT_PASSWORD)
+                  --authenticationMechanism SCRAM-SHA-256 
+                  --authenticationDatabase admin 
+                  --db serenditree 
+                  --archive=/seed-backup/seed-backup.gz
+                  --gzip
+              env:
+                - name: ROOT_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: root-seed
+                      key: database-root-password
+              volumeMounts:
+                - mountPath: "/seed-backup"
+                  name: seed-backup
+          containers:
+            - name: exo
+              image: docker.io/exoscale/cli:latest
+              args:
+                - storage
+                - upload
+                - /seed-backup/seed-backup.gz
+                - sos://serenditree-backup
+              env:
+                - name: EXOSCALE_CONFIG
+                  value: /exoscale-config/exoscale.toml
+              volumeMounts:
+                - mountPath: "/seed-backup"
+                  name: seed-backup
+                - mountPath: "/exoscale-config"
+                  name: exoscale-config
 # kubectl create secret generic exoscale-config --from-file=$EXOSCALE_CONFIG --namespace serenditree

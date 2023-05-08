@@ -1,0 +1,58 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: seed-restore
+spec:
+  template:
+    spec:
+      volumes:
+        - name: seed-backup
+          emptyDir: { }
+        - name: exoscale-config
+          secret:
+            secretName: exoscale-config
+      restartPolicy: Never
+      initContainers:
+        - name: exo
+          image: docker.io/exoscale/cli:latest
+          args:
+            - storage
+            - download
+            - sos://serenditree-backup/seed-backup.gz
+            - /seed-backup/seed-backup.gz
+          env:
+            - name: EXOSCALE_CONFIG
+              value: /exoscale-config/exoscale.toml
+          volumeMounts:
+            - mountPath: "/seed-backup"
+              name: seed-backup
+            - mountPath: "/exoscale-config"
+              name: exoscale-config
+      containers:
+        - name: mongodb
+          image: docker.io/bitnami/mongodb:5.0
+          command:
+            - /bin/sh
+            - -c
+          args:
+            - >-
+              mongorestore
+              mongodb://root-seed-0.root-seed-headless:27017,root-seed-1.root-seed-headless:27017
+              --username root 
+              --password $(ROOT_PASSWORD)
+              --authenticationMechanism SCRAM-SHA-256 
+              --authenticationDatabase admin 
+              --db serenditree 
+              --archive=/seed-backup/seed-backup.gz
+              --gzip
+              --preserveUUID
+              --drop
+          env:
+            - name: ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: root-seed
+                  key: database-root-password
+          volumeMounts:
+            - mountPath: "/seed-backup"
+              name: seed-backup
