@@ -57,4 +57,3 @@ spec:
                   name: seed-backup
                 - mountPath: "/exoscale-config"
                   name: exoscale-config
-# kubectl create secret generic exoscale-config --from-file=$EXOSCALE_CONFIG --namespace serenditree
