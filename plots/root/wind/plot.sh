@@ -63,7 +63,7 @@ if [[ " $* " =~ " build " ]]; then
 # UP
 ########################################################################################################################
 elif [[ " $* " =~ " up " ]]; then
-    if  [[ -z "$_ST_CONTEXT_CLUSTER" ]]; then
+    if [[ -z "$_ST_CONTEXT_CLUSTER" ]]; then
         sc_heading 1 "Starting ${_SERVICE}:${_TAG}"
         sc_container_rm $_CONTAINER
 
@@ -108,8 +108,8 @@ elif [[ " $* " =~ " up " ]]; then
 # DOWN
 ########################################################################################################################
 elif [[ " $* " =~ " down " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]]; then
-    sc_heading 1 "Deleting ${_SERVICE}"
-    if [[ -z "$_ARG_DRYRUN" ]]; then
+    if [[ -z "$_ARG_DRYRUN" ]] && [[ -n "$_ARG_DELETE" ]]; then
+        sc_heading 1 "Deleting ${_SERVICE}"
         argocd app delete "$_SERVICE"
         helm uninstall "$_SERVICE"
     fi

@@ -7,8 +7,8 @@
 function sc_kubernetes_local_up() {
     minikube start --profile "$_ST_CONTEXT_KUBERNETES_LOCAL" \
         --namespace serenditree \
-        --addons dashboard \
         --addons metrics-server \
+        --addons dashboard \
         --addons ingress 2>&1 | sed '/#8426/d'
 
     local -r _ip="$(minikube ip --profile "$_ST_CONTEXT_KUBERNETES_LOCAL")"
@@ -32,9 +32,7 @@ function sc_kubernetes_local_down() {
 
 function sc_kubernetes_local_reset() {
     sc_heading 2 "Deleting profile..."
-    minikube delete --profile "$_ST_CONTEXT"
-    sc_heading 2 "Removing network..."
-    sudo podman network rm minikube "$_ST_CONTEXT"
+    minikube delete --profile "$_ST_CONTEXT_KUBERNETES_LOCAL"
     sc_heading 2 "Resetting context..."
     sc_context_init
 }
