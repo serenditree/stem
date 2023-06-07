@@ -22,4 +22,6 @@ if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]]; then
             argocd app wait terra-longhorn --health
         fi
     fi
+else
+    echo "Skipped locally"
 fi

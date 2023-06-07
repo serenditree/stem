@@ -15,19 +15,19 @@ fi
 # UP
 ########################################################################################################################
 if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]]; then
-    if [[ -n "${_ST_CONTEXT_KUBERNETES_LOCAL}" ]]; then
-        source ./local/kubernetes.sh
-        sc_kubernetes_local_up
-    elif [[ -n "${_ST_CONTEXT_OPENSHIFT_LOCAL}" ]]; then
-        source ./local/openshift.sh
-        if [[ -n "$_ARG_SETUP" ]]; then
-            sc_openshift_local
-        else
-            sc_openshift_local_up
-        fi
-    elif [[ -n "${_ST_CONTEXT_IS_REMOTE}" ]]; then
-        sc_heading 1 "Setting up $_SERVICE"
-        if [[ -z "$_ARG_DRYRUN" ]]; then
+    sc_heading 1 "Setting up $_SERVICE"
+    if [[ -z "$_ARG_DRYRUN" ]]; then
+        if [[ -n "${_ST_CONTEXT_KUBERNETES_LOCAL}" ]]; then
+            source ./local/kubernetes.sh
+            sc_kubernetes_local_up
+        elif [[ -n "${_ST_CONTEXT_OPENSHIFT_LOCAL}" ]]; then
+            source ./local/openshift.sh
+            if [[ -n "$_ARG_SETUP" ]]; then
+                sc_openshift_local
+            else
+                sc_openshift_local_up
+            fi
+        elif [[ -n "${_ST_CONTEXT_IS_REMOTE}" ]]; then
             source ./terra.sh
             sc_terra_up
             if [[ -z "${_ARG_INIT}${_ARG_UPGRADE}${_ST_CONTEXT_IS_LOCAL}" ]]; then
