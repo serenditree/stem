@@ -15,12 +15,12 @@ fi
 # UP
 ########################################################################################################################
 if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]]; then
-    sc_heading 1 "Setting up $_SERVICE"
+    [[ -n "$_ARG_SETUP" ]] && sc_heading 1 "Setting up $_SERVICE"
     if [[ -z "$_ARG_DRYRUN" ]]; then
         if [[ -n "${_ST_CONTEXT_KUBERNETES_LOCAL}" ]]; then
             source ./local/kubernetes.sh
             sc_kubernetes_local_up
-            sc_setup_project
+            [[ -n "$_ARG_SETUP" ]] && sc_setup_project
         elif [[ -n "${_ST_CONTEXT_OPENSHIFT_LOCAL}" ]]; then
             source ./local/openshift.sh
             if [[ -n "$_ARG_SETUP" ]]; then

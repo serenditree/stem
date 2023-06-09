@@ -88,12 +88,6 @@ elif [[ " $* " =~ " up " ]]; then
         else
             argocd app sync "$_SERVICE"
             argocd app wait "$_SERVICE" --health
-            argocd app set "$_SERVICE" --parameter root-wind-app.kafka=true
-            argocd app sync "$_SERVICE"
-            argocd app wait "$_SERVICE" --health
-            argocd app set "$_SERVICE" --parameter root-wind-app.topic=true
-            argocd app sync "$_SERVICE"
-            argocd app wait "$_SERVICE" --health
         fi
 
         echo "Adding root wind service alias..."
