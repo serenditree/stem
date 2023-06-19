@@ -119,6 +119,7 @@ elif [[ " $* " =~ " up " ]]; then
         [[ -z "$_ARG_DRYRUN" ]] && _ST_HELM_NAME=root-map
         helm $_ST_HELM_CMD $_ST_HELM_NAME ./charts/cd \
             --set "global.context=$_ST_CONTEXT" \
+            --set "ingress.letsencrypt.issuer=$_ARG_ISSUER" \
             --set "rootMap.data=$_ST_DATA_URL" \
             --set "rootMap.dataMountPath=$_VOLUME_DST" \
             --set "rootMap.stage=$_ST_STAGE" | $_ST_HELM_PIPE
@@ -126,6 +127,13 @@ elif [[ " $* " =~ " up " ]]; then
         if [[ -z "$_ARG_DRYRUN" ]]; then
             argocd app sync root-map
             argocd app wait root-map --health
+        else
+            helm $_ST_HELM_CMD $_ST_HELM_NAME ./charts/app \
+                --set "global.context=$_ST_CONTEXT" \
+                --set "ingress.letsencrypt.issuer=$_ARG_ISSUER" \
+                --set "rootMap.data=$_ST_DATA_URL" \
+                --set "rootMap.dataMountPath=$_VOLUME_DST" \
+                --set "rootMap.stage=$_ST_STAGE" | $_ST_HELM_PIPE
         fi
     fi
 ########################################################################################################################

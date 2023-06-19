@@ -90,11 +90,17 @@ elif [[ " $* " =~ " up " ]]; then
 
         [[ -z "$_ARG_DRYRUN" ]] && _ST_HELM_NAME=leaf
         helm $_ST_HELM_CMD $_ST_HELM_NAME ./charts/cd \
-            --set "global.context=$_ST_CONTEXT" | $_ST_HELM_PIPE
+            --set "global.context=$_ST_CONTEXT" \
+            --set "ingress.letsencrypt.issuer=$_ARG_ISSUER" | $_ST_HELM_PIPE
+
 
         if [[ -z "$_ARG_DRYRUN" ]]; then
             argocd app sync leaf
             argocd app wait leaf --health
+        else
+            helm $_ST_HELM_CMD $_ST_HELM_NAME ./charts/app \
+                --set "global.context=$_ST_CONTEXT" \
+                --set "ingress.letsencrypt.issuer=$_ARG_ISSUER" | $_ST_HELM_PIPE
         fi
     fi
 ########################################################################################################################

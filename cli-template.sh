@@ -39,6 +39,7 @@ echo "Done"
 # ARG_OPTIONAL_BOOLEAN([delete], [], [Deletion flag.])
 # ARG_OPTIONAL_BOOLEAN([imperative], [], [Imperative flag.])
 # ARG_OPTIONAL_SINGLE([data], [d], [Pass arbitrary data.])
+# ARG_OPTIONAL_SINGLE([issuer], [], [Set let's encrypt issuer to prod or staging.], [prod])
 # ARG_OPTIONAL_BOOLEAN([compose], [], [Run or build for podman-compose.])
 # ARG_OPTIONAL_BOOLEAN([integration], [], [Run for integration testing.])
 # ARG_OPTIONAL_BOOLEAN([kubernetes], [k], [Use vanilla kubernetes.])
@@ -81,6 +82,7 @@ export _ARG_RESET=${_arg_reset/off/}
 export _ARG_DELETE=${_arg_delete/off/}
 export _ARG_IMPERATIVE=${_arg_imperative/off/}
 export _ARG_WATCH=${_arg_watch/off/}
+export _ARG_ISSUER=$_arg_issuer
 export _ARG_DATA=$_arg_data
 export _ARG_COMPOSE=${_arg_compose/off/}
 export _ARG_INTEGRATION=${_arg_integration/off/}
@@ -273,7 +275,7 @@ update)
         echo "Update components. Without specification, all components are updated or checked for latest versions."
         printf '\n\t%-20s%s\n' "helm" "Check for latest chart versions."
         printf '\n\t%-20s%s' "{image* | img}" "Update base images or check for upgrades. [--upgrade]"
-        printf '\n\t%-20s%s' "{maven | mvn}" "Check for maven dependency updates."
+        printf '\n\t%-20s%s\n' "{maven | mvn}" "Check for maven dependency updates."
     else
         case ${_ARG_SUB_COMMAND} in
         helm)

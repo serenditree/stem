@@ -25,6 +25,8 @@ spec:
           value: {{ .Values.leaf.maxReplicas | quote }}
         - name: leaf-app.leaf.stage
           value: {{ .Values.leaf.stage }}
+        - name: leaf-app.ingress.letsencrypt.issuer
+          value: {{ .Values.ingress.letsencrypt.issuer }}
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: serenditree

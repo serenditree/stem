@@ -24,6 +24,7 @@ _ST_HELP="Please type 'sc <help>' for a list of commands or $_ST_HELP_DETAIL"
 # ARG_OPTIONAL_BOOLEAN([delete],[],[Deletion flag.])
 # ARG_OPTIONAL_BOOLEAN([imperative],[],[Imperative flag.])
 # ARG_OPTIONAL_SINGLE([data],[d],[Pass arbitrary data.])
+# ARG_OPTIONAL_SINGLE([issuer],[],[Set let's encrypt issuer to prod or staging.],[prod])
 # ARG_OPTIONAL_BOOLEAN([compose],[],[Run or build for podman-compose.])
 # ARG_OPTIONAL_BOOLEAN([integration],[],[Run for integration testing.])
 # ARG_OPTIONAL_BOOLEAN([kubernetes],[k],[Use vanilla kubernetes.])
@@ -79,6 +80,7 @@ _arg_reset="off"
 _arg_delete="off"
 _arg_imperative="off"
 _arg_data=
+_arg_issuer="prod"
 _arg_compose="off"
 _arg_integration="off"
 _arg_kubernetes="off"
@@ -90,7 +92,7 @@ _arg_help="off"
 
 print_help()
 {
-    printf 'Usage: %s [-T|--test] [-P|--prod] [-D|--dryrun] [-v|--verbose] [-a|--all] [-y|--assume-yes] [-E|--expose] [--open] [-w|--watch] [--init] [--setup] [--upgrade] [--reset] [--delete] [--imperative] [-d|--data <arg>] [--compose] [--integration] [-k|--kubernetes] [-o|--openshift] [-l|--local] [--dashboard] [-h|--help] [--] <command> ... \n' " sc" && echo
+    printf 'Usage: %s [-T|--test] [-P|--prod] [-D|--dryrun] [-v|--verbose] [-a|--all] [-y|--assume-yes] [-E|--expose] [--open] [-w|--watch] [--init] [--setup] [--upgrade] [--reset] [--delete] [--imperative] [-d|--data <arg>] [--issuer <arg>] [--compose] [--integration] [-k|--kubernetes] [-o|--openshift] [-l|--local] [--dashboard] [-h|--help] [--] <command> ... \n' " sc" && echo
     printf '\t%-20s%s\n' "<command>:" "Command to execute. Please type sc <help> for a list of commands!"
     printf '\t%-20s%s\n' "... :" "Other arguments passed to command."
     printf '\t%-20s%s\n' "-T, --test:" "Sets the target stage to test. (default is dev)"
@@ -109,6 +111,7 @@ print_help()
     printf '\t%-20s%s\n' "--delete:" "Deletion flag."
     printf '\t%-20s%s\n' "--imperative:" "Imperative flag."
     printf '\t%-20s%s\n' "-d, --data:" "Pass arbitrary data. (no default)"
+    printf '\t%-20s%s\n' "--issuer:" "Set let's encrypt issuer to prod or staging. (default: 'prod')"
     printf '\t%-20s%s\n' "--compose:" "Run or build for podman-compose."
     printf '\t%-20s%s\n' "--integration:" "Run for integration testing."
     printf '\t%-20s%s\n' "-k, --kubernetes:" "Use vanilla kubernetes."
@@ -271,6 +274,14 @@ parse_commandline()
             -d*)
                 _arg_data="${_key##-d}"
                 ;;
+            --issuer)
+                test $# -lt 2 && die "Missing value for the optional argument '$_key'." 1
+                _arg_issuer="$2"
+                shift
+                ;;
+            --issuer=*)
+                _arg_issuer="${_key##--issuer=}"
+                ;;
             --no-compose|--compose)
                 _arg_compose="on"
                 test "${1:0:5}" = "--no-" && _arg_compose="off"
@@ -408,6 +419,7 @@ export _ARG_RESET=${_arg_reset/off/}
 export _ARG_DELETE=${_arg_delete/off/}
 export _ARG_IMPERATIVE=${_arg_imperative/off/}
 export _ARG_WATCH=${_arg_watch/off/}
+export _ARG_ISSUER=$_arg_issuer
 export _ARG_DATA=$_arg_data
 export _ARG_COMPOSE=${_arg_compose/off/}
 export _ARG_INTEGRATION=${_arg_integration/off/}
@@ -600,7 +612,7 @@ update)
         echo "Update components. Without specification, all components are updated or checked for latest versions."
         printf '\n\t%-20s%s\n' "helm" "Check for latest chart versions."
         printf '\n\t%-20s%s' "{image* | img}" "Update base images or check for upgrades. [--upgrade]"
-        printf '\n\t%-20s%s' "{maven | mvn}" "Check for maven dependency updates."
+        printf '\n\t%-20s%s\n' "{maven | mvn}" "Check for maven dependency updates."
     else
         case ${_ARG_SUB_COMMAND} in
         helm)

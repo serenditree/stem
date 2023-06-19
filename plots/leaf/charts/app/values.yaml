@@ -4,4 +4,4 @@ leaf:
   stage: dev
 ingress:
   letsencrypt:
-    issuer: prod
+    issuer: ~

@@ -3,6 +3,7 @@ global:
   clusterDomain: ~
 ingress:
   letsencrypt:
+    issuer: ~
     email: ~
 strimzi:
   kafdrop:

@@ -9,13 +9,11 @@ metadata:
     nginx.ingress.kubernetes.io/from-to-www-redirect: "true"
     cert-manager.io/issuer: "lets-encrypt-{{ .Values.ingress.letsencrypt.issuer }}"
 spec:
-  {{- if hasSuffix "local" .Values.global.context }}
   tls:
     - hosts:
         - www.serenditree.io
         - serenditree.io
       secretName: serenditree-tls-{{ .Values.ingress.letsencrypt.issuer }}
-  {{- end }}
   rules:
     - host: serenditree.io
       http:

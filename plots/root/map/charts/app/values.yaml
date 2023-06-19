@@ -8,4 +8,4 @@ rootMap:
   dataMountPath: ~
 ingress:
   letsencrypt:
-    issuer: prod
+    issuer: ~

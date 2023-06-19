@@ -130,20 +130,20 @@ elif [[ " $* " =~ " up " ]]; then
         sc_branch_secrets helm | xargs \
             helm $_ST_HELM_CMD $_ST_HELM_NAME ./charts/cd \
             --set "global.context=$_ST_CONTEXT" \
+            --set "ingress.letsencrypt.issuer=$_ARG_ISSUER" \
             --set "branch.jsonWebKey.encryption=$(pass serenditree/json.web.key)" \
             --set "branch.jsonWebKey.signature=$(pass serenditree/json.web.key)" | $_ST_HELM_PIPE
-
-        if [[ -n "$_ARG_DRYRUN" ]]; then
-            sc_branch_secrets helm | xargs \
-                helm $_ST_HELM_CMD $_ST_HELM_NAME ./charts/app \
-                --set "global.context=$_ST_CONTEXT" \
-                --set "branch.jsonWebKey.encryption=$(pass serenditree/json.web.key)" \
-                --set "branch.jsonWebKey.signature=$(pass serenditree/json.web.key)" | $_ST_HELM_PIPE
-        fi
 
         if [[ -z "$_ARG_DRYRUN" ]]; then
             argocd app sync branch
             argocd app wait branch --health
+        else
+            sc_branch_secrets helm | xargs \
+                helm $_ST_HELM_CMD $_ST_HELM_NAME ./charts/app \
+                --set "global.context=$_ST_CONTEXT" \
+                --set "ingress.letsencrypt.issuer=$_ARG_ISSUER" \
+                --set "branch.jsonWebKey.encryption=$(pass serenditree/json.web.key)" \
+                --set "branch.jsonWebKey.signature=$(pass serenditree/json.web.key)" | $_ST_HELM_PIPE
         fi
     fi
 ########################################################################################################################

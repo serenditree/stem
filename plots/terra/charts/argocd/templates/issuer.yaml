@@ -16,6 +16,8 @@ spec:
       valueFiles:
         - values.yaml
       parameters:
+        - name: letsencrypt.issuer
+          value: {{ .Values.ingress.letsencrypt.issuer }}
         - name: letsencrypt.email
           value: {{ .Values.ingress.letsencrypt.email }}
   destination:

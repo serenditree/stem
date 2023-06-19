@@ -49,6 +49,7 @@ if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "$_ARG_SET
     helm $_ST_HELM_CMD $_ST_HELM_NAME . \
         --set "global.context=$_ST_CONTEXT" \
         --set "global.clusterDomain=$_cluster_domain" \
+        --set "ingress.letsencrypt.issuer=$_ARG_ISSUER" \
         --set "ingress.letsencrypt.email=$(pass serenditree/contact)" \
         --set "tekton.basic.github=${_github_token#*:}" \
         --set "tekton.basic.quay=${_quay_token#*:}" \
