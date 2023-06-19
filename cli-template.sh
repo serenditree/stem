@@ -160,6 +160,7 @@ function sc_help() {
     printf '\t%-20s%s\n' "patch <arg>:" "Applies patches to the current cluster."
     printf '\t%-20s%s\n' "registry [img]:" "Inspects the OpenShift image registry."
     printf '\t%-20s%s\n' "resources|rc:" "Lists project resources."
+    printf '\t%-20s%s\n' "restore:" "Restore databases."
     printf '\t%-20s%s\n' "certificate|cert:" "Prints certificate information."
     printf '\t%-20s%s\n' "tekton|tkn [svc]:" "Triggers tekton runs for all or individual services."
 
@@ -375,6 +376,9 @@ cluster)
         ;;
     resources | rc)
         time sc_cluster_resources
+        ;;
+    restore)
+        time sc_cluster_restore
         ;;
     cert*)
         time sc_cluster_certificate

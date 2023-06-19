@@ -49,6 +49,13 @@ function sc_cluster_status() {
 }
 export -f sc_cluster_status
 
+# Restores databases 
+function sc_cluster_restore() {
+    kubectl create secret generic exoscale-config --from-file=$EXOSCALE_CONFIG --namespace serenditree
+    kubectl create --filename "${_ST_HOME_STEM}/rc/jobs/user-restore.yml" --namespace serenditree
+    kubectl create --filename "${_ST_HOME_STEM}/rc/jobs/seed-restore.yml" --namespace serenditree
+}
+
 # Applies predefined patches to cluster resources.
 # $1: Patch to apply.
 function sc_cluster_patch() {
