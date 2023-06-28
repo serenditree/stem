@@ -7,7 +7,7 @@
 function sc_kubernetes_local_up() {
     if minikube profile list | grep -q "$_ST_CONTEXT_KUBERNETES_LOCAL"; then
         minikube profile "$_ST_CONTEXT_KUBERNETES_LOCAL"
-        minikube start
+        minikube start --namespace serenditree
     else
         minikube start --profile "$_ST_CONTEXT_KUBERNETES_LOCAL" \
             --namespace serenditree \
@@ -19,10 +19,6 @@ function sc_kubernetes_local_up() {
             --addons metrics-server \
             --addons dashboard 2>&1 | sed '/#8426/d'
     fi
-
-    local -r _ip="$(minikube ip --profile "$_ST_CONTEXT_KUBERNETES_LOCAL")"
-    sudo sed -i '/serenditree.io/d' /etc/hosts
-    echo "$_ip serenditree.io" | sudo tee -a /etc/hosts
 
     if [[ -n "$_ARG_DASHBOARD" ]]; then
         sc_cluster_dashboard
