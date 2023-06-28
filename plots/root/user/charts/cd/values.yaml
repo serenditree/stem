@@ -7,6 +7,6 @@ db:
 rootUser:
   password: ~
 bootstrap:
-  forceBootstrap: false
+  forceBootstrap: true
   bootstrapFromNode: 0
-  forceSafeToBootstrap: false
+  forceSafeToBootstrap: true

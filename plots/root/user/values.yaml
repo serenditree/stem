@@ -16,9 +16,9 @@ mariadb-galera:
   galera:
     name: serenditree
     bootstrap:
-      forceBootstrap: false
+      forceBootstrap: true
       bootstrapFromNode: 0
-      forceSafeToBootstrap: false
+      forceSafeToBootstrap: true
     mariabackup:
       forcePassword: false
   db:
