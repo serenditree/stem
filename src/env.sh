@@ -54,6 +54,7 @@ fi
 export _ST_VERSION_JAVA=11
 export _ST_VERSION_NODE=18
 export _ST_VERSION_MVN=3.8.4
+export _ST_VERSION_FLUENTD=1.15.1
 export _ST_VERSION_MONGODB=5.0
 export _ST_VERSION_MARIADB=10.6
 export _ST_VERSION_NGINX=1.21
@@ -76,6 +77,7 @@ export _ST_DNF_OPTS_HOST="--releasever $_ST_VERSION_FEDORA $_ST_DNF_OPTS"
 # BASE IMAGES
 ########################################################################################################################
 
+export _ST_FROM_ROOT_BREEZE=docker.io/bitnami/fluentd:${_ST_VERSION_FLUENTD}
 export _ST_FROM_ROOT_SEED=docker.io/bitnami/mongodb:${_ST_VERSION_MONGODB}
 export _ST_FROM_ROOT_USER=docker.io/bitnami/mariadb:${_ST_VERSION_MARIADB}
 export _ST_FROM_LEAF=docker.io/bitnami/nginx:${_ST_VERSION_NGINX}
