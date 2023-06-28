@@ -40,7 +40,8 @@ function sc_setup_helm() {
         for _repo in bitnami:https://charts.bitnami.com/bitnami \
             longhorn:https://charts.longhorn.io \
             strimzi:https://strimzi.io/charts \
-            jetstack:https://charts.jetstack.io; do
+            jetstack:https://charts.jetstack.io \
+            apisix:https://charts.apiseven.com; do
             echo -n "${_repo%%:*}..."
             if helm repo ls | grep -Eq "^${_repo%%:*}"; then
                 sc_heading 2 "set"
@@ -60,7 +61,8 @@ function sc_setup_helm_update() {
         bitnami/mariadb-galera \
         longhorn/longhorn \
         strimzi/strimzi-kafka-operator \
-        jetstack/cert-manager; do
+        jetstack/cert-manager \
+        apisix/apisix; do
         { find $_SC_HOME_STEM -name Chart.yaml -exec grep -hA2 "name: ${_repo#*/}" {} \+ |
             sed -r -e 's/^[- ]+//' |
             sed -r '/^$/d'
