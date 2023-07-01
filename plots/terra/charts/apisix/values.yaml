@@ -7,10 +7,11 @@ apisix:
     config:
       apisix:
         serviceNamespace: apisix
+        adminKey: efaf740f001e76826a7c09257c590d1a
   autoscaling:
     enabled: true
     minReplicas: 1
-    maxReplicas: 10
+    maxReplicas: 6
   service:
     type: NodePort
   podSecurityContext:
@@ -45,7 +46,6 @@ apisix:
         viewer: 4e81869c01fe0825a5952cf62632d7a0
       allow:
         ipList: []
-
     plugins:
       - api-breaker
       - authz-keycloak
@@ -128,12 +128,6 @@ apisix:
 ########################################################################################################################
   dashboard:
     enabled: true
-    config:
-      authentication:
-        secret: c60a7c0341cac3c948b1e323373782d7
-        users:
-          - username: serenditree
-            password: e163D09.1961b30E
   etcd:
     enabled: true
 ########################################################################################################################
@@ -143,6 +137,6 @@ apisix:
     serviceMonitor:
       enabled: true
       namespace: apisix
-      labels:
-        release: kube-prometheus-stack
+#      labels:
+#        release: kube-prometheus-stack
 

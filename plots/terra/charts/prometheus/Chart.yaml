@@ -1,0 +1,11 @@
+apiVersion: v2
+type: application
+name: terra-prometheus
+description: "Prometheus resources"
+version: 0.0.1
+appVersion: "0.0.1"
+
+dependencies:
+  - name: kube-prometheus-stack
+    repository: https://prometheus-community.github.io/helm-charts
+    version: 47.1.0

@@ -1,0 +1,38 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: terra-apisix
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: 'git@github.com:serenditree/stem.git'
+    path: plots/terra/charts/apisix
+    targetRevision: dev
+    helm:
+      valueFiles:
+        - values.yaml
+      parameters:
+        - name: apisix.ingress-controller.adminKey
+          value: {{ .Values.apisix.admin.credentials.admin }}
+        - name: apisix.apisix.admin.credentials.admin
+          value: {{ .Values.apisix.admin.credentials.admin }}
+        - name: apisix.apisix.admin.credentials.viewer
+          value: {{ .Values.apisix.admin.credentials.viewer }}
+        - name: apisix.dashboard.config.authentication.secret
+          value: {{ .Values.apisix.dashboard.secret }}
+        - name: apisix.dashboard.enabled
+          value: {{ .Values.apisix.dashboard.enabled }}
+        - name: apisix.dashboard.config.users[0].username
+          value: {{ .Values.apisix.dashboard.username }}
+        - name: apisix.dashboard.config.users[0].password
+          value: {{ .Values.apisix.dashboard.password }}
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: apisix
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true

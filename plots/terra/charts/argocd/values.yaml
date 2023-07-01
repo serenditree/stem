@@ -1,6 +1,16 @@
 global:
   context: ~
   clusterDomain: ~
+apisix:
+  admin:
+    credentials:
+      admin: ~
+      viewer: ~
+  dashboard:
+    enabled: true
+    secret: ~
+    username: ~
+    password: ~
 ingress:
   letsencrypt:
     issuer: ~

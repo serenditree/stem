@@ -1,0 +1,24 @@
+# only local for now
+{{- if hasPrefix "serenditree-kubernetes-" .Values.global.context }}
+apiVersion: apisix.apache.org/v2
+kind: ApisixRoute
+metadata:
+  name: branch
+spec:
+  http:
+    {{- range .Values.global.branches }}
+    - name: {{ . }}
+      match:
+        hosts:
+          - serenditree.io
+        paths:
+          - /api/v1/{{ . }}
+      backends:
+          {{- if eq "garden" . }}
+        - serviceName: branch-seed
+          {{- else }}
+        - serviceName: branch-{{ . }}
+          {{- end}}
+          servicePort: 8080
+    {{- end }}
+  {{- end }}

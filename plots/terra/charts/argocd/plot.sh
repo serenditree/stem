@@ -41,6 +41,7 @@ if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "$_ARG_SET
     fi
 
     _cluster_domain=$(sc_context_cluster_domain)
+    _apisix_admin=$(pass serenditree/apisix.admin)
     _github_token=$(pass serenditree/github.com)
     _quay_token=$(pass serenditree/quay.io)
     _redhat_token=$(pass serenditree/registry.redhat.io)
@@ -49,6 +50,11 @@ if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "$_ARG_SET
     helm $_ST_HELM_CMD $_ST_HELM_NAME . \
         --set "global.context=$_ST_CONTEXT" \
         --set "global.clusterDomain=$_cluster_domain" \
+        --set "apisix.admin.credentials.admin=${_apisix_admin#*:}" \
+        --set "apisix.admin.credentials.viewer=$(pass serenditree/apisix.viewer)" \
+        --set "apisix.dashboard.secret=$(pass serenditree/json.web.key)" \
+        --set "apisix.dashboard.username=${_apisix_admin%:*}" \
+        --set "apisix.dashboard.password=${_apisix_admin#*:}" \
         --set "ingress.letsencrypt.issuer=$_ARG_ISSUER" \
         --set "ingress.letsencrypt.email=$(pass serenditree/contact)" \
         --set "tekton.basic.github=${_github_token#*:}" \
