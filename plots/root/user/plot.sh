@@ -3,7 +3,7 @@
 # ROOT-USER
 ########################################################################################################################
 _SERVICE=root-user
-_ORDINAL="12"
+_ORDINAL="14"
 
 _IMAGE=serenditree/root-user
 _VERSION=latest
