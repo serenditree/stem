@@ -1,3 +1,4 @@
+{{- if .Values.apisix.metrics.serviceMonitor.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
@@ -11,4 +12,4 @@ spec:
       rules:
         - alert: apisix_http_status_errors
           expr: count(rate(apisix_http_status{code=~"(4|5).*"}[10m])) > 100
-
+{{- end }}

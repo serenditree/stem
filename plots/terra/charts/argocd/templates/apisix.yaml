@@ -25,7 +25,7 @@ spec:
         - name: apisix.dashboard.config.authentication.secret
           value: {{ .Values.apisix.dashboard.secret }}
         - name: apisix.dashboard.enabled
-          value: {{ .Values.apisix.dashboard.enabled }}
+          value: {{ .Values.apisix.dashboard.enabled | squote }}
         - name: apisix.dashboard.config.users[0].username
           value: {{ .Values.apisix.dashboard.username }}
         - name: apisix.dashboard.config.users[0].password

@@ -33,6 +33,8 @@ apisix:
 ########################################################################################################################
   apisix:
     enableIPv6: false
+    ssl:
+      enabled: true
     discovery:
       enabled: true
       registry:
@@ -135,8 +137,8 @@ apisix:
 ########################################################################################################################
   metrics:
     serviceMonitor:
-      enabled: true
+      enabled: false
       namespace: apisix
-#      labels:
-#        release: kube-prometheus-stack
+      labels:
+        release: kube-prometheus-stack
 
