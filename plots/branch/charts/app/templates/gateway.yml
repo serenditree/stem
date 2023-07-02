@@ -1,5 +1,5 @@
 # only local for now
-{{- if hasPrefix "serenditree-kubernetes-" .Values.global.context }}
+{{- if eq "serenditree-kubernetes-local" .Values.global.context }}
 apiVersion: apisix.apache.org/v2
 kind: ApisixRoute
 metadata:
