@@ -20,6 +20,7 @@ if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "$_ARG_SET
         kubectl create namespace argocd
         kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
         echo "Waiting for argocd..."
+        sleep 30s
         kubectl wait --for condition=ready --all pod --namespace argocd --timeout 5m
         echo "Patching argocd config map..."
         sc_cluster_patch argocd-cm
