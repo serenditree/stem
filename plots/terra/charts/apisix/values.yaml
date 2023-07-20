@@ -4,6 +4,7 @@
 apisix:
   fullnameOverride: apisix
   ingress-controller:
+    fullnameOverride: apisix-ingress-controller
     enabled: true
     config:
       apisix:
@@ -130,8 +131,10 @@ apisix:
 # DASHBOARD
 ########################################################################################################################
   dashboard:
+    fullnameOverride: apisix-dashboard
     enabled: true
   etcd:
+    fullnameOverride: apisix-etcd
     enabled: true
 ########################################################################################################################
 # METRICS
