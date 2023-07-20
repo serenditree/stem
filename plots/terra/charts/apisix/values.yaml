@@ -2,6 +2,7 @@
 # GLOBAL
 ########################################################################################################################
 apisix:
+  fullnameOverride: apisix
   ingress-controller:
     enabled: true
     config:

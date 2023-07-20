@@ -12,7 +12,7 @@ function sc_kubernetes_local_up() {
         minikube start --profile "$_ST_CONTEXT_KUBERNETES_LOCAL" \
             --namespace serenditree \
             --driver kvm2 \
-            --kubernetes-version v1.27.0-rc.0 \
+            --kubernetes-version v1.27.3 \
             --cpus 8 \
             --memory 32000 \
             --disk-size 32000 \
