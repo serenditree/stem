@@ -48,4 +48,8 @@ spec:
       kind: StatefulSet
       jqPathExpressions:
         - .spec.template.metadata.annotations
+    - group: v1
+      kind: Secret
+      jqPathExpressions:
+        - .data
 {{- end }}
