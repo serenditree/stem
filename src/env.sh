@@ -146,7 +146,11 @@ if [[ -n "$_ARG_DRYRUN" ]]; then
     _ST_HELM_CMD="template"
     _ST_HELM_PIPE="yq eval"
 else
-    _ST_HELM_CMD="install"
+    if [[ -z "$_ARG_UPGRADE" ]]; then
+        _ST_HELM_CMD="install"
+    else
+        _ST_HELM_CMD="upgrade"
+    fi
     _ST_HELM_PIPE="tee"
 fi
 export _ST_HELM_CMD _ST_HELM_PIPE

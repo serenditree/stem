@@ -14,9 +14,9 @@ fi
 ########################################################################################################################
 # UP
 ########################################################################################################################
-if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "$_ARG_SETUP" ]]; then
+if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "${_ARG_SETUP}${_ARG_UPGRADE}" ]]; then
     sc_heading 1 "Setting up $_SERVICE"
-    if [[ -z "$_ARG_DRYRUN" ]]; then
+    if [[ -z "${_ARG_DRYRUN}${_ARG_UPGRADE}" ]]; then
         kubectl create namespace argocd
         kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
         echo "Waiting for argocd..."
