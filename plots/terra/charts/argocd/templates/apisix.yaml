@@ -48,7 +48,7 @@ spec:
       kind: StatefulSet
       jqPathExpressions:
         - .spec.template.metadata.annotations
-    - group: v1
+    - group: '*'
       kind: Secret
       jqPathExpressions:
         - .data
