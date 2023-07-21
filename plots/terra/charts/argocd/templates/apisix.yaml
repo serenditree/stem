@@ -47,5 +47,5 @@ spec:
     - group: apps
       kind: StatefulSet
       jqPathExpressions:
-        - .spec.metadata.annotations
+        - .spec.template.metadata.annotations
 {{- end }}
