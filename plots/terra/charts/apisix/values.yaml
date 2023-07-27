@@ -141,7 +141,7 @@ apisix:
 ########################################################################################################################
   metrics:
     serviceMonitor:
-      enabled: false
+      enabled: true
       namespace: apisix
       labels:
         release: kube-prometheus-stack
