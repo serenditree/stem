@@ -1,4 +1,4 @@
-{{- if eq "serenditree-kubernetes-local" .Values.global.context }}
+{{- if hasSuffix "-local" .Values.global.context }}
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
