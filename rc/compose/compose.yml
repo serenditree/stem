@@ -159,3 +159,9 @@ services:
       KAFKA_BROKERCONNECT: root-wind:9092
     depends_on:
       - root-wind
+
+volumes:
+  root-map:
+  root-user:
+  root-seed:
+  root-wind:
