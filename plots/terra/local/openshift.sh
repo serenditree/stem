@@ -43,20 +43,16 @@ function sc_openshift_local_prepare_setup() {
 
 # Installs, upgrades or resets CodeReady Containers (CRC).
 function sc_openshift_local_setup() {
-    if [[ -z "${_ARG_RESET}${_ARG_DELETE}" ]]; then
-        cd ~/.local/bin
-        sc_openshift_local_prepare_setup
-    fi
+    cd ~/.local/bin
+    sc_openshift_local_prepare_setup
 
     echo "Starting setup..."
     crc setup
 
-    if [[ -z "${_ARG_RESET}${_ARG_DELETE}" ]]; then
-        echo "Removing old oc symlink..."
-        rm -vf oc
-        echo "Symlinking oc binary..."
-        find ~/.crc -type f -name oc -exec ln -vs {} oc \;
-    fi
+    echo "Removing old oc symlink..."
+    rm -vf oc
+    echo "Symlinking oc binary..."
+    find ~/.crc -type f -name oc -exec ln -vs {} oc \;
 
     read -rp "Number of cpus to use [12]: " _cpus
     crc config set cpus ${_cpus:-12} >/dev/null
@@ -71,7 +67,7 @@ function sc_openshift_local_setup() {
     crc config set enable-cluster-monitoring ${_monitoring:-true} >/dev/null
     crc config get enable-cluster-monitoring
     read -rp "Set kubeadmin-password? [Y/n]: " _kubeadmin
-    if [[ "${_kubeadmin:-y}" == "y" ]] || [[ "${_kubeadmin}" == "Y" ]]; then
+    if [[ "${_kubeadmin}" != "n" ]]; then
         read -rp "kubeadmin-password [crc.testing]: " _kubeadmin
         crc config set kubeadmin-password ${_kubeadmin:-crc.testing} >/dev/null
         crc config get kubeadmin-password
@@ -85,9 +81,7 @@ function sc_openshift_local_setup() {
 
 function sc_openshift_local_download() {
     local -r _download_url=https://cloud.redhat.com/openshift/install/crc/installer-provisioned
-    if [[ -z "${_ARG_RESET}${_ARG_DELETE}" ]]; then
-        echo "Download crc from ${_download_url} to ~/Downloads!"
-    fi
+    echo "Download crc from ${_download_url} to ~/Downloads!"
 
     read -rp "Open download page now? [Y/n]: " _PROCEED
     if [[ "$_PROCEED" != "n" ]]; then
@@ -96,32 +90,33 @@ function sc_openshift_local_download() {
     fi
     unset _PROCEED
 
-    if [[ -z "${_ARG_RESET}${_ARG_DELETE}" ]]; then
-        read -rp "Download finished and ready to proceed? [Y/n]: " _PROCEED
-    fi
+    read -rp "Download finished and ready to proceed? [Y/n]: " _PROCEED
 
     [[ "$_PROCEED" != "n" ]]
 }
 
 function sc_openshift_local() {
     if sc_openshift_local_download; then
-        if [[ -n "${_ARG_UPGRADE}${_ARG_RESET}" ]]; then
+        if [[ -z "${_ARG_UPGRADE}" ]]; then
             echo "Installing libvirt..."
             sudo dnf install -y libvirt
             echo "Enabling libvirtd..."
             sudo systemctl enable --now libvirtd
-            sc_openshift_local_setup
-        else
+        fi
+        if command -v crc; then
             echo "Checking cluster status..."
             if crc status | grep -iq running; then
                 crc stop
             fi
             echo "Cluster stopped. Deleting old cluster..."
             crc delete
-            crc cleanup
-            echo "Removing cache..."
-            rm -vfr ~/.crc/cache/*
-            sc_openshift_local_setup
+            read -rp "Do you want to cleanup? [y/N]: " _CLEANUP
+            if [[ "${_CLEANUP:-y}" != "n" ]]; then
+                crc cleanup
+                echo "Removing cache..."
+                rm -vfr ~/.crc/cache/*
+            fi
         fi
+        sc_openshift_local_setup
     fi
 }

@@ -53,14 +53,10 @@ export -f sc_prompt
 # Adds bash-completion script to /etc/bash_completion.d/.
 function sc_completion() {
     if [[ -n "$_ARG_ALL" ]]; then
-        sc_heading 1 kubectl
-        command -v kubectl && kubectl completion bash | sudo tee /etc/bash_completion.d/kubectl
-        sc_heading 1 oc
-        command -v oc && oc completion bash | sudo tee /etc/bash_completion.d/oc
-        sc_heading 1 helm
-        command -v helm && helm completion bash | sudo tee /etc/bash_completion.d/helm
-        sc_heading 1 tkn
-        command -v tkn && tkn completion bash | sudo tee /etc/bash_completion.d/tkn
+        for _app in kubectl oc crc helm tkn; do
+            sc_heading 1 $_app
+            command -v $_app && $_app completion bash | sudo tee "/etc/bash_completion.d/${_app}"
+        done
     fi
 
     sc_heading 1 sc

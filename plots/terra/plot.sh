@@ -23,7 +23,7 @@ if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]]; then
             [[ -n "$_ARG_SETUP" ]] && sc_setup_project
         elif [[ -n "${_ST_CONTEXT_OPENSHIFT_LOCAL}" ]]; then
             source ./local/openshift.sh
-            if [[ -n "$_ARG_SETUP" ]]; then
+            if [[ -n "${_ARG_SETUP}${_ARG_UPGRADE}" ]]; then
                 sc_openshift_local
             else
                 sc_openshift_local_up
