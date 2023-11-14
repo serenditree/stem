@@ -52,11 +52,11 @@ function sc_login() {
         else
             local -r _credentials=$(pass serenditree/crc.testing)
         fi
-        oc login --insecure-skip-tls-verify \
+        oc login \
             -u "${_credentials%%:*}" \
             -p "${_credentials#*:}" \
-            "$_ST_CLUSTER"
-        oc registry login --skip-check
+            https://api.crc.testing:6443
+        oc registry login
         ;;
     esac
 }
