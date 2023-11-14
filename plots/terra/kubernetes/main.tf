@@ -4,8 +4,7 @@
 provider "exoscale" {
   key            = var.api_key
   secret         = var.api_secret
-  timeout        = 120
-  gzip_user_data = false
+  timeout        = 240
 }
 
 data "exoscale_domain" "base" {
@@ -78,11 +77,10 @@ resource "exoscale_security_group_rule" "cilium_vxlan" {
 ########################################################################################################################
 # Anti affinity
 ########################################################################################################################
-resource "exoscale_affinity" "serenditree" {
+resource "exoscale_anti_affinity_group" "serenditree" {
   for_each = var.compute_nodes
 
   name = "serenditree-${each.key}"
-  type = "host anti-affinity"
 }
 ########################################################################################################################
 # Cluster
@@ -108,7 +106,7 @@ resource "exoscale_sks_nodepool" "serenditree" {
   disk_size       = each.value.disk_size
   instance_prefix = "serenditree-${each.key}"
 
-  anti_affinity_group_ids = [exoscale_affinity.serenditree[each.key].id]
+  anti_affinity_group_ids = [exoscale_anti_affinity_group.serenditree[each.key].id]
   security_group_ids      = [exoscale_security_group.serenditree.id]
 }
 ########################################################################################################################

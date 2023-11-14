@@ -65,7 +65,7 @@ variable "master_nodes" {
     name           = "master"
     replicas       = 3
     hyperthreading = "Enabled"
-    template_id    = "dde12e2f-0fc0-4d89-b4e8-07d97ce5a966"
+    template_id    = "1be5888e-8bbb-43b5-85c2-1c1ef796965d"
     instance_type  = "standard.extra-large"
     disk_size      = 120
   }
@@ -86,7 +86,7 @@ variable "worker_nodes" {
       name           = "apps"
       replicas       = 3
       hyperthreading = "Enabled"
-      template_id    = "dde12e2f-0fc0-4d89-b4e8-07d97ce5a966"
+      template_id    = "1be5888e-8bbb-43b5-85c2-1c1ef796965d"
       instance_type  = "standard.large"
       disk_size      = 120
     }

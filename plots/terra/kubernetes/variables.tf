@@ -55,14 +55,12 @@ variable "compute_nodes" {
   description = "The compute node-pools to create."
   type = map(object({
     replicas      = number
-    template_id   = string
     instance_type = string
     disk_size     = number
   }))
   default = {
     dev = {
       replicas      = 2
-      template_id   = "dde12e2f-0fc0-4d89-b4e8-07d97ce5a966"
       instance_type = "standard.large"
       disk_size     = 128
     }
