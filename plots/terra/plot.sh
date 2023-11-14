@@ -31,7 +31,7 @@ if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]]; then
         elif [[ -n "${_ST_CONTEXT_IS_REMOTE}" ]]; then
             source ./terra.sh
             sc_terra_up
-            if [[ -z "${_ARG_INIT}${_ARG_UPGRADE}${_ST_CONTEXT_IS_LOCAL}" ]]; then
+            if [[ -z "${_ARG_INIT}${_ARG_UPGRADE}" ]]; then
                 sc_setup_project
                 sc_setup_helm
             fi
