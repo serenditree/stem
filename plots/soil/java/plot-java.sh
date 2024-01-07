@@ -19,9 +19,6 @@ _JAVA_RUN_VERSION=1.3.8
 _JAVA_RUN_SCRIPT="https://repo1.maven.org/maven2/io/fabric8/run-java-sh"
 _JAVA_RUN_SCRIPT="${_JAVA_RUN_SCRIPT}/${_JAVA_RUN_VERSION}/run-java-sh-${_JAVA_RUN_VERSION}-sh.sh"
 
-_JAVA_SECURITY="/etc/alternatives/jre/lib/security/java.security"
-_JAVA_SECURITY_RANDOM="securerandom.source=file:/dev/urandom"
-
 _MVN_ARCHIVE="apache-maven-${_ST_VERSION_MVN}-bin.tar.gz"
 _MVN_FOLDER="data/${_MVN_ARCHIVE%-bin*}/"
 _MVN_URL="https://dlcdn.apache.org/maven/maven-3/${_ST_VERSION_MVN}/binaries/${_MVN_ARCHIVE}"
@@ -52,7 +49,6 @@ if [[ " $* " =~ " build " ]]; then
         buildah run $_CONTAINER_REF -- chown -R 1000:0 $_ST_CONTAINER_ROOT
         buildah run $_CONTAINER_REF -- chmod u+x ${_ST_CONTAINER_ROOT}/run.sh
         buildah run $_CONTAINER_REF -- chmod -R g=u $_ST_CONTAINER_ROOT
-        buildah run $_CONTAINER_REF -- bash -c "echo ${_JAVA_SECURITY_RANDOM} >>${_JAVA_SECURITY}"
 
         buildah config --label description="$_DESCRIPTION" $_CONTAINER_REF
 
