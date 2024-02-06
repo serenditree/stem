@@ -57,18 +57,23 @@ export -f sc_setup_helm
 
 # Helm dependency version update check.
 function sc_setup_helm_update() {
+    helm repo update
     for _repo in bitnami/mongodb \
         bitnami/mariadb-galera \
         longhorn/longhorn \
         strimzi/strimzi-kafka-operator \
         jetstack/cert-manager \
         apisix/apisix; do
-        { find $_SC_HOME_STEM -name Chart.yaml -exec grep -hA2 "name: ${_repo#*/}" {} \+ |
+        { \
+        echo "id: $_repo"
+        find $_SC_HOME_STEM -name Chart.yaml -exec grep -hA2 "name: ${_repo#*/}" {} \+ |
             sed -r -e 's/^[- ]+//' |
             sed -r '/^$/d'
         echo -n 'latest: '
-        helm search repo $_repo --output json | jq -r '.[0] | .version'; } | column -t -s ':' -l 2 && echo
+        helm search repo $_repo --output json | jq -r '.[0] | .version'; \
+        } | column -t -s ':' -l 2 && echo
     done
+    echo "details: helm search repo ID --output json"
 }
 
 # Updates base images or checks for upgrades.
