@@ -22,13 +22,13 @@ variable "ssh_key_pair" {
 variable "zone" {
   description = "Target zone."
   type        = string
-  default     = "at-vie-1"
+  default     = "at-vie-2"
 }
 
 variable "kubernetes_version" {
   description = "Kubernetes version."
   type        = string
-  default     = "1.27.7"
+  default     = "1.29.1"
 }
 
 variable "service_level" {

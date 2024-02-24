@@ -174,7 +174,7 @@ function sc_up_imperative_apply_security_group() {
 
 function sc_up_imperative_apply_bootstrap_instance() {
     exo compute instance create "$_ST_BOOTSTRAP" \
-        --zone at-vie-1 \
+        --zone at-vie-2 \
         --ssh-key tanwald1 \
         --security-group "$_ST_TERRA_PREFIX" \
         --template dde12e2f-0fc0-4d89-b4e8-07d97ce5a966 \
@@ -197,7 +197,7 @@ function sc_up_imperative_apply_bootstrap_dns() {
 
 function sc_up_imperative_apply_master_instance_pool() {
     exo instancepool create "$_ST_MASTER" \
-        --zone at-vie-1 \
+        --zone at-vie-2 \
         --keypair tanwald1 \
         --security-group "$_ST_TERRA_PREFIX" \
         --template dde12e2f-0fc0-4d89-b4e8-07d97ce5a966 \
@@ -220,11 +220,11 @@ function sc_up_imperative_apply_master_dns() {
 }
 
 function sc_up_imperative_apply_master_nlb() {
-    exo nlb create "$_ST_MASTER" --zone at-vie-1
+    exo nlb create "$_ST_MASTER" --zone at-vie-2
     for _service in "http:80" "https:443" "api:6443" "machine-config-server:22623"; do
         exo nlb service add "$_ST_MASTER" "${_ST_MASTER}-${_service%:*}" \
             --instance-pool "$_ST_MASTER" \
-            --zone at-vie-1 \
+            --zone at-vie-2 \
             --port ${_service#*:} \
             --target-port ${_service#*:} \
             --protocol tcp \
