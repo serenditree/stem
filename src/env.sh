@@ -47,7 +47,7 @@ export _ST_POD=serenditree
 # VERSIONS
 ########################################################################################################################
 
-if [[ -z "$_ST_CONTEXT_TKN" ]]; then
+if [[ -f /etc/fedora-release ]] && [[ -z "$_ST_CONTEXT_TKN" ]]; then
     _ST_VERSION_FEDORA=$(cut -d' ' -f3 /etc/fedora-release)
     export _ST_VERSION_FEDORA
 fi
