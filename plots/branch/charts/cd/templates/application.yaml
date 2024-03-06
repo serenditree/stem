@@ -31,14 +31,14 @@ spec:
           value: {{ .Values.branch.jsonWebKey.encryption }}
         - name: branch-app.branch.jsonWebKey.signature
           value: {{ .Values.branch.jsonWebKey.signature }}
-{{/*        {{- $index := 0 }}*/}}
-{{/*        {{- range $oidc := .Values.branch.oidc }}*/}}
-{{/*        {{- range $key, $value := $oidc }}*/}}
-{{/*        - name: branch-app.branch.oidc[{{ $index }}].{{ $key }}*/}}
-{{/*          value: {{ $value }}*/}}
-{{/*        {{- end}}*/}}
-{{/*        {{- $index = add1 $index }}*/}}
-{{/*        {{- end}}*/}}
+        {{- $index := 0 }}
+        {{- range $oidc := .Values.branch.oidc }}
+        {{- range $key, $value := $oidc }}
+        - name: branch-app.branch.oidc[{{ $index }}].{{ $key }}
+          value: {{ $value }}
+        {{- end}}
+        {{- $index = add1 $index }}
+        {{- end}}
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: serenditree
