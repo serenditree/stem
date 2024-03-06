@@ -12,14 +12,14 @@ branch:
   jsonWebKey:
     encryption: ~
     signature: ~
-  oidc:
-    - country: ~
-      idRef: ~
-      id: ~
-      secretRef: ~
-      secret: ~
-      url: ~
-      urlRef: ~
+#  oidc:
+#    - country: ~
+#      idRef: ~
+#      id: ~
+#      secretRef: ~
+#      secret: ~
+#      url: ~
+#      urlRef: ~
 ingress:
   letsencrypt:
     issuer: ~

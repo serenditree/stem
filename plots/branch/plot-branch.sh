@@ -127,7 +127,7 @@ elif [[ " $* " =~ " up " ]]; then
         sc_heading 1 "Setting up branch"
 
         [[ -z "$_ARG_DRYRUN" ]] && _ST_HELM_NAME=branch
-        sc_branch_secrets helm | xargs \
+#        sc_branch_secrets helm | xargs \
             helm $_ST_HELM_CMD $_ST_HELM_NAME ./charts/cd \
             --set "global.context=$_ST_CONTEXT" \
             --set "ingress.letsencrypt.issuer=$_ARG_ISSUER" \
@@ -138,7 +138,7 @@ elif [[ " $* " =~ " up " ]]; then
             argocd app sync branch
             argocd app wait branch --health
         else
-            sc_branch_secrets helm | xargs \
+#            sc_branch_secrets helm | xargs \
                 helm $_ST_HELM_CMD $_ST_HELM_NAME ./charts/app \
                 --set "global.context=$_ST_CONTEXT" \
                 --set "ingress.letsencrypt.issuer=$_ARG_ISSUER" \

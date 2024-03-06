@@ -37,25 +37,25 @@ spec:
                 secretKeyRef:
                   key: json-web-key
                   name: branch
-            {{- range $.Values.branch.oidc }}
-            - name: QUARKUS_OIDC_{{ .country | upper }}_CLIENT_ID
-              valueFrom:
-                secretKeyRef:
-                  key: {{ .idRef }}
-                  name: branch
-            - name: QUARKUS_OIDC_{{ .country | upper }}_CREDENTIALS_SECRET
-              valueFrom:
-                secretKeyRef:
-                  key: {{ .secretRef }}
-                  name: branch
-            - name: QUARKUS_OIDC_{{ .country | upper }}_AUTH_SERVER_URL
-              valueFrom:
-                secretKeyRef:
-                  key: {{ .urlRef }}
-                  name: branch
-            - name: QUARKUS_OIDC_{{ .country | upper }}_APPLICATION_TYPE
-              value: web-app
-            {{- end}}
+{{/*            {{- range $.Values.branch.oidc }}*/}}
+{{/*            - name: QUARKUS_OIDC_{{ .country | upper }}_CLIENT_ID*/}}
+{{/*              valueFrom:*/}}
+{{/*                secretKeyRef:*/}}
+{{/*                  key: {{ .idRef }}*/}}
+{{/*                  name: branch*/}}
+{{/*            - name: QUARKUS_OIDC_{{ .country | upper }}_CREDENTIALS_SECRET*/}}
+{{/*              valueFrom:*/}}
+{{/*                secretKeyRef:*/}}
+{{/*                  key: {{ .secretRef }}*/}}
+{{/*                  name: branch*/}}
+{{/*            - name: QUARKUS_OIDC_{{ .country | upper }}_AUTH_SERVER_URL*/}}
+{{/*              valueFrom:*/}}
+{{/*                secretKeyRef:*/}}
+{{/*                  key: {{ .urlRef }}*/}}
+{{/*                  name: branch*/}}
+{{/*            - name: QUARKUS_OIDC_{{ .country | upper }}_APPLICATION_TYPE*/}}
+{{/*              value: web-app*/}}
+{{/*            {{- end}}*/}}
             - name: SERENDITREE_ROOT_USER_USER
               valueFrom:
                 secretKeyRef:
