@@ -9,4 +9,4 @@ metadata:
     app.kubernetes.io/component: branch
     app.kubernetes.io/part-of: serenditree
 data:
-  SERENDITREE_SEED_WATER_RETENTION: "21"
+  serenditree.seed.water.retention: "21"
