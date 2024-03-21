@@ -125,8 +125,7 @@ elif [[ " $* " =~ " up " ]]; then
         podman exec ${_CONTAINER} touch ${_VOLUME_DST_SRC}/release
     elif [[ -n "$_ARG_SETUP" ]]; then
         sc_heading 1 "Setting up branch"
-        _index=0
-        _country=de
+
         [[ -z "$_ARG_DRYRUN" ]] && _ST_HELM_NAME=branch
 #        sc_branch_secrets helm | xargs \
             helm $_ST_HELM_CMD $_ST_HELM_NAME ./charts/cd \
@@ -134,13 +133,20 @@ elif [[ " $* " =~ " up " ]]; then
             --set "ingress.letsencrypt.issuer=$_ARG_ISSUER" \
             --set "branch.jsonWebKey.encryption=$(pass serenditree/json.web.key)" \
             --set "branch.jsonWebKey.signature=$(pass serenditree/json.web.key)" \
-            --set "branch.oidc[${_index}].country=${_country}"  \
-            --set "branch.oidc[${_index}].id=$(pass serenditree/oidc/${_country}.id)" \
-            --set "branch.oidc[${_index}].idRef=oidc-id-${_country}" \
-            --set "branch.oidc[${_index}].secret=$(pass serenditree/oidc/${_country}.secret)" \
-            --set "branch.oidc[${_index}].secretRef=oidc-secret-${_country}" \
-            --set "branch.oidc[${_index}].url=$(pass serenditree/oidc/${_country}.url)" \
-            --set "branch.oidc[${_index}].urlRef=oidc-url-${_country}" | $_ST_HELM_PIPE
+            --set "branch.oidc[0].country=at" \
+            --set "branch.oidc[0].id=$(pass serenditree/oidc/at.id)" \
+            --set "branch.oidc[0].idRef=oidc-id-at" \
+            --set "branch.oidc[0].secret=$(pass serenditree/oidc/at.secret)" \
+            --set "branch.oidc[0].secretRef=oidc-secret-at" \
+            --set "branch.oidc[0].url=$(pass serenditree/oidc/at.url)" \
+            --set "branch.oidc[0].urlRef=oidc-url-at" \
+            --set "branch.oidc[1].country=de" \
+            --set "branch.oidc[1].id=$(pass serenditree/oidc/de.id)" \
+            --set "branch.oidc[1].idRef=oidc-id-de" \
+            --set "branch.oidc[1].secret=$(pass serenditree/oidc/de.secret)" \
+            --set "branch.oidc[1].secretRef=oidc-secret-de" \
+            --set "branch.oidc[1].url=$(pass serenditree/oidc/de.url)" \
+            --set "branch.oidc[1].urlRef=oidc-url-de"| $_ST_HELM_PIPE
 
         if [[ -z "$_ARG_DRYRUN" ]]; then
             argocd app sync branch
@@ -152,13 +158,20 @@ elif [[ " $* " =~ " up " ]]; then
                 --set "ingress.letsencrypt.issuer=$_ARG_ISSUER" \
                 --set "branch.jsonWebKey.encryption=$(pass serenditree/json.web.key)" \
                 --set "branch.jsonWebKey.signature=$(pass serenditree/json.web.key)" \
-                --set "branch.oidc[${_index}].country=${_country}"  \
-                --set "branch.oidc[${_index}].id=$(pass serenditree/oidc/${_country}.id)" \
-                --set "branch.oidc[${_index}].idRef=oidc-id-${_country}" \
-                --set "branch.oidc[${_index}].secret=$(pass serenditree/oidc/${_country}.secret)" \
-                --set "branch.oidc[${_index}].secretRef=oidc-secret-${_country}" \
-                --set "branch.oidc[${_index}].url=$(pass serenditree/oidc/${_country}.url)" \
-                --set "branch.oidc[${_index}].urlRef=oidc-url-${_country}" | $_ST_HELM_PIPE
+                --set "branch.oidc[0].country=at" \
+                --set "branch.oidc[0].id=$(pass serenditree/oidc/at.id)" \
+                --set "branch.oidc[0].idRef=oidc-id-at" \
+                --set "branch.oidc[0].secret=$(pass serenditree/oidc/at.secret)" \
+                --set "branch.oidc[0].secretRef=oidc-secret-at" \
+                --set "branch.oidc[0].url=$(pass serenditree/oidc/at.url)" \
+                --set "branch.oidc[0].urlRef=oidc-url-at" \
+                --set "branch.oidc[1].country=de" \
+                --set "branch.oidc[1].id=$(pass serenditree/oidc/de.id)" \
+                --set "branch.oidc[1].idRef=oidc-id-de" \
+                --set "branch.oidc[1].secret=$(pass serenditree/oidc/de.secret)" \
+                --set "branch.oidc[1].secretRef=oidc-secret-de" \
+                --set "branch.oidc[1].url=$(pass serenditree/oidc/de.url)" \
+                --set "branch.oidc[1].urlRef=oidc-url-de"| $_ST_HELM_PIPE
         fi
     fi
 ########################################################################################################################

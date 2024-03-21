@@ -22,7 +22,7 @@ variable "ssh_key_pair" {
 variable "zone" {
   description = "Target zone."
   type        = string
-  default     = "at-vie-2"
+  default     = "at-vie-1"
 }
 
 variable "kubernetes_version" {
