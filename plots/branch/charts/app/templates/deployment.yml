@@ -32,6 +32,11 @@ spec:
             - containerPort: 8080
               protocol: TCP
           env:
+            - name: SERENDITREE_SEED_WATER_RETENTION
+              valueFrom:
+                configMapKeyRef:
+                  name: branch
+                  key: serenditree.seed.water.retention
             - name: SERENDITREE_JSON_WEB_KEY
               valueFrom:
                 secretKeyRef:
