@@ -27,10 +27,8 @@ spec:
           value: {{ .Values.branch.stage }}
         - name: branch-app.ingress.letsencrypt.issuer
           value: {{ .Values.ingress.letsencrypt.issuer }}
-        - name: branch-app.branch.jsonWebKey.encryption
-          value: {{ .Values.branch.jsonWebKey.encryption }}
-        - name: branch-app.branch.jsonWebKey.signature
-          value: {{ .Values.branch.jsonWebKey.signature }}
+        - name: branch-app.branch.jsonWebKey
+          value: {{ .Values.branch.jsonWebKey }}
         {{- $index := 0 }}
         {{- range $oidc := .Values.branch.oidc }}
         {{- range $key, $value := $oidc }}

@@ -131,8 +131,7 @@ elif [[ " $* " =~ " up " ]]; then
             helm $_ST_HELM_CMD $_ST_HELM_NAME ./charts/cd \
             --set "global.context=$_ST_CONTEXT" \
             --set "ingress.letsencrypt.issuer=$_ARG_ISSUER" \
-            --set "branch.jsonWebKey.encryption=$(pass serenditree/json.web.key)" \
-            --set "branch.jsonWebKey.signature=$(pass serenditree/json.web.key)" \
+            --set "branch.jsonWebKey=$(pass serenditree/json.web.key)" \
             --set "branch.oidc[0].country=at" \
             --set "branch.oidc[0].id=$(pass serenditree/oidc/at.id)" \
             --set "branch.oidc[0].idRef=oidc-id-at" \
@@ -156,8 +155,7 @@ elif [[ " $* " =~ " up " ]]; then
                 helm $_ST_HELM_CMD $_ST_HELM_NAME ./charts/app \
                 --set "global.context=$_ST_CONTEXT" \
                 --set "ingress.letsencrypt.issuer=$_ARG_ISSUER" \
-                --set "branch.jsonWebKey.encryption=$(pass serenditree/json.web.key)" \
-                --set "branch.jsonWebKey.signature=$(pass serenditree/json.web.key)" \
+                --set "branch.jsonWebKey=$(pass serenditree/json.web.key)" \
                 --set "branch.oidc[0].country=at" \
                 --set "branch.oidc[0].id=$(pass serenditree/oidc/at.id)" \
                 --set "branch.oidc[0].idRef=oidc-id-at" \

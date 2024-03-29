@@ -10,8 +10,6 @@ branch:
   maxReplicas: 3
   stage: dev
   jsonWebKey:
-    encryption: ~
-    signature: ~
   oidc:
     - country: ~
       idRef: ~
