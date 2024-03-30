@@ -19,10 +19,6 @@ _JAVA_RUN_VERSION=1.3.8
 _JAVA_RUN_SCRIPT="https://repo1.maven.org/maven2/io/fabric8/run-java-sh"
 _JAVA_RUN_SCRIPT="${_JAVA_RUN_SCRIPT}/${_JAVA_RUN_VERSION}/run-java-sh-${_JAVA_RUN_VERSION}-sh.sh"
 
-_MVN_ARCHIVE="apache-maven-${_ST_VERSION_MVN}-bin.tar.gz"
-_MVN_FOLDER="data/${_MVN_ARCHIVE%-bin*}/"
-_MVN_URL="https://dlcdn.apache.org/maven/maven-3/${_ST_VERSION_MVN}/binaries/${_MVN_ARCHIVE}"
-
 if [[ " $* " =~ " info " ]] || [[ -n "$_ARG_DRYRUN" ]]; then
     echo "${_ORDINAL} ${_SERVICE} ${_IMAGE} ${_TAG} $(realpath $0):${_FLAVOR}:${_OFFSET}"
 fi
@@ -70,17 +66,8 @@ if [[ " $* " =~ " build " ]]; then
 
         _CONTAINER_REF=$(buildah from serenditree/java-base)
         _MOUNT_REF=$(buildah mount $_CONTAINER_REF)
-        _CURRENT_PATH=$(buildah run $_CONTAINER_REF printenv PATH)
 
-        if [[ ! -d "$_MVN_FOLDER" ]]; then
-            mkdir -pv data
-            curl -L "${_MVN_URL}" -o "data/${_MVN_ARCHIVE}"
-            tar -xzf "data/${_MVN_ARCHIVE}" -C data
-        else
-            echo "Using existing data..."
-        fi
-
-        dnf install --installroot ${_MOUNT_REF:?} $_ST_DNF_OPTS_HOST $_ST_JAVA_PACKAGE_DEVEL
+        dnf install --installroot ${_MOUNT_REF:?} $_ST_DNF_OPTS_HOST $_ST_JAVA_PACKAGE_DEVEL maven
         dnf clean all --installroot ${_MOUNT_REF:?} --noplugins
 
         buildah config --workingdir $_ST_CONTAINER_ROOT $_CONTAINER_REF
@@ -90,14 +77,11 @@ if [[ " $* " =~ " build " ]]; then
         buildah config --env SERENDITREE_LOG_LEVEL=DEBUG $_CONTAINER_REF
         buildah config --env DESCRIPTION="$_DESCRIPTION" $_CONTAINER_REF
         buildah config --env JAVA_HOME=$_ST_JAVA_JDK_HOME $_CONTAINER_REF
-        buildah config --env MAVEN_HOME=/opt/maven $_CONTAINER_REF
         buildah config --env M2_HOME="${_VOLUME_DST_REPO%/*}" $_CONTAINER_REF
         buildah config --env MAVEN_OPTS="-Dmaven.repo.local=${_VOLUME_DST_REPO}" $_CONTAINER_REF
-        buildah config --env PATH=/opt/maven/bin:$_CURRENT_PATH $_CONTAINER_REF
 
         buildah run $_CONTAINER_REF -- mkdir src
 
-        buildah add --chown 1000:0 $_CONTAINER_REF "$_MVN_FOLDER" /opt/maven
         buildah add --chown 1000:0 $_CONTAINER_REF ./src
     fi
 
