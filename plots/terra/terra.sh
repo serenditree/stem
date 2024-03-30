@@ -98,13 +98,13 @@ function sc_terra_up() {
     else
         [[ -z "$_ARG_DRYRUN" ]] && terraform -chdir="$_ST_TERRA_DIR" apply \
             -var="api_key=${_ST_TERRA_API_KEY}" \
-            -var="api_secret=${_ST_TERRA_API_SECRET}"
+            -var="api_secret=${_ST_TERRA_API_SECRET}" || exit 1
 
         sc_heading 1 "Setting up kubernetes context"
         [[ -z "$_ARG_DRYRUN" ]] && sc_context_init_kube
 
         sc_heading 1 "Setting up ingress controller"
-        sc_terra_up_ingress
+        [[ -z "$_ARG_DRYRUN" ]] && sc_terra_up_ingress
     fi
 }
 
