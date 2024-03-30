@@ -30,18 +30,18 @@ function sc_setup_project() {
 }
 export -f sc_setup_project
 
-# Helm repo setup.
+# Helm dependency init and repo setup.
 function sc_setup_helm() {
-    sc_heading 1 "Setting up helm repositories"
+    sc_heading 1 "Setting up helm"
 
-    echo -n "Adding repos..."
     if [[ -z "$_ARG_DRYRUN" ]]; then
-        echo ""
-        for _repo in bitnami:https://charts.bitnami.com/bitnami \
+        echo "Adding repos..."
+        for _repo in \
+            bitnami:https://charts.bitnami.com/bitnami \
             longhorn:https://charts.longhorn.io \
             strimzi:https://strimzi.io/charts \
-            jetstack:https://charts.jetstack.io \
-            apisix:https://charts.apiseven.com; do
+            prometheus:https://prometheus-community.github.io/helm-charts \
+            cert-manager:https://charts.jetstack.io; do
             echo -n "${_repo%%:*}..."
             if helm repo ls | grep -Eq "^${_repo%%:*}"; then
                 sc_heading 2 "set"
@@ -49,24 +49,32 @@ function sc_setup_helm() {
                 helm repo add "${_repo%%:*}" "${_repo#*:}"
             fi
         done
-    else
-        sc_heading 2 skipped
+        echo "Updating dependencies..."
+        local _refresh
+        while read -r _chart; do
+            if grep -q 'https://' $_chart; then
+                dirname "$_chart" | xargs helm dependency update $_refresh
+                _refresh=--skip-refresh
+            fi
+        done < <(find "$_SC_HOME_STEM" -name Chart.yaml)
     fi
 }
 export -f sc_setup_helm
 
 # Helm dependency version update check.
 function sc_setup_helm_update() {
-    helm repo update
-    for _repo in bitnami/mongodb \
+    #helm repo update
+    for _repo in \
+        bitnami/mongodb \
         bitnami/mariadb-galera \
         longhorn/longhorn \
         strimzi/strimzi-kafka-operator \
-        jetstack/cert-manager \
-        apisix/apisix; do
+        prometheus/kube-prometheus-stack \
+        cert-manager/cert-manager; do
         { \
         echo "id: $_repo"
-        find $_SC_HOME_STEM -name Chart.yaml -exec grep -hA2 "name: ${_repo#*/}" {} \+ |
+        # current version
+        find "$_SC_HOME_STEM" -name Chart.yaml -exec grep -hA2 "name: ${_repo#*/}" {} \+ |
             sed -r -e 's/^[- ]+//' |
             sed -r '/^$/d'
         echo -n 'latest: '
@@ -93,11 +101,11 @@ function sc_setup_image_update() {
 }
 
 function sc_setup_maven_update() {
-    pushd $_ST_HOME_BRANCH &>/dev/null
+    pushd "$_ST_HOME_BRANCH" &>/dev/null || exit 1
     echo "Searching dependency updates..."
     mvn validate -Pversion |
         sed -rn '/\[INFO\] The following version/,/\[INFO\] +$/p' |
         sed -r -e 's/\[INFO\] +//' -e 's/.*available version.*/Latest:/' -e 's/.*are available.*/Updates:/' |
         head -n-1
-    popd &>/dev/null
+    popd &>/dev/null || exit 1
 }
