@@ -56,7 +56,7 @@ function sc_setup_helm() {
                 dirname "$_chart" | xargs helm dependency update $_refresh
                 _refresh=--skip-refresh
             fi
-        done < <(find "$_SC_HOME_STEM" -name Chart.yaml)
+        done < <(find $_SC_HOME_STEM -name Chart.yaml)
     fi
 }
 export -f sc_setup_helm
@@ -74,7 +74,7 @@ function sc_setup_helm_update() {
         { \
         echo "id: $_repo"
         # current version
-        find "$_SC_HOME_STEM" -name Chart.yaml -exec grep -hA2 "name: ${_repo#*/}" {} \+ |
+        find $_SC_HOME_STEM -name Chart.yaml -exec grep -hA2 "name: ${_repo#*/}" {} \+ |
             sed -r -e 's/^[- ]+//' |
             sed -r '/^$/d'
         echo -n 'latest: '
