@@ -75,7 +75,7 @@ function sc_pod_integration_up() {
     fi
 
     if [[ ! -f $_build ]]; then
-        pushd $_dir &>/dev/null
+        pushd "$_dir" &>/dev/null || exit 1
         if [[ "$_down_after_each" == "false" ]] && [[ "$_down_after_all" == "true" ]]; then
             echo "[INFO] Saving build order..."
             mapfile -t _reactor \
@@ -88,7 +88,7 @@ function sc_pod_integration_up() {
         else
             touch $_build
         fi
-        popd &>/dev/null
+        popd &>/dev/null || exit 1
         if [[ -z "$_pod_exists" ]]; then
             echo "[INFO] Starting pod..."
             sc_pod_up root-{user,seed,wind} branch

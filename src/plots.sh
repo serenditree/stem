@@ -37,15 +37,15 @@ function sc_plot_do() {
     local _plot=$1
     shift
 
-    pushd ${_plot%/*} >/dev/null
+    pushd ${_plot%/*} >/dev/null || exit 1
     _plot=${_plot##*/}
     _plot=${_plot//:/ }
     if [[ " $* " =~ " build " ]] && [[ -z "$_ST_CONTEXT_TKN" ]]; then
         buildah unshare bash $_plot "$*"
     else
-        bash $_plot "$*"
+        bash $_plot "$*" || exit 1
     fi
-    popd >/dev/null
+    popd >/dev/null || exit 1
 }
 
 # Finds plots and executes defined actions.
