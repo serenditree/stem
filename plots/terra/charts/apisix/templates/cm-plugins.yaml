@@ -1,6 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: apisix-plugins
-data:
-{{ (.Files.Glob "plugins/*").AsConfig | indent 4 }}
