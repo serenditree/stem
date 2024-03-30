@@ -53,7 +53,6 @@ if [[ -f /etc/fedora-release ]] && [[ -z "$_ST_CONTEXT_TKN" ]]; then
 fi
 export _ST_VERSION_JAVA=17
 export _ST_VERSION_NODE=18
-export _ST_VERSION_MVN=3.8.4
 export _ST_VERSION_FLUENTD=1.15.1
 export _ST_VERSION_MONGODB=5.0
 export _ST_VERSION_MARIADB=10.6
