@@ -16,10 +16,8 @@ function sc_compose() {
 }
 
 function sc_compose_up() {
-    source ${_ST_HOME_STEM}/plots/branch/plot-branch-src.sh
-
     local _podman_args
-    _podman_args=$(sc_branch_secrets podman)
+    _podman_args=$(${_ST_HOME_STEM}/plots/branch/src/secrets.sh podman)
     [[ -n "$_ARG_INIT" ]] && _podman_args+="--env SERENDITREE_DATA_URL=$(pass serenditree/data.url)"
 
     podman-compose $_SC_COMPOSE --podman-run-args "$_podman_args" up --detach $@

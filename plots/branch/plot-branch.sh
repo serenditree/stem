@@ -93,13 +93,12 @@ if [[ " $* " =~ " build " ]]; then
 # UP
 ########################################################################################################################
 elif [[ " $* " =~ " up " ]]; then
-    source ./plot-branch-src.sh
     if [[ -z "$_ST_CONTEXT_CLUSTER" ]]; then
         sc_heading 1 "Starting ${_SERVICE}:${_TAG}"
         sc_container_rm $_CONTAINER
         _EXPOSE="$((${_EXPOSE%/*} + _OFFSET))"
 
-        cat <(sc_branch_secrets podman) <(echo "serenditree/java-builder:latest bash wrapper.sh") | xargs \
+        cat <(./src/secrets.sh podman) <(echo "serenditree/java-builder:latest bash wrapper.sh") | xargs \
             podman run \
             --user 0:0 \
             --log-level $_ST_LOG_LEVEL \
@@ -127,49 +126,21 @@ elif [[ " $* " =~ " up " ]]; then
         sc_heading 1 "Setting up branch"
 
         [[ -z "$_ARG_DRYRUN" ]] && _ST_HELM_NAME=branch
-#        sc_branch_secrets helm | xargs \
+        ./src/secrets.sh helm | xargs \
             helm $_ST_HELM_CMD $_ST_HELM_NAME ./charts/cd \
             --set "global.context=$_ST_CONTEXT" \
             --set "ingress.letsencrypt.issuer=$_ARG_ISSUER" \
-            --set "branch.jsonWebKey=$(pass serenditree/json.web.key)" \
-            --set "branch.oidc[0].country=at" \
-            --set "branch.oidc[0].id=$(pass serenditree/oidc/at.id)" \
-            --set "branch.oidc[0].idRef=oidc-id-at" \
-            --set "branch.oidc[0].secret=$(pass serenditree/oidc/at.secret)" \
-            --set "branch.oidc[0].secretRef=oidc-secret-at" \
-            --set "branch.oidc[0].url=$(pass serenditree/oidc/at.url)" \
-            --set "branch.oidc[0].urlRef=oidc-url-at" \
-            --set "branch.oidc[1].country=de" \
-            --set "branch.oidc[1].id=$(pass serenditree/oidc/de.id)" \
-            --set "branch.oidc[1].idRef=oidc-id-de" \
-            --set "branch.oidc[1].secret=$(pass serenditree/oidc/de.secret)" \
-            --set "branch.oidc[1].secretRef=oidc-secret-de" \
-            --set "branch.oidc[1].url=$(pass serenditree/oidc/de.url)" \
-            --set "branch.oidc[1].urlRef=oidc-url-de"| $_ST_HELM_PIPE
+            --set "branch.jsonWebKey=$(pass serenditree/json.web.key)" | $_ST_HELM_PIPE
 
         if [[ -z "$_ARG_DRYRUN" ]]; then
             argocd app sync branch
             argocd app wait branch --health
         else
-#            sc_branch_secrets helm | xargs \
+            ./src/secrets.sh helm | xargs \
                 helm $_ST_HELM_CMD $_ST_HELM_NAME ./charts/app \
                 --set "global.context=$_ST_CONTEXT" \
                 --set "ingress.letsencrypt.issuer=$_ARG_ISSUER" \
-                --set "branch.jsonWebKey=$(pass serenditree/json.web.key)" \
-                --set "branch.oidc[0].country=at" \
-                --set "branch.oidc[0].id=$(pass serenditree/oidc/at.id)" \
-                --set "branch.oidc[0].idRef=oidc-id-at" \
-                --set "branch.oidc[0].secret=$(pass serenditree/oidc/at.secret)" \
-                --set "branch.oidc[0].secretRef=oidc-secret-at" \
-                --set "branch.oidc[0].url=$(pass serenditree/oidc/at.url)" \
-                --set "branch.oidc[0].urlRef=oidc-url-at" \
-                --set "branch.oidc[1].country=de" \
-                --set "branch.oidc[1].id=$(pass serenditree/oidc/de.id)" \
-                --set "branch.oidc[1].idRef=oidc-id-de" \
-                --set "branch.oidc[1].secret=$(pass serenditree/oidc/de.secret)" \
-                --set "branch.oidc[1].secretRef=oidc-secret-de" \
-                --set "branch.oidc[1].url=$(pass serenditree/oidc/de.url)" \
-                --set "branch.oidc[1].urlRef=oidc-url-de"| $_ST_HELM_PIPE
+                --set "branch.jsonWebKey=$(pass serenditree/json.web.key)" | $_ST_HELM_PIPE
         fi
     fi
 ########################################################################################################################
