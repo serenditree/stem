@@ -29,7 +29,7 @@ spec:
           command: [
             'sh',
             '-c',
-            "test -f $MBTILES || /exo -A serenditree storage download $SOS_MBTILES $MBTILES && chown 1001:0 $MBTILES"
+            "test -f $MBTILES || /exo -A serenditree storage download $SOS_MBTILES $MBTILES && chown 1001:0 $MBTILES && chown -R 1001:0 $MBTILES_DIR"
           ]
           env:
             - name: EXOSCALE_CONFIG
@@ -38,6 +38,8 @@ spec:
               value: sos://serenditree-data/osm.mbtiles
             - name: MBTILES
               value: {{ .Values.rootMap.dataMountPath }}/osm.mbtiles
+            - name: MBTILES_DIR
+              value: {{ .Values.rootMap.dataMountPath }}
           volumeMounts:
             - mountPath: {{ .Values.rootMap.dataMountPath }}
               name: root-map
