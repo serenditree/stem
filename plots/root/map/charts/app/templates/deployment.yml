@@ -26,12 +26,11 @@ spec:
       initContainers:
         - name: exo
           image: "docker.io/exoscale/cli:latest"
-          command:
-            - 'sh'
-            - '-c'
-            - >
-              test -f $MBTILES || /exo -A serenditree storage download $SOS_MBTILES $MBTILES
-              chown 1001:0 $MBTILES
+          command: [
+            'sh',
+            '-c',
+            "test -f $MBTILES || /exo -A serenditree storage download $SOS_MBTILES $MBTILES; chmod 1001:0 $MBTILES"
+          ]
           env:
             - name: EXOSCALE_CONFIG
               value: /exoscale-config/exoscale.toml
