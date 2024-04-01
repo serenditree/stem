@@ -29,8 +29,7 @@ if [[ " $* " =~ " build " ]]; then
         _CONTAINER_REF=$(buildah from scratch)
         _MOUNT_REF=$(buildah mount $_CONTAINER_REF)
 
-        dnf module install --installroot ${_MOUNT_REF:?} $_ST_DNF_OPTS_HOST nodejs:${_ST_VERSION_NODE}/common
-        dnf install --installroot ${_MOUNT_REF:?} $_ST_DNF_OPTS_HOST curl ca-certificates
+        dnf install --installroot ${_MOUNT_REF:?} $_ST_DNF_OPTS_HOST nodejs curl ca-certificates
         dnf clean all --installroot ${_MOUNT_REF:?} --noplugins
 
         buildah run $_CONTAINER_REF -- mkdir -pv $_ST_CONTAINER_ROOT
@@ -52,11 +51,10 @@ if [[ " $* " =~ " build " ]]; then
         _CONTAINER_REF=$(buildah from serenditree/node-base)
         _MOUNT_REF=$(buildah mount $_CONTAINER_REF)
 
-        curl -L https://dl.yarnpkg.com/rpm/yarn.repo -o ${_MOUNT_REF:?}/etc/yum.repos.d/yarn.repo
-        dnf install --installroot ${_MOUNT_REF:?} $_ST_DNF_OPTS_HOST yarn
+        dnf install --installroot ${_MOUNT_REF:?} $_ST_DNF_OPTS_HOST yarnpkg
         dnf clean all --installroot ${_MOUNT_REF:?} --noplugins
 
-        buildah run $_CONTAINER_REF -- yarn global add @angular/cli sass-migrator
+        buildah run $_CONTAINER_REF -- yarn global add @angular/cli@12.2.18 sass-migrator
         buildah run $_CONTAINER_REF -- mkdir -pv $_VOLUME_DST
 
         # buildah config --volume $_VOLUME_DST $_CONTAINER_REF

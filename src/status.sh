@@ -8,7 +8,7 @@
 function sc_status_required_applications() {
     echo -n "Required applications..."
     local _required="argbash|argocd|podman|buildah|terraform|helm|exo|openshift-install|tkn|skopeo|oc|kubectl|crc|git|"
-    local _required+="jq|pass"
+    local _required+="jq|pass|yarnpkg"
     local -r _missing=$(
         cat <(compgen -c | grep -E "^($_required)$") <(echo -e "${_required//|/\\n}") |
             sort |
@@ -18,17 +18,6 @@ function sc_status_required_applications() {
         echo "${_BOLD}warning:${_NORMAL} $_missing not found" | xargs echo
     else
         echo "${_BOLD}ok${_NORMAL}"
-    fi
-}
-
-# Checks required repositories.
-function sc_status_repositories() {
-    echo -n "Required repositories..."
-    if [[ -e /etc/yum.repos.d/yarn.repo ]]; then
-        echo "${_BOLD}ok${_NORMAL}"
-    else
-        echo "${_BOLD}warning:${_NORMAL} yarn repository not found."
-        echo "Installation: 'sudo curl -L https://dl.yarnpkg.com/rpm/yarn.repo -o /etc/yum.repos.d/yarn.repo'"
     fi
 }
 
@@ -104,7 +93,6 @@ function sc_status() {
     if [[ -n "$_ARG_ALL" ]]; then
         sc_heading 1 n "System"
         sc_status_os
-        sc_status_repositories
         sc_status_required_applications
         sc_status_required_files
 

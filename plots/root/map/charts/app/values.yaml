@@ -4,7 +4,6 @@ rootMap:
   minReplicas: 1
   maxReplicas: 3
   stage: ~
-  data: ~
   dataMountPath: ~
 ingress:
   letsencrypt:

@@ -23,6 +23,26 @@ spec:
       restartPolicy: Always
       securityContext:
         fsGroup: 1001
+      initContainers:
+        - name: exo
+          image: "docker.io/exoscale/cli:latest"
+          command: [
+            'sh',
+            '-c',
+            "test -f $MBTILES || /exo -A serenditree storage download $SOS_MBTILES $MBTILES"
+          ]
+          env:
+            - name: EXOSCALE_CONFIG
+              value: /exoscale-config/exoscale.toml
+            - name: SOS_MBTILES
+              value: sos://serenditree-data/osm.mbtiles
+            - name: MBTILES
+              value: {{ .Values.rootMap.dataMountPath }}/osm.mbtiles
+          volumeMounts:
+            - mountPath: {{ .Values.rootMap.dataMountPath }}
+              name: root-map
+            - mountPath: "/exoscale-config"
+              name: exoscale-config
       containers:
         - name: root-map
           image: "quay.io/serenditree/root-map:latest"
@@ -73,4 +93,7 @@ spec:
         - name: root-map
           persistentVolumeClaim:
             claimName: root-map
+        - name: exoscale-config
+          secret:
+            secretName: exoscale-config
 

@@ -16,7 +16,7 @@ spec:
         - name: exo
           image: docker.io/exoscale/cli:latest
           args:
-            - --use-account=tanwald
+            - --use-account=serenditree
             - storage
             - download
             - sos://serenditree-backup/user-backup.gz

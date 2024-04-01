@@ -11,13 +11,13 @@ _TAG=$_VERSION
 
 _CONTAINER=$_SERVICE
 
-_VOLUME_SRC=root-map
+_VOLUME_SRC="$(dirname "$(realpath $0)")/data/database"
 _VOLUME_DST=${_ST_CONTAINER_ROOT}/data
 
 _EXPOSE=8080/tcp
 _EXPOSE_LOCAL=8084/tcp
 
-_TILESERVER_VERSION=3.1.1
+_TILESERVER_VERSION=4.10.3
 _TILESERVER_PORT=${_EXPOSE%/*}
 # TODO check versions (compatibility with mbtiles)
 _STYLES_VERSION=v1.8
@@ -41,9 +41,10 @@ if [[ " $* " =~ " build " ]]; then
     _CONTAINER_REF=$(buildah from serenditree/node-base)
     _MOUNT_REF=$(buildah mount $_CONTAINER_REF)
 
-    if [[ ! -d data ]]; then
-        mkdir -pv data/styles/positron data/fonts data/data
-        pushd data >/dev/null || exit 1
+    _SERVER_DIR="./data/server"
+    if [[ ! -d $_SERVER_DIR  ]]; then
+        mkdir -pv ${_SERVER_DIR}/styles/positron ${_SERVER_DIR}/fonts ${_SERVER_DIR}/data
+        pushd $_SERVER_DIR >/dev/null || exit 1
         echo "Downloading styles ${_STYLES_VERSION}..."
         curl -L $_STYLES_URL -o styles/positron/${_STYLES_VERSION}.zip
         unzip -q styles/positron/${_STYLES_VERSION}.zip -d styles/positron && rm styles/positron/${_STYLES_VERSION}.zip
@@ -62,7 +63,7 @@ if [[ " $* " =~ " build " ]]; then
     echo "Adding script..."
     buildah add --chown 1001:0 $_CONTAINER_REF ./src
     echo "Adding server..."
-    buildah add --chown 1001:0 $_CONTAINER_REF ./data
+    buildah add --chown 1001:0 $_CONTAINER_REF $_SERVER_DIR
 
     buildah run $_CONTAINER_REF -- chown -R 1001:0 $_ST_CONTAINER_ROOT
     buildah run $_CONTAINER_REF -- chmod -R g=u $_ST_CONTAINER_ROOT
@@ -92,19 +93,16 @@ elif [[ " $* " =~ " up " ]]; then
         sc_heading 1 "Starting ${_SERVICE}:${_TAG}"
         sc_container_rm $_CONTAINER
 
-        if ! podman volume inspect root-map >/dev/null 2>&1; then
-            _ST_DATA_URL="$(pass serenditree/data.url)"
+        if [[ ! -f ${_VOLUME_SRC}/osm.mbtiles ]]; then
+            echo "Database osm.mbtiles does not exist. Aborting..."
+            exit 1
         fi
-
-        _ENV="--env TILESERVER_PORT=${_EXPOSE_LOCAL%/*}"
-        [[ -n "$_ST_DATA_URL" ]] &&
-            _ENV="$_ENV --env SERENDITREE_DATA_URL=$_ST_DATA_URL"
 
         podman run \
             --log-level $_ST_LOG_LEVEL \
             --pod $_ST_POD \
             --name $_CONTAINER \
-            $_ENV \
+            --env TILESERVER_PORT=${_EXPOSE_LOCAL%/*} \
             --volume ${_VOLUME_SRC}:${_VOLUME_DST}:Z \
             --health-cmd "curl --silent localhost:${_EXPOSE_LOCAL%/*}/index.json" \
             --health-interval 3s \
@@ -114,13 +112,13 @@ elif [[ " $* " =~ " up " ]]; then
     elif [[ -n "$_ARG_SETUP" ]]; then
         sc_heading 1 "Setting up ${_SERVICE}"
 
-        _ST_DATA_URL="$(pass serenditree/data.url)"
-
-        [[ -z "$_ARG_DRYRUN" ]] && _ST_HELM_NAME=root-map
+        if [[ -z "$_ARG_DRYRUN" ]]; then
+            _ST_HELM_NAME=root-map
+            kubectl create secret generic exoscale-config --from-file="$EXOSCALE_CONFIG" --namespace serenditree
+        fi
         helm $_ST_HELM_CMD $_ST_HELM_NAME ./charts/cd \
             --set "global.context=$_ST_CONTEXT" \
             --set "ingress.letsencrypt.issuer=$_ARG_ISSUER" \
-            --set "rootMap.data=$_ST_DATA_URL" \
             --set "rootMap.dataMountPath=$_VOLUME_DST" \
             --set "rootMap.stage=$_ST_STAGE" | $_ST_HELM_PIPE
 
@@ -131,7 +129,6 @@ elif [[ " $* " =~ " up " ]]; then
             helm $_ST_HELM_CMD $_ST_HELM_NAME ./charts/app \
                 --set "global.context=$_ST_CONTEXT" \
                 --set "ingress.letsencrypt.issuer=$_ARG_ISSUER" \
-                --set "rootMap.data=$_ST_DATA_URL" \
                 --set "rootMap.dataMountPath=$_VOLUME_DST" \
                 --set "rootMap.stage=$_ST_STAGE" | $_ST_HELM_PIPE
         fi
