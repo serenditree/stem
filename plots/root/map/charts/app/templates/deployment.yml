@@ -31,9 +31,7 @@ spec:
             - '-c'
             - >
               test -f $MBTILES || /exo -A serenditree storage download $SOS_MBTILES $MBTILES
-              stat -c 'u: %U (%u) - g: %G (%g) - %a - %A - %C - %n' $MBTILES
               chown 1001:0 $MBTILES
-              stat -c 'u: %U (%u) - g: %G (%g) - %a - %A - %C - %n' $MBTILES
           env:
             - name: EXOSCALE_CONFIG
               value: /exoscale-config/exoscale.toml
