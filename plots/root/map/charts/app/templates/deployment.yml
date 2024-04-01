@@ -27,8 +27,8 @@ spec:
         - name: exo
           image: "docker.io/exoscale/cli:latest"
           command:
-            - sh
-            - -c
+            - 'sh'
+            - '-c'
             - >
               test -f $MBTILES || /exo -A serenditree storage download $SOS_MBTILES $MBTILES
               stat -c 'u: %U (%u) - g: %G (%g) - %a - %A - %C - %n' $MBTILES
