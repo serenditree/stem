@@ -31,7 +31,9 @@ spec:
             - |
               aws configure set aws_access_key_id $(EXOSCALE_API_KEY)
               aws configure set aws_secret_access_key $(EXOSCALE_API_SECRET)
-              test -f $(MBTILES) || aws s3 cp s3://$(MBTILES_SOS) $(MBTILES) --endpoint-url https://sos-at-vie-1.exo.io
+              aws configure set default.region at-vie-1
+              aws configure set default.endpoint_url https://sos-at-vie-1.exo.io
+              test -f $(MBTILES) || aws s3 cp s3://$(MBTILES_SOS) $(MBTILES)
               chown -R 1001:0 $(MBTILES_DIR)
           env:
             - name: MBTILES_SOS
