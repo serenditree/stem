@@ -29,11 +29,13 @@ spec:
           command: [
             'sh',
             '-c',
-            "test -f $MBTILES || /exo -A serenditree storage download $MBTILES_SOS $MBTILES && chown -R 1001:0 $MBTILES_DIR"
+            "test -f $MBTILES || /exo storage download $MBTILES_SOS $MBTILES && chown -R 1001:0 $MBTILES_DIR"
           ]
           env:
             - name: EXOSCALE_CONFIG
               value: /exoscale-config/exoscale.toml
+            - name: EXOSCALE_ACCOUNT
+              value: serenditree
             - name: MBTILES_SOS
               value: sos://serenditree-data/osm.mbtiles
             - name: MBTILES_DIR
