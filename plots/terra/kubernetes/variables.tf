@@ -28,7 +28,7 @@ variable "zone" {
 variable "kubernetes_version" {
   description = "Kubernetes version."
   type        = string
-  default     = "1.29.1"
+  default     = "1.29.2"
 }
 
 variable "service_level" {
