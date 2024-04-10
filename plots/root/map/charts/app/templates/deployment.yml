@@ -24,7 +24,7 @@ spec:
       securityContext:
         fsGroup: 1001
       initContainers:
-        - name: s3
+        - name: root-map-init
           image: "docker.io/amazon/aws-cli:latest"
           command: [ "/bin/sh", "-c" ]
           args:
