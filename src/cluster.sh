@@ -67,14 +67,6 @@ function sc_cluster_patch() {
             --overwrite \
             service.beta.kubernetes.io/exoscale-loadbalancer-service-strategy=round-robin
         ;;
-    osm-data)
-        if [[ -n "$_ARG_DATA" ]]; then
-            echo "Setting SERENDITREE_DATA_URL to ${_ARG_DATA}..."
-            kubectl set env deploy/root-map SERENDITREE_DATA_URL="$_ARG_DATA"
-        else
-            kubectl set env deploy/root-map SERENDITREE_DATA_URL-
-        fi
-        ;;
     argocd-cm)
         kubectl patch cm argocd-cm \
             --patch-file="${_ST_HOME_STEM}/rc/patches/argocd-cm.yaml" \

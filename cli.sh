@@ -23,7 +23,6 @@ _ST_HELP="Please type 'sc <help>' for a list of commands or $_ST_HELP_DETAIL"
 # ARG_OPTIONAL_BOOLEAN([reset],[],[Reset flag.])
 # ARG_OPTIONAL_BOOLEAN([delete],[],[Deletion flag.])
 # ARG_OPTIONAL_BOOLEAN([imperative],[],[Imperative flag.])
-# ARG_OPTIONAL_SINGLE([data],[d],[Pass arbitrary data.])
 # ARG_OPTIONAL_SINGLE([issuer],[],[Set let's encrypt issuer to prod or staging.],[prod])
 # ARG_OPTIONAL_BOOLEAN([compose],[],[Run or build for podman-compose.])
 # ARG_OPTIONAL_BOOLEAN([integration],[],[Run for integration testing.])
@@ -54,7 +53,7 @@ die()
 
 begins_with_short_option()
 {
-    local first_option all_short_options='TPDvayEwdkolh'
+    local first_option all_short_options='TPDvayEwkolh'
     first_option="${1:0:1}"
     test "$all_short_options" = "${all_short_options/$first_option/}" && return 1 || return 0
 }
@@ -79,7 +78,6 @@ _arg_upgrade="off"
 _arg_reset="off"
 _arg_delete="off"
 _arg_imperative="off"
-_arg_data=
 _arg_issuer="prod"
 _arg_compose="off"
 _arg_integration="off"
@@ -92,7 +90,7 @@ _arg_help="off"
 
 print_help()
 {
-    printf 'Usage: %s [-T|--test] [-P|--prod] [-D|--dryrun] [-v|--verbose] [-a|--all] [-y|--assume-yes] [-E|--expose] [--open] [-w|--watch] [--init] [--setup] [--upgrade] [--reset] [--delete] [--imperative] [-d|--data <arg>] [--issuer <arg>] [--compose] [--integration] [-k|--kubernetes] [-o|--openshift] [-l|--local] [--dashboard] [-h|--help] [--] <command> ... \n' " sc" && echo
+    printf 'Usage: %s [-T|--test] [-P|--prod] [-D|--dryrun] [-v|--verbose] [-a|--all] [-y|--assume-yes] [-E|--expose] [--open] [-w|--watch] [--init] [--setup] [--upgrade] [--reset] [--delete] [--imperative] [--issuer <arg>] [--compose] [--integration] [-k|--kubernetes] [-o|--openshift] [-l|--local] [--dashboard] [-h|--help] [--] <command> ... \n' " sc" && echo
     printf '\t%-20s%s\n' "<command>:" "Command to execute. Please type sc <help> for a list of commands!"
     printf '\t%-20s%s\n' "... :" "Other arguments passed to command."
     printf '\t%-20s%s\n' "-T, --test:" "Sets the target stage to test. (default is dev)"
@@ -110,7 +108,6 @@ print_help()
     printf '\t%-20s%s\n' "--reset:" "Reset flag."
     printf '\t%-20s%s\n' "--delete:" "Deletion flag."
     printf '\t%-20s%s\n' "--imperative:" "Imperative flag."
-    printf '\t%-20s%s\n' "-d, --data:" "Pass arbitrary data. (no default)"
     printf '\t%-20s%s\n' "--issuer:" "Set let's encrypt issuer to prod or staging. (default: 'prod')"
     printf '\t%-20s%s\n' "--compose:" "Run or build for podman-compose."
     printf '\t%-20s%s\n' "--integration:" "Run for integration testing."
@@ -263,17 +260,6 @@ parse_commandline()
                 _arg_imperative="on"
                 test "${1:0:5}" = "--no-" && _arg_imperative="off"
                 ;;
-            -d|--data)
-                test $# -lt 2 && die "Missing value for the optional argument '$_key'." 1
-                _arg_data="$2"
-                shift
-                ;;
-            --data=*)
-                _arg_data="${_key##--data=}"
-                ;;
-            -d*)
-                _arg_data="${_key##-d}"
-                ;;
             --issuer)
                 test $# -lt 2 && die "Missing value for the optional argument '$_key'." 1
                 _arg_issuer="$2"
@@ -420,7 +406,6 @@ export _ARG_DELETE=${_arg_delete/off/}
 export _ARG_IMPERATIVE=${_arg_imperative/off/}
 export _ARG_WATCH=${_arg_watch/off/}
 export _ARG_ISSUER=$_arg_issuer
-export _ARG_DATA=$_arg_data
 export _ARG_COMPOSE=${_arg_compose/off/}
 export _ARG_INTEGRATION=${_arg_integration/off/}
 export _ARG_KUBERNETES=${_arg_kubernetes/off/}
@@ -700,8 +685,6 @@ cluster)
             sc_heading 2 "sc cluster patch <arg>"
             echo "Applies patches to the current cluster."
             printf '\n\t%-20s%s\n' "nginx-ingress:" "Sets load balancing strategy to round-robin."
-            printf '\t%-20s%s\n' "osm-data:" "Sets ST_DATA_URL to the value of --data and triggers osm-data download."
-            printf '\t%-20s%s\n' " " "If --data is missing, the environment variable gets reset."
             printf '\t%-20s%s\n' "recreate:" "Patches deployment strategy for low performance environments."
             printf '\t%-20s%s\n' "argocd-cm:" "Patch ArgoCD config map to ignore resources."
         else

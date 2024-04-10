@@ -38,7 +38,6 @@ echo "Done"
 # ARG_OPTIONAL_BOOLEAN([reset], [], [Reset flag.])
 # ARG_OPTIONAL_BOOLEAN([delete], [], [Deletion flag.])
 # ARG_OPTIONAL_BOOLEAN([imperative], [], [Imperative flag.])
-# ARG_OPTIONAL_SINGLE([data], [d], [Pass arbitrary data.])
 # ARG_OPTIONAL_SINGLE([issuer], [], [Set let's encrypt issuer to prod or staging.], [prod])
 # ARG_OPTIONAL_BOOLEAN([compose], [], [Run or build for podman-compose.])
 # ARG_OPTIONAL_BOOLEAN([integration], [], [Run for integration testing.])
@@ -83,7 +82,6 @@ export _ARG_DELETE=${_arg_delete/off/}
 export _ARG_IMPERATIVE=${_arg_imperative/off/}
 export _ARG_WATCH=${_arg_watch/off/}
 export _ARG_ISSUER=$_arg_issuer
-export _ARG_DATA=$_arg_data
 export _ARG_COMPOSE=${_arg_compose/off/}
 export _ARG_INTEGRATION=${_arg_integration/off/}
 export _ARG_KUBERNETES=${_arg_kubernetes/off/}
@@ -363,8 +361,6 @@ cluster)
             sc_heading 2 "sc cluster patch <arg>"
             echo "Applies patches to the current cluster."
             printf '\n\t%-20s%s\n' "nginx-ingress:" "Sets load balancing strategy to round-robin."
-            printf '\t%-20s%s\n' "osm-data:" "Sets ST_DATA_URL to the value of --data and triggers osm-data download."
-            printf '\t%-20s%s\n' " " "If --data is missing, the environment variable gets reset."
             printf '\t%-20s%s\n' "recreate:" "Patches deployment strategy for low performance environments."
             printf '\t%-20s%s\n' "argocd-cm:" "Patch ArgoCD config map to ignore resources."
         else
