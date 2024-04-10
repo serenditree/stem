@@ -38,6 +38,7 @@ echo "Done"
 # ARG_OPTIONAL_BOOLEAN([reset], [], [Reset flag.])
 # ARG_OPTIONAL_BOOLEAN([delete], [], [Deletion flag.])
 # ARG_OPTIONAL_BOOLEAN([imperative], [], [Imperative flag.])
+# ARG_OPTIONAL_SINGLE([resume], [], [Resume plots from the given ordinal.], [0])
 # ARG_OPTIONAL_SINGLE([issuer], [], [Set let's encrypt issuer to prod or staging.], [prod])
 # ARG_OPTIONAL_BOOLEAN([compose], [], [Run or build for podman-compose.])
 # ARG_OPTIONAL_BOOLEAN([integration], [], [Run for integration testing.])
@@ -81,6 +82,7 @@ export _ARG_RESET=${_arg_reset/off/}
 export _ARG_DELETE=${_arg_delete/off/}
 export _ARG_IMPERATIVE=${_arg_imperative/off/}
 export _ARG_WATCH=${_arg_watch/off/}
+export _ARG_RESUME=$_arg_resume
 export _ARG_ISSUER=$_arg_issuer
 export _ARG_COMPOSE=${_arg_compose/off/}
 export _ARG_INTEGRATION=${_arg_integration/off/}

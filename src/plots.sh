@@ -10,10 +10,10 @@ function sc_plots() {
     local -r _pattern=$1
     # shellcheck disable=SC2044
     { for _plot in $(find . -type d -path '*/\.*' -prune -o -name 'plot.sh' -print); do
-        pushd ${_plot%/*} >/dev/null
+        pushd ${_plot%/*} >/dev/null || exit 1
         bash ./plot.sh info
-        popd >/dev/null
-    done; } | grep -E "$_pattern" | sort
+        popd >/dev/null || exit 1
+    done; } | grep -E "$_pattern" | sort | tail -n +$((_ARG_RESUME + 1))
 }
 
 # Prints or opens available plots.
