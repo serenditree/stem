@@ -114,7 +114,10 @@ elif [[ " $* " =~ " up " ]]; then
 
         if [[ -z "$_ARG_DRYRUN" ]]; then
             _ST_HELM_NAME=root-map
-            kubectl create secret generic exoscale-config --from-file="$EXOSCALE_CONFIG" --namespace serenditree
+            kubectl create secret generic exoscale-credentials \
+                --from-literal="apikey=$(pass serenditree/serenditree@exoscale.com.access)" \
+                --from-literal="secret=$(pass serenditree/serenditree@exoscale.com.secret)" \
+                --namespace serenditree
         fi
         helm $_ST_HELM_CMD $_ST_HELM_NAME ./charts/cd \
             --set "global.context=$_ST_CONTEXT" \
