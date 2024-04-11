@@ -3,7 +3,7 @@
 # ROOT-MAP
 ########################################################################################################################
 _SERVICE=root-map
-_ORDINAL="16"
+_ORDINAL="15"
 
 _IMAGE=serenditree/root-map
 _VERSION=latest

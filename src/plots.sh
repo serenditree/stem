@@ -13,7 +13,7 @@ function sc_plots() {
         pushd ${_plot%/*} >/dev/null || exit 1
         bash ./plot.sh info
         popd >/dev/null || exit 1
-    done; } | grep -E "$_pattern" | sort | tail -n +$((_ARG_RESUME + 1))
+    done; } | grep -E "$_pattern" | sort -n -k1 | tail -n +$((_ARG_RESUME + 1))
 }
 
 # Prints or opens available plots.
@@ -26,7 +26,7 @@ function sc_plots_inspect() {
             uniq |
             xargs -I{} bash -c "echo 'Opening {}...' && idea {} >/dev/null"
     else
-        cat <(echo 'ID SERVICE IMAGE TAG PATH') <(sc_plots $_pattern) | column -ts' '
+        cat <(echo 'ORDINAL SERVICE IMAGE TAG PATH') <(sc_plots $_pattern) | column -ts' '
     fi
 }
 

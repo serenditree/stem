@@ -7,8 +7,7 @@ source ./plot.env
 # BRANCH
 ########################################################################################################################
 _SERVICE=branch-${_BRANCH}
-_ORDINAL="0$((_OFFSET + 18))"
-_ORDINAL=${_ORDINAL: -2}
+_ORDINAL="$((_OFFSET + 18))"
 
 _IMAGE=serenditree/branch-${_BRANCH}
 _VERSION=latest
@@ -96,7 +95,7 @@ elif [[ " $* " =~ " up " ]]; then
     if [[ -z "$_ST_CONTEXT_CLUSTER" ]]; then
         sc_heading 1 "Starting ${_SERVICE}:${_TAG}"
         sc_container_rm $_CONTAINER
-        _EXPOSE="$((${_EXPOSE%/*} + _OFFSET))"
+        _EXPOSE="$((${_EXPOSE%/*} + _OFFSET + 1))"
 
         cat <(./src/secrets.sh podman) <(echo "serenditree/java-builder:latest bash wrapper.sh") | xargs \
             podman run \

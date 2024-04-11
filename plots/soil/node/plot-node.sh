@@ -5,8 +5,7 @@ _OFFSET=$2
 # NODE
 ########################################################################################################################
 _SERVICE=soil-node-${_FLAVOR}
-_ORDINAL="0$((_OFFSET + 10))"
-_ORDINAL=${_ORDINAL: -2}
+_ORDINAL="$((_OFFSET + 10))"
 
 _IMAGE=serenditree/node-${_FLAVOR}
 _TAG=latest
