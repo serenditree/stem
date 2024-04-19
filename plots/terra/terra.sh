@@ -96,15 +96,27 @@ function sc_terra_up() {
     if [[ -n "$_ARG_INIT" ]]; then
         sc_terra_up_init
     else
-        [[ -z "$_ARG_DRYRUN" ]] && terraform -chdir="$_ST_TERRA_DIR" apply \
+        local -r _plan='serenditree.tfplan'
+        terraform -chdir="$_ST_TERRA_DIR" plan \
             -var="api_key=${_ST_TERRA_API_KEY}" \
-            -var="api_secret=${_ST_TERRA_API_SECRET}" || exit 1
+            -var="api_secret=${_ST_TERRA_API_SECRET}" \
+            -out "$_plan"
 
-        sc_heading 1 "Setting up kubernetes context"
-        [[ -z "$_ARG_DRYRUN" ]] && sc_context_init_kube
+        local -r _path='.variables.kubernetes_version.value'
+        local -r _kubernetes_version="$(terraform -chdir="$_ST_TERRA_DIR" show -json $_plan | jq -r "$_path")"
 
-        sc_heading 1 "Setting up ingress controller"
-        [[ -z "$_ARG_DRYRUN" ]] && sc_terra_up_ingress
+        if exo compute sks versions --output-format text | grep -Eq "^${_kubernetes_version}$"; then
+            [[ -z "$_ARG_DRYRUN" ]] && terraform -chdir="$_ST_TERRA_DIR" apply "$_plan" || exit 1
+
+            sc_heading 1 "Setting up kubernetes context"
+            [[ -z "$_ARG_DRYRUN" ]] && sc_context_init_kube
+
+            sc_heading 1 "Setting up ingress controller"
+            [[ -z "$_ARG_DRYRUN" ]] && sc_terra_up_ingress
+        else
+            echo "Kubernetes version $_kubernetes_version is not available. Aborting..."
+            exit 1
+        fi
     fi
 }
 

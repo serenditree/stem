@@ -4,11 +4,13 @@
 variable "api_key" {
   description = "Exoscale api key."
   type        = string
+  sensitive   = true
 }
 
 variable "api_secret" {
   description = "Exoscale api secret."
   type        = string
+  sensitive   = true
 }
 
 variable "ssh_key_pair" {
@@ -28,7 +30,7 @@ variable "zone" {
 variable "kubernetes_version" {
   description = "Kubernetes version."
   type        = string
-  default     = "1.29.2"
+  default     = "1.29.3"
 }
 
 variable "service_level" {
@@ -53,7 +55,7 @@ variable "base_domain" {
 ########################################################################################################################
 variable "compute_nodes" {
   description = "The compute node-pools to create."
-  type = map(object({
+  type        = map(object({
     replicas      = number
     instance_type = string
     disk_size     = number

@@ -36,5 +36,8 @@ override.tf.json
 .terraformrc
 terraform.rc
 
+# Plans
+*.tfplan
+
 ### Helm ###
 Chart.lock
