@@ -28,37 +28,37 @@ export -f sc_context_init_generic
 
 # Initializes the context of the remote kubernetes cluster.
 function sc_context_init_kube() {
-    echo -n "Fetching kubeconfig..."
+    echo "Fetching kubeconfig..."
     local -r _config=~/.kube/config.sks
     local -r _ttl="$((60 * 60 * 24 * 90))"
-    if exo compute sks kubeconfig serenditree kube-admin --ttl $_ttl --group system:masters --zone at-vie-1 >$_config
-    then
-        echo "${_BOLD}done${_NORMAL}"
-        local -r _sks_id="$(sed -En 's/.*current-context: (.*)/\1/p' $_config)"
-        # shellcheck disable=SC2155,SC2011
-        export KUBECONFIG="$(ls ~/.kube/config* | xargs echo | tr ' ' ':')"
-        sc_context_init_generic "$_sks_id" "$_ST_CONTEXT_KUBERNETES"
-        echo  "Waiting for nodes..."
-        sleep 1m
-        kubectl wait --for=condition=ready --all-namespaces --all nodes
-    fi
+    local -r _group="system:masters"
+    until exo compute sks kubeconfig serenditree kube-admin --ttl $_ttl --group $_group  --zone at-vie-1 >$_config
+    do
+        sleep 1s
+    done
+    local -r _sks_id="$(sed -En 's/.*current-context: (.*)/\1/p' $_config)"
+    # shellcheck disable=SC2155,SC2011
+    export KUBECONFIG="$(ls ~/.kube/config* | xargs echo | tr ' ' ':')"
+    sc_context_init_generic "$_sks_id" "$_ST_CONTEXT_KUBERNETES"
+    echo  "Waiting for nodes..."
+    until kubectl wait --for=condition=ready --all-namespaces --all nodes 2>/dev/null; do sleep 1s; done
 }
 export -f sc_context_init_kube
 
 # Initializes available contexts.
 function sc_context_init() {
     for _context in "${_ST_CONTEXTS[@]}"; do
-        kubectl config set-context $_context --namespace serenditree
+        if ! kubectl config get-contexts $_context &>/dev/null; then
+            kubectl config set-context $_context --cluster no-cluster --user no-user --namespace serenditree
+        fi
     done
 
     if [[ -n "$_ARG_SETUP" ]]; then
         if [[ -n "$_ST_CONTEXT_KUBERNETES" ]]; then
             sc_context_init_kube
-        elif [[ -n "$_ST_CONTEXT_KUBERNETES_LOCAL" ]] &&
-            ! kubectl config get-contexts "$_ST_CONTEXT_KUBERNETES_LOCAL" &>/dev/null; then
+        elif [[ -n "$_ST_CONTEXT_KUBERNETES_LOCAL" ]]; then
             sc_context_init_generic minikube "$_ST_CONTEXT_KUBERNETES_LOCAL"
-        elif [[ -n "$_ST_CONTEXT_OPENSHIFT_LOCAL" ]] &&
-            ! oc config get-contexts "$_ST_CONTEXT_OPENSHIFT_LOCAL" &>/dev/null; then
+        elif [[ -n "$_ST_CONTEXT_OPENSHIFT_LOCAL" ]]; then
             oc login -u kubeadmin -p crc.testing https://api.crc.testing:6443
             sc_context_init_generic default/api-crc-testing:6443/kubeadmin "$_ST_CONTEXT_OPENSHIFT_LOCAL"
         fi
