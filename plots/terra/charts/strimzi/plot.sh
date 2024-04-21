@@ -28,7 +28,7 @@ if [[ -n "$_ST_CONTEXT_CLUSTER" ]]; then
                     --set "kafdrop.enabled=true" | yq eval '.' -
             fi
         fi
-    elif [[ " $* " =~ " down " ]]; then
+    elif [[ " $* " =~ " down " ]] && [[ -n "$_ARG_DELETE" ]]; then
         argocd app delete "$_SERVICE"
     fi
 fi
