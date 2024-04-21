@@ -29,6 +29,7 @@ if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "$_ARG_SET
         kubectl wait --for condition=ready --all pod --namespace tekton-pipelines --timeout 5m
     fi
     sc_heading 1 "Creating tekton resources"
+    [[ -z "$_ARG_DRYRUN" ]] && helm dependency build
 
     _st_github_token=$(pass serenditree/github.com)
     _st_quay_token=$(pass serenditree/quay.io)
