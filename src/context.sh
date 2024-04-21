@@ -84,7 +84,7 @@ function sc_context_use() {
 export -f sc_context_use
 
 # Shows and/or sets the cluster context.
-# $1: Optional ID (unpadded number) of the context to set.
+# $1: Optional ID of the context to set.
 function sc_context() {
     if [[ -n "${_ARG_INIT}" ]]; then
         sc_context_init
@@ -99,7 +99,7 @@ function sc_context() {
     kubectl config get-contexts --no-headers |
         grep -E "serenditree" |
         sed -E 's/([* ]+\S+).*/\1/' |
-        nl -w2 -s' ' -n'rz'
+        nl -w1 -s' '
 
     local _authenticated=1
     sc_cluster_status && _authenticated=0
