@@ -96,7 +96,11 @@ function sc_terra_up() {
     if [[ -n "$_ARG_INIT" ]]; then
         sc_terra_up_init
     else
+        sc_terra_up_init
         local -r _plan='serenditree.tfplan'
+        local -r _plan_realpath="$(realpath $0 | xargs dirname)/${_ST_TERRA_DIR}/${_plan}"
+        # shellcheck disable=SC2064
+        trap "rm -f $_plan_realpath" EXIT
         terraform -chdir="$_ST_TERRA_DIR" plan \
             -var="api_key=${_ST_TERRA_API_KEY}" \
             -var="api_secret=${_ST_TERRA_API_SECRET}" \
