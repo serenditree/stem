@@ -1,17 +1,8 @@
 global:
   setupApps: false
+  setupTekton: false
   context: ~
   clusterDomain: ~
-apisix:
-  admin:
-    credentials:
-      admin: ~
-      viewer: ~
-  dashboard:
-    enabled: true
-    secret: ~
-    username: ~
-    password: ~
 ingress:
   letsencrypt:
     issuer: ~

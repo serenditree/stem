@@ -1,3 +1,4 @@
+{{- if .Values.global.setupTekton }}
 {{- if .Values.global.setupApps }}
 ---
 apiVersion: argoproj.io/v1alpha1
@@ -38,4 +39,5 @@ spec:
       jqPathExpressions:
         - '.spec.steps[].workingdir'
         - '.spec.steps[].resources'
+{{- end }}
 {{- end }}
