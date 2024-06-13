@@ -16,12 +16,27 @@ fi
 ########################################################################################################################
 if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "${_ARG_SETUP}${_ARG_UPGRADE}" ]]; then
     sc_heading 1 "Setting up $_SERVICE"
+    _cluster_domain=$(sc_context_cluster_domain)
+    _github_token=$(pass serenditree/github.com)
+    _quay_token=$(pass serenditree/quay.io)
+    _redhat_token=$(pass serenditree/registry.redhat.io)
+
+    [[ -z "$_ARG_DRYRUN" ]] && _ST_HELM_NAME=argocd
+    helm $_ST_HELM_CMD $_ST_HELM_NAME . \
+        --namespace argocd \
+        --create-namespace \
+        --set "global.context=$_ST_CONTEXT" \
+        --set "global.clusterDomain=$_cluster_domain" \
+        --set "ingress.letsencrypt.issuer=$_ARG_ISSUER" \
+        --set "ingress.letsencrypt.email=$(pass serenditree/contact)" \
+        --set "tekton.basic.github=${_github_token#*:}" \
+        --set "tekton.basic.quay=${_quay_token#*:}" \
+        --set "tekton.basic.redhat=${_redhat_token#*:}" | $_ST_HELM_PIPE
+
     if [[ -z "${_ARG_DRYRUN}${_ARG_UPGRADE}" ]]; then
-        kubectl create namespace argocd
-        kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-        echo "Waiting for argocd..."
-        sleep 30s
-        kubectl wait --for condition=ready --all pod --namespace argocd --timeout 5m
+        echo "Waiting for pods to become ready..."
+        kubectl wait --for condition=established --all crd
+        kubectl -n argocd wait --for condition=ready --all pod --timeout 2m
         echo "Patching argocd config map..."
         sc_cluster_patch argocd-cm
         echo "Starting port-forwarding..."
@@ -39,20 +54,10 @@ if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "${_ARG_SE
         argocd repo add git@github.com:serenditree/stem.git \
             --ssh-private-key-path ~/.ssh/stem@serenditree.io \
             --name stem
+
+        helm upgrade $_ST_HELM_NAME . \
+            --namespace argocd \
+            --reuse-values \
+            --set "global.setupApps=true"
     fi
-
-    _cluster_domain=$(sc_context_cluster_domain)
-    _github_token=$(pass serenditree/github.com)
-    _quay_token=$(pass serenditree/quay.io)
-    _redhat_token=$(pass serenditree/registry.redhat.io)
-
-    [[ -z "$_ARG_DRYRUN" ]] && _ST_HELM_NAME=argocd
-    helm $_ST_HELM_CMD $_ST_HELM_NAME . \
-        --set "global.context=$_ST_CONTEXT" \
-        --set "global.clusterDomain=$_cluster_domain" \
-        --set "ingress.letsencrypt.issuer=$_ARG_ISSUER" \
-        --set "ingress.letsencrypt.email=$(pass serenditree/contact)" \
-        --set "tekton.basic.github=${_github_token#*:}" \
-        --set "tekton.basic.quay=${_quay_token#*:}" \
-        --set "tekton.basic.redhat=${_redhat_token#*:}" | $_ST_HELM_PIPE
 fi

@@ -4,19 +4,11 @@
 variable "api_key" {
   description = "Exoscale api key."
   type        = string
-  sensitive   = true
 }
 
 variable "api_secret" {
   description = "Exoscale api secret."
   type        = string
-  sensitive   = true
-}
-
-variable "ssh_key_pair" {
-  description = "Identifier of the ssh public key available at Exoscale."
-  type        = string
-  default     = "tanwald1"
 }
 ########################################################################################################################
 # Cluster
@@ -30,7 +22,7 @@ variable "zone" {
 variable "kubernetes_version" {
   description = "Kubernetes version."
   type        = string
-  default     = "1.29.3"
+  default     = "1.29.5"
 }
 
 variable "service_level" {
@@ -42,20 +34,21 @@ variable "service_level" {
 variable "cni" {
   description = "Container network interface plugin to use."
   type        = string
-  default     = "cilium"
+  default     = ""
 }
 
-variable "base_domain" {
-  description = "Base domain."
-  type        = string
-  default     = "serenditree.io"
+variable "csi" {
+  description = "Enable container storage interface plugin."
+  type        = bool
+  default     = true
 }
+
 ########################################################################################################################
 # Nodes
 ########################################################################################################################
 variable "compute_nodes" {
-  description = "The compute node-pools to create."
-  type        = map(object({
+  description = "The node-pools to create."
+  type = map(object({
     replicas      = number
     instance_type = string
     disk_size     = number
@@ -64,7 +57,16 @@ variable "compute_nodes" {
     dev = {
       replicas      = 2
       instance_type = "standard.large"
-      disk_size     = 128
+      disk_size     = 32
     }
   }
+}
+
+########################################################################################################################
+# Config
+########################################################################################################################
+variable "kubeconfig" {
+  description = "Target location of kubeconfig"
+  type        = string
+  default     = ""
 }

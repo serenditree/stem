@@ -1,3 +1,4 @@
+{{- if .Values.global.setupApps }}
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
@@ -37,3 +38,4 @@ spec:
       jqPathExpressions:
         - '.spec.steps[].workingdir'
         - '.spec.steps[].resources'
+{{- end }}

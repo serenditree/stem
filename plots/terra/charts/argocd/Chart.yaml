@@ -4,3 +4,8 @@ name: terra-argocd
 description: "ArgoCD resources."
 version: 0.0.1
 appVersion: "v0.0.1"
+
+dependencies:
+  - name: argo-cd
+    repository: https://argoproj.github.io/argo-helm
+    version: 6.9.3

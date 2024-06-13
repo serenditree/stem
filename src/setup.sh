@@ -38,7 +38,6 @@ function sc_setup_helm() {
         echo "Adding repos..."
         for _repo in \
             bitnami:https://charts.bitnami.com/bitnami \
-            longhorn:https://charts.longhorn.io \
             strimzi:https://strimzi.io/charts \
             prometheus:https://prometheus-community.github.io/helm-charts \
             cert-manager:https://charts.jetstack.io; do
@@ -67,7 +66,6 @@ function sc_setup_helm_update() {
     for _repo in \
         bitnami/mongodb \
         bitnami/mariadb-galera \
-        longhorn/longhorn \
         strimzi/strimzi-kafka-operator \
         prometheus/kube-prometheus-stack \
         cert-manager/cert-manager; do

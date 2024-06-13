@@ -1,3 +1,4 @@
+{{- if .Values.global.setupApps }}
 {{- if not (hasSuffix "-local" .Values.global.context) }}
 ---
 apiVersion: argoproj.io/v1alpha1
@@ -24,4 +25,5 @@ spec:
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: serenditree
+{{- end }}
 {{- end }}

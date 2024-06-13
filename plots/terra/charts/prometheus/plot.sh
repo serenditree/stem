@@ -16,4 +16,13 @@ fi
 ########################################################################################################################
 if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "$_ARG_SETUP" ]]; then
     sc_heading 1 "Setting up $_SERVICE"
+    helm install monitoring --namespace monitoring --create-namespace .
+    echo "Waiting for pods to become ready..."
+    kubectl wait --for condition=established --all crd
+    kubectl -n monitoring wait --for=condition=ready --all pod --timeout 420s
+    echo "Configuring cilium/hubble service monitors..."
+    cilium upgrade --reuse-values \
+        --set hubble.metrics.serviceMonitor.enabled=true \
+        --set prometheus.serviceMonitor.enabled=true \
+        --set operator.prometheus.serviceMonitor.enabled=true
 fi

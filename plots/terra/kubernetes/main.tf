@@ -2,10 +2,11 @@
 # Init
 ########################################################################################################################
 provider "exoscale" {
-  key            = var.api_key
-  secret         = var.api_secret
-  timeout        = 240
+  key     = var.api_key
+  secret  = var.api_secret
+  timeout = 240
 }
+
 ########################################################################################################################
 # Security group
 ########################################################################################################################
@@ -42,7 +43,7 @@ resource "exoscale_security_group_rule" "calico_traffic" {
 }
 
 resource "exoscale_security_group_rule" "cilium_healthcheck_tcp" {
-  count                  = var.cni == "cilium" ? 1 : 0
+  count                  = var.cni == "cilium" || var.cni == "" ? 1 : 0
   security_group_id      = exoscale_security_group.serenditree.id
   user_security_group_id = exoscale_security_group.serenditree.id
   type                   = "INGRESS"
@@ -52,7 +53,7 @@ resource "exoscale_security_group_rule" "cilium_healthcheck_tcp" {
 }
 
 resource "exoscale_security_group_rule" "cilium_healthcheck_ping" {
-  count                  = var.cni == "cilium" ? 1 : 0
+  count                  = var.cni == "cilium" || var.cni == "" ? 1 : 0
   security_group_id      = exoscale_security_group.serenditree.id
   user_security_group_id = exoscale_security_group.serenditree.id
   type                   = "INGRESS"
@@ -62,7 +63,7 @@ resource "exoscale_security_group_rule" "cilium_healthcheck_ping" {
 }
 
 resource "exoscale_security_group_rule" "cilium_vxlan" {
-  count                  = var.cni == "cilium" ? 1 : 0
+  count                  = var.cni == "cilium" || var.cni == "" ? 1 : 0
   security_group_id      = exoscale_security_group.serenditree.id
   user_security_group_id = exoscale_security_group.serenditree.id
   type                   = "INGRESS"
@@ -70,6 +71,37 @@ resource "exoscale_security_group_rule" "cilium_vxlan" {
   start_port             = 8472
   end_port               = 8472
 }
+
+resource "exoscale_security_group_rule" "cilium_hubble" {
+  count                  = var.cni == "cilium" || var.cni == "" ? 1 : 0
+  security_group_id      = exoscale_security_group.serenditree.id
+  user_security_group_id = exoscale_security_group.serenditree.id
+  type                   = "INGRESS"
+  protocol               = "TCP"
+  start_port             = 4244
+  end_port               = 4244
+}
+
+resource "exoscale_security_group_rule" "cilium_prometheus" {
+  count                  = var.cni == "cilium" || var.cni == "" ? 1 : 0
+  security_group_id      = exoscale_security_group.serenditree.id
+  user_security_group_id = exoscale_security_group.serenditree.id
+  type                   = "INGRESS"
+  protocol               = "TCP"
+  start_port             = 9962
+  end_port               = 9965
+}
+
+resource "exoscale_security_group_rule" "cilium_prometheus_node_exporter" {
+  count                  = var.cni == "cilium" || var.cni == "" ? 1 : 0
+  security_group_id      = exoscale_security_group.serenditree.id
+  user_security_group_id = exoscale_security_group.serenditree.id
+  type                   = "INGRESS"
+  protocol               = "TCP"
+  start_port             = 9100
+  end_port               = 9100
+}
+
 ########################################################################################################################
 # Anti affinity
 ########################################################################################################################
@@ -82,11 +114,30 @@ resource "exoscale_anti_affinity_group" "serenditree" {
 # Cluster
 ########################################################################################################################
 resource "exoscale_sks_cluster" "serenditree" {
-  name          = "serenditree"
-  version       = var.kubernetes_version
-  cni           = var.cni
-  zone          = var.zone
-  service_level = var.service_level
+  name           = "serenditree"
+  version        = var.kubernetes_version
+  cni            = var.cni
+  zone           = var.zone
+  service_level  = var.service_level
+  exoscale_ccm   = true
+  exoscale_csi   = var.csi
+  metrics_server = true
+  auto_upgrade   = false
+}
+
+resource "exoscale_sks_kubeconfig" "sks_kubeconfig" {
+  zone       = exoscale_sks_cluster.serenditree.zone
+  cluster_id = exoscale_sks_cluster.serenditree.id
+
+  user        = "serenditree/kubeadmin"
+  groups      = ["system:masters"]
+  ttl_seconds = 2629800
+}
+
+resource "local_sensitive_file" "sks_kubeconfig_file" {
+  filename        = var.kubeconfig
+  content         = exoscale_sks_kubeconfig.sks_kubeconfig.kubeconfig
+  file_permission = "0600"
 }
 ########################################################################################################################
 # Compute nodes
@@ -112,6 +163,6 @@ resource "null_resource" "wait_for_cluster" {
   depends_on = [exoscale_sks_nodepool.serenditree]
 
   provisioner "local-exec" {
-    command = "until curl -ks ${exoscale_sks_cluster.serenditree.endpoint}/healthz; do sleep 5s; done"
+    command = "until curl -ks ${exoscale_sks_cluster.serenditree.endpoint}/healthz; do sleep 2s; done"
   }
 }

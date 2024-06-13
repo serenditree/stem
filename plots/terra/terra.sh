@@ -48,6 +48,52 @@ function sc_terra_up_assets() {
         -var="cluster_name=${_ST_STAGE}"
 }
 
+function sc_terra_up_context() {
+    local -r _kubeconfig_sks=${KUBECONFIG}.sks
+    cp -v "$KUBECONFIG" "${KUBECONFIG}.bak"
+    local -r _context_sks="$(sed -En 's/.*current-context: (.*)/\1/p' "$_kubeconfig_sks")"
+    sed -i '/current-context/d' "$_kubeconfig_sks"
+    KUBECONFIG="${KUBECONFIG}:${_kubeconfig_sks}" kubectl config view --flatten >"${KUBECONFIG}.merged"
+    mv "${KUBECONFIG}.merged" "${KUBECONFIG}"
+    chmod 600 "$KUBECONFIG"
+    kubectl config use-context "$_context_sks"
+    sc_context_init_generic "$_context_sks" "$_ST_CONTEXT_KUBERNETES"
+}
+
+function sc_terra_up_cni() {
+    local -r _ipsec_key="$(dd if=/dev/urandom count=20 bs=1 2> /dev/null | xxd -p -c 64)"
+    local -r _ipsec_key_secret=cilium-ipsec-keys
+    kubectl create secret generic $_ipsec_key_secret \
+        --namespace kube-system \
+        --from-literal=keys="3+ rfc4106(gcm(aes)) $_ipsec_key 128"
+
+    local -r _cluster_domain="$(sc_context_cluster_domain)"
+    local _metrics="dns,drop,tcp,flow,port-distribution,icmp,"
+    _metrics+="httpV2:exemplars=true;labelsContext=source_namespace\,source_app\,source_ip\,"
+    _metrics+="destination_namespace\,destination_app\,destination_ip\,traffic_direction"
+
+    cilium install \
+        --set etcd.clusterDomain="$_cluster_domain" \
+        --set hubble.peerService.clusterDomain="$_cluster_domain" \
+        --set encryption.enabled="true" \
+        --set encryption.type="ipsec" \
+        --set encryption.ipsec.secretName="${_ipsec_key_secret}" \
+        --set prometheus.enabled="true" \
+        --set operator.prometheus.enabled="true" \
+        --set hubble.enabled="true" \
+        --set hubble.relay.enabled="true" \
+        --set hubble.ui.enabled="true" \
+        --set hubble.metrics.enableOpenMetrics="true" \
+        --set hubble.metrics.enabled="{${_metrics}}"
+
+    cilium status --wait
+    # Adjust CSI
+    kubectl -n kube-system patch storageclass exoscale-sbs \
+        -p '{"metadata":{"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+    kubectl -n kube-system rollout restart ds exoscale-csi-node
+    kubectl -n kube-system rollout status ds exoscale-csi-node --watch
+}
+
 function sc_terra_up() {
     if [[ -n "$_ARG_INIT" ]]; then
         sc_terra_up_init
@@ -60,6 +106,7 @@ function sc_terra_up() {
         terraform -chdir="$_ST_TERRA_DIR" plan \
             -var="api_key=${_ST_TERRA_API_KEY}" \
             -var="api_secret=${_ST_TERRA_API_SECRET}" \
+            -var="kubeconfig=${KUBECONFIG}.sks" \
             -out "$_plan"
 
         local -r _path='.variables.kubernetes_version.value'
@@ -69,7 +116,9 @@ function sc_terra_up() {
             [[ -z "$_ARG_DRYRUN" ]] && terraform -chdir="$_ST_TERRA_DIR" apply "$_plan" || exit 1
 
             sc_heading 1 "Setting up kubernetes context"
-            [[ -z "$_ARG_DRYRUN" ]] && sc_context_init_kube
+            [[ -z "$_ARG_DRYRUN" ]] && sc_terra_up_context
+            sc_heading 1 "Setting up CNI"
+            [[ -z "$_ARG_DRYRUN" ]] && sc_terra_up_cni
         else
             echo "Kubernetes version $_kubernetes_version is not available. Aborting..."
             exit 1

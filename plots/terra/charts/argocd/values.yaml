@@ -1,4 +1,5 @@
 global:
+  setupApps: false
   context: ~
   clusterDomain: ~
 apisix:

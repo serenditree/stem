@@ -26,22 +26,24 @@ function sc_context_init_generic() {
 }
 export -f sc_context_init_generic
 
-# Initializes the context of the remote kubernetes cluster.
+# Fetches and sets the context of the remote kubernetes cluster.
 function sc_context_init_kube() {
     echo "Fetching kubeconfig..."
-    local -r _config=~/.kube/config.sks
+    local -r _config=${KUBECONFIG}.sks
     local -r _ttl="$((60 * 60 * 24 * 90))"
     local -r _group="system:masters"
-    until exo compute sks kubeconfig serenditree kube-admin --ttl $_ttl --group $_group  --zone at-vie-1 >$_config
+    until exo compute sks kubeconfig serenditree kube-admin --ttl $_ttl --group $_group  --zone at-vie-1 >"$_config"
     do
         sleep 1s
     done
-    local -r _sks_id="$(sed -En 's/.*current-context: (.*)/\1/p' $_config)"
-    # shellcheck disable=SC2155,SC2011
-    export KUBECONFIG="$(ls ~/.kube/config* | xargs echo | tr ' ' ':')"
-    sc_context_init_generic "$_sks_id" "$_ST_CONTEXT_KUBERNETES"
-    echo  "Waiting for nodes..."
-    until kubectl wait --for=condition=ready --all-namespaces --all nodes 2>/dev/null; do sleep 1s; done
+    cp -v "$KUBECONFIG" "${KUBECONFIG}.bak"
+    local -r _context_sks="$(sed -En 's/.*current-context: (.*)/\1/p' "$_config")"
+    sed -i '/current-context/d' "$_config"
+    KUBECONFIG="${KUBECONFIG}:${_config}" kubectl config view --flatten >"${KUBECONFIG}.merged"
+    mv "${KUBECONFIG}.merged" "${KUBECONFIG}"
+    chmod 600 "$KUBECONFIG"
+    kubectl config use-context "$_context_sks"
+    sc_context_init_generic "$_context_sks" "$_ST_CONTEXT_KUBERNETES"
 }
 export -f sc_context_init_kube
 
