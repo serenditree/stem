@@ -51,22 +51,34 @@ export -f sc_cluster_status
 
 # Restores databases
 function sc_cluster_restore() {
-    kubectl create secret generic exoscale-config --from-file="$EXOSCALE_CONFIG" --namespace serenditree
-    kubectl create --filename "${_ST_HOME_STEM}/rc/jobs/user-restore.yml" --namespace serenditree
-    kubectl create --filename "${_ST_HOME_STEM}/rc/jobs/seed-restore.yml" --namespace serenditree
+    if ! kubectl get secret exoscale-config &>/dev/null; then
+        kubectl create secret generic exoscale-config --from-file="$EXOSCALE_CONFIG" --namespace serenditree
+    fi
+    for _comp in user seed; do
+        echo kubectl create --filename "${_ST_HOME_STEM}/rc/jobs/${_comp}-restore.yml" --namespace serenditree
+    done
+}
+
+# Creates cronjobs of jobs for database backups
+function sc_cluster_backup() {
+    if ! kubectl get secret exoscale-config &>/dev/null; then
+        kubectl create secret generic exoscale-config --from-file="$EXOSCALE_CONFIG" --namespace serenditree
+    fi
+    for _comp in user seed; do
+        if [[ -n "$_ARG_SETUP" ]]; then
+            kubectl create --filename "${_ST_HOME_STEM}/rc/jobs/${_comp}-backup.yml" --namespace serenditree
+        else
+            kubectl create job "${_comp}-backup-$(date +%Y%m%d-%H%M%S)" \
+                --from=cronjob/${_comp}-backup \
+                --namespace serenditree
+        fi
+    done
 }
 
 # Applies predefined patches to cluster resources.
 # $1: Patch to apply.
 function sc_cluster_patch() {
     case $1 in
-    nginx-ingress)
-        # See https://github.com/exoscale/exoscale-cloud-controller-manager/blob/master/docs/service-loadbalancer.md
-        kubectl annotate svc ingress-nginx-controller \
-            --namespace ingress-nginx \
-            --overwrite \
-            service.beta.kubernetes.io/exoscale-loadbalancer-service-strategy=round-robin
-        ;;
     argocd-cm)
         kubectl patch cm argocd-cm \
             --patch-file="${_ST_HOME_STEM}/rc/patches/argocd-cm.yaml" \
