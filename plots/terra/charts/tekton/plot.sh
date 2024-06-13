@@ -14,9 +14,7 @@ fi
 ########################################################################################################################
 # UP
 ########################################################################################################################
-echo "Skipping..."
-_SKIP=true
-if [[ -z "$_SKIP" ]] && [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "$_ARG_SETUP" ]]; then
+if [[ -z "SKIP" ]] && [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "$_ARG_SETUP" ]]; then
     sc_heading 1 "Setting up $_SERVICE"
     if [[ -z "$_ARG_DRYRUN" ]]; then
         kubectl create namespace tekton-pipelines
