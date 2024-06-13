@@ -146,9 +146,15 @@ function sc_terra_down_loadbalancer() {
 
 function sc_terra_down_dns() {
     echo "Removing A record..."
-    exo dns show serenditree.io A --output-template '{{.ID}}' | xargs exo dns remove serenditree.io --force
+    exo dns show serenditree.io A --output-template '{{.ID}}' |
+        xargs exo dns remove serenditree.io --force
     echo "Removing CNAME record \"www\"..."
     exo dns remove serenditree.io www --force
+}
+
+function sc_terra_down_volumes() {
+    exo compute block-storage list --output-template '{{.ID}}' |
+        xargs -n1 exo compute block-storage delete --force
 }
 
 function sc_terra_down() {
@@ -157,10 +163,11 @@ function sc_terra_down() {
             -var="api_key=${_ST_TERRA_API_KEY}" \
             -var="api_secret=${_ST_TERRA_API_SECRET}"
 
+        sc_prompt "Remove DNS records?" sc_terra_down_dns
         if [[ -n "${_ST_CONTEXT_KUBERNETES}" ]]; then
             sc_prompt "Delete loadbalancer?" sc_terra_down_loadbalancer
+            sc_prompt "Delete volumes?" sc_terra_down_volumes
         fi
-        sc_prompt "Remove DNS records?" sc_terra_down_dns
         if [[ -n "${_ST_CONTEXT_OPENSHIFT}" ]]; then
             sc_prompt "Remove bucket?" sc_terra_down_bucket
             sc_prompt "Remove assets?" sc_terra_down_assets
