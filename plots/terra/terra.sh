@@ -60,7 +60,7 @@ function sc_terra_up_context() {
     sc_context_init_generic "$_context_sks" "$_ST_CONTEXT_KUBERNETES"
 }
 
-function sc_terra_up_cni() {
+function sc_terra_up_cilium() {
     local -r _ipsec_key="$(dd if=/dev/urandom count=20 bs=1 2> /dev/null | xxd -p -c 64)"
     local -r _ipsec_key_secret=cilium-ipsec-keys
     kubectl create secret generic $_ipsec_key_secret \
@@ -115,10 +115,10 @@ function sc_terra_up() {
         if exo compute sks versions --output-format text | grep -Eq "^${_kubernetes_version}$"; then
             [[ -z "$_ARG_DRYRUN" ]] && terraform -chdir="$_ST_TERRA_DIR" apply "$_plan" || exit 1
 
-            sc_heading 1 "Setting up kubernetes context"
+            sc_heading 1 "Setting up context"
             [[ -z "$_ARG_DRYRUN" ]] && sc_terra_up_context
-            sc_heading 1 "Setting up CNI"
-            [[ -z "$_ARG_DRYRUN" ]] && sc_terra_up_cni
+            sc_heading 1 "Setting up cilium"
+            [[ -z "$_ARG_DRYRUN" ]] && sc_terra_up_cilium
         else
             echo "Kubernetes version $_kubernetes_version is not available. Aborting..."
             exit 1
