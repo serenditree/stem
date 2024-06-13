@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 ########################################################################################################################
-# TERRA HTTPS
+# TERRA CACHE
 ########################################################################################################################
-_SERVICE=terra-longhorn
+_SERVICE=terra-cache
 _ORDINAL="2"
 
 _IMAGE=-
@@ -18,8 +18,8 @@ if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]]; then
     if [[ -n "$_ARG_SETUP" ]]; then
         sc_heading 1 "Setting up $_SERVICE"
         if [[ -z "$_ARG_DRYRUN" ]]; then
-            argocd app sync terra-longhorn
-            argocd app wait terra-longhorn --health
+            argocd app sync $_SERVICE
+            argocd app wait $_SERVICE --health
         fi
     fi
 fi
