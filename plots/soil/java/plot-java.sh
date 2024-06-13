@@ -5,7 +5,7 @@ _OFFSET=$2
 # JAVA
 ########################################################################################################################
 _SERVICE=soil-java-${_FLAVOR}
-_ORDINAL="$((_OFFSET + 8))"
+_ORDINAL="$((_OFFSET + 9))"
 
 _IMAGE=serenditree/java-${_FLAVOR}
 _VERSION=latest

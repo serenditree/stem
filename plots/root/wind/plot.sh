@@ -3,7 +3,7 @@
 # ROOT-WIND
 ########################################################################################################################
 _SERVICE=root-wind
-_ORDINAL="16"
+_ORDINAL="17"
 
 _IMAGE=serenditree/$_SERVICE
 _VERSION=latest
@@ -13,7 +13,7 @@ _CONTAINER=$_SERVICE
 
 _EXPOSE=9092/tcp
 
-_KAFKA_MIRROR=http://ftp.tudelft.nl/apache/kafka
+_KAFKA_MIRROR=https://archive.apache.org/dist/kafka
 _KAFKA_VERSION=2.7.0
 _KAFKA_SCALA_VERSION=2.13
 _KAFKA_PATH="kafka_${_KAFKA_SCALA_VERSION}-${_KAFKA_VERSION}"

@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: terra-longhorn
+  name: terra-ingress
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
@@ -11,14 +11,13 @@ spec:
   project: default
   source:
     repoURL: 'git@github.com:serenditree/stem.git'
-    path: plots/terra/charts/longhorn
     targetRevision: dev
-    helm:
-      valueFiles:
-        - values.yaml
+    path: plots/terra/charts/ingress
+    kustomize:
+      namespace: ingress-nginx
   destination:
     server: 'https://kubernetes.default.svc'
-    namespace: longhorn-system
+    namespace: ingress-nginx
   syncPolicy:
     syncOptions:
       - CreateNamespace=true
