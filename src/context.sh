@@ -4,10 +4,10 @@
 # Define and use serenditree contexts.
 ########################################################################################################################
 
-# Returns the kubernetes cluster domain depending on the current context.
+# Returns the kubernetes cluster domain.
 function sc_context_cluster_domain() {
-    if [[ -z "${_ST_CONTEXT_IS_LOCAL}${_ST_CONTEXT_TKN}" ]]; then
-        echo "$(yq eval '.current-context' ~/.kube/config.sks).cluster.local"
+    if [[ -n "$_ST_CONTEXT_KUBERNETES" ]]; then
+        echo "$(kubectl config get-contexts "$_ST_CONTEXT_KUBERNETES" --no-headers | awk '{print $3}').cluster.local"
     else
         echo "cluster.local"
     fi
