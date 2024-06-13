@@ -92,7 +92,6 @@ _openshift_local="serenditree-openshift-local"
 
 # shellcheck disable=SC2155,SC2011
 if [[ -z "$_ST_CONTEXT_TKN" ]]; then
-    export KUBECONFIG="$(ls ~/.kube/config* | xargs echo | tr ' ' ':')"
     export MINIKUBE_IN_STYLE=false
 
     if [[ -n "$_ARG_KUBERNETES" ]]; then
