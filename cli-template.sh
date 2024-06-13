@@ -378,6 +378,9 @@ cluster)
     restore)
         time sc_cluster_restore
         ;;
+    backup)
+        time sc_cluster_backup
+        ;;
     cert*)
         time sc_cluster_certificate
         ;;
