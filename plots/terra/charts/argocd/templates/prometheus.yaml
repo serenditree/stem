@@ -1,5 +1,4 @@
 {{- if .Values.global.setupApps }}
-{{- if eq "serenditree-kubernetes-local" .Values.global.context }}
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
@@ -24,5 +23,4 @@ spec:
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true
-{{- end }}
 {{- end }}

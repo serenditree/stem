@@ -16,11 +16,11 @@ fi
 ########################################################################################################################
 if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "$_ARG_SETUP" ]]; then
     sc_heading 1 "Setting up $_SERVICE"
-    helm install monitoring --namespace monitoring --create-namespace .
-    echo "Waiting for pods to become ready..."
-    kubectl wait --for condition=established --all crd
-    kubectl -n monitoring wait --for=condition=ready --all pod --timeout 420s
-    echo "Configuring cilium/hubble service monitors..."
+    if [[ -z "$_ARG_DRYRUN" ]]; then
+        argocd app sync $_SERVICE
+        argocd app wait $_SERVICE --health
+    fi
+    echo "Configuring cilium service monitors..."
     cilium upgrade --reuse-values \
         --set hubble.metrics.serviceMonitor.enabled=true \
         --set prometheus.serviceMonitor.enabled=true \

@@ -55,9 +55,17 @@ if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "${_ARG_SE
             --ssh-private-key-path ~/.ssh/stem@serenditree.io \
             --name stem
 
-        helm upgrade $_ST_HELM_NAME . \
-            --namespace argocd \
-            --reuse-values \
-            --set "global.setupApps=true"
+        echo "Installing apps..."
+        if [[ -z "$_ARG_DRYRUN" ]]; then
+            helm upgrade $_ST_HELM_NAME . \
+                --namespace argocd \
+                --reuse-values \
+                --set "global.setupApps=true"
+        else
+            helm template . \
+                --namespace argocd \
+                --reuse-values \
+                --set "global.setupApps=true" | yq eval
+        fi
     fi
 fi
