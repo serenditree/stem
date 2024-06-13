@@ -10,7 +10,7 @@ metadata:
     app.kubernetes.io/part-of: serenditree
 spec:
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
   resources:
     requests:
       storage: 10Gi

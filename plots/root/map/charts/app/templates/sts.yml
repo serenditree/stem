@@ -1,6 +1,6 @@
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: root-map
   labels:
@@ -9,9 +9,8 @@ metadata:
     app.kubernetes.io/component: root
     app.kubernetes.io/part-of: serenditree
 spec:
+  serviceName: root-map
   revisionHistoryLimit: 1
-  strategy:
-    type: RollingUpdate
   selector:
     matchLabels:
       name: root-map

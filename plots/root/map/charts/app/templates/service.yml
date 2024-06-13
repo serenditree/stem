@@ -9,7 +9,7 @@ metadata:
     app.kubernetes.io/component: root
     app.kubernetes.io/part-of: serenditree
 spec:
-  type: ClusterIP
+  clusterIP: None
   selector:
     name: root-map
   ports:
