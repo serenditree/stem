@@ -10,30 +10,30 @@ image.
 
 ```
 > sc plots
-ORDINAL  SERVICE            IMAGE                     TAG     PATH
-0        terra-base         -                         -       /path/to/Development/Serenditree/stem/plots/terra/plot.sh
-1        terra-argocd       -                         -       /path/to/Development/Serenditree/stem/plots/terra/charts/argocd/plot.sh
-2        terra-cache        -                         -       /path/to/Development/Serenditree/stem/plots/terra/charts/cache/plot.sh
-3        terra-ingress      -                         -       /path/to/Development/Serenditree/stem/plots/terra/charts/ingress/plot.sh
-4        terra-tekton       -                         -       /path/to/Development/Serenditree/stem/plots/terra/charts/tekton/plot.sh
-5        terra-prometheus   -                         -       /path/to/Development/Serenditree/stem/plots/terra/charts/prometheus/plot.sh
-6        terra-https        -                         -       /path/to/Development/Serenditree/stem/plots/terra/charts/https/plot.sh
-7        terra-issuer       -                         -       /path/to/Development/Serenditree/stem/plots/terra/charts/issuer/plot.sh
-8        terra-strimzi      -                         -       /path/to/Development/Serenditree/stem/plots/terra/charts/strimzi/plot.sh
-9        soil-java-base     serenditree/java-base     latest  /path/to/Development/Serenditree/stem/plots/soil/java/plot-java.sh:base:0
-10       soil-java-builder  serenditree/java-builder  latest  /path/to/Development/Serenditree/stem/plots/soil/java/plot-java.sh:builder:1
-11       soil-node-base     serenditree/node-base     latest  /path/to/Development/Serenditree/stem/plots/soil/node/plot-node.sh:base:0
-12       soil-node-builder  serenditree/node-builder  latest  /path/to/Development/Serenditree/stem/plots/soil/node/plot-node.sh:builder:1
-13       soil-buildah       serenditree/buildah       latest  /path/to/Development/Serenditree/stem/plots/soil/buildah/plot.sh
-14       root-user          serenditree/root-user     latest  /path/to/Development/Serenditree/stem/plots/root/user/plot.sh
-15       root-seed          serenditree/root-seed     latest  /path/to/Development/Serenditree/stem/plots/root/seed/plot.sh
-16       root-map           serenditree/root-map      latest  /path/to/Development/Serenditree/stem/plots/root/map/plot.sh
-17       root-wind          serenditree/root-wind     latest  /path/to/Development/Serenditree/stem/plots/root/wind/plot.sh
-18       branch-user        serenditree/branch-user   latest  /path/to/Development/Serenditree/stem/plots/branch/plot-branch.sh:user:user:0
-18       root-breeze        serenditree/root-breeze   latest  /path/to/Development/Serenditree/stem/plots/root/breeze/plot.sh
-19       branch-seed        serenditree/branch-seed   latest  /path/to/Development/Serenditree/stem/plots/branch/plot-branch.sh:seed:seed:1
-20       branch-poll        serenditree/branch-poll   latest  /path/to/Development/Serenditree/stem/plots/branch/plot-branch.sh:poll:user:2
-22       leaf               serenditree/leaf          latest  /path/to/Development/Serenditree/stem/plots/leaf/plot.sh
+0        terra-base         -                         -       /home/tanwald/Development/Serenditree/stem/plots/terra/plot.sh
+1        terra-cilium       -                         -       /home/tanwald/Development/Serenditree/stem/plots/terra/charts/cilium/plot.sh
+2        terra-argocd       -                         -       /home/tanwald/Development/Serenditree/stem/plots/terra/charts/argocd/plot.sh
+3        terra-cache        -                         -       /home/tanwald/Development/Serenditree/stem/plots/terra/charts/cache/plot.sh
+4        terra-ingress      -                         -       /home/tanwald/Development/Serenditree/stem/plots/terra/charts/ingress/plot.sh
+5        terra-tekton       -                         -       /home/tanwald/Development/Serenditree/stem/plots/terra/charts/tekton/plot.sh
+6        terra-prometheus   -                         -       /home/tanwald/Development/Serenditree/stem/plots/terra/charts/prometheus/plot.sh
+7        terra-https        -                         -       /home/tanwald/Development/Serenditree/stem/plots/terra/charts/https/plot.sh
+8        terra-issuer       -                         -       /home/tanwald/Development/Serenditree/stem/plots/terra/charts/issuer/plot.sh
+9        terra-strimzi      -                         -       /home/tanwald/Development/Serenditree/stem/plots/terra/charts/strimzi/plot.sh
+10       soil-java-base     serenditree/java-base     latest  /home/tanwald/Development/Serenditree/stem/plots/soil/java/plot-java.sh:base:0
+11       soil-java-builder  serenditree/java-builder  latest  /home/tanwald/Development/Serenditree/stem/plots/soil/java/plot-java.sh:builder:1
+12       soil-node-base     serenditree/node-base     latest  /home/tanwald/Development/Serenditree/stem/plots/soil/node/plot-node.sh:base:0
+13       soil-node-builder  serenditree/node-builder  latest  /home/tanwald/Development/Serenditree/stem/plots/soil/node/plot-node.sh:builder:1
+14       soil-buildah       serenditree/buildah       latest  /home/tanwald/Development/Serenditree/stem/plots/soil/buildah/plot.sh
+15       root-user          serenditree/root-user     latest  /home/tanwald/Development/Serenditree/stem/plots/root/user/plot.sh
+16       root-seed          serenditree/root-seed     latest  /home/tanwald/Development/Serenditree/stem/plots/root/seed/plot.sh
+17       root-map           serenditree/root-map      latest  /home/tanwald/Development/Serenditree/stem/plots/root/map/plot.sh
+18       root-wind          serenditree/root-wind     latest  /home/tanwald/Development/Serenditree/stem/plots/root/wind/plot.sh
+19       root-breeze        serenditree/root-breeze   latest  /home/tanwald/Development/Serenditree/stem/plots/root/breeze/plot.sh
+20       branch-user        serenditree/branch-user   latest  /home/tanwald/Development/Serenditree/stem/plots/branch/plot-branch.sh:user:user:0
+21       branch-seed        serenditree/branch-seed   latest  /home/tanwald/Development/Serenditree/stem/plots/branch/plot-branch.sh:seed:seed:1
+22       branch-poll        serenditree/branch-poll   latest  /home/tanwald/Development/Serenditree/stem/plots/branch/plot-branch.sh:poll:user:2
+23       leaf               serenditree/leaf          latest  /home/tanwald/Development/Serenditree/stem/plots/leaf/plot.sh
 ```
 
 ## Structure
@@ -64,10 +64,9 @@ that processes command-line arguments and calls the functions of dedicated scrip
 
 ```
 > sc help
-Serenditree CLI
-Usage: sc [-T|--test] [-P|--prod] [-D|--dryrun] [-v|--verbose] [-a|--all] [-y|--assume-yes] [-E|--expose] [--open]
-[-w|--watch] [--init] [--setup] [--upgrade] [--reset] [--delete] [--imperative] [-d|--data <arg>] [--compose]
-[--integration] [-k|--kubernetes] [-o|--openshift] [-l|--local] [--dashboard] [-h|--help] [--] <command> ...
+Usage:  sc [-T|--test] [-P|--prod] [-D|--dryrun] [-v|--verbose] [-a|--all] [-y|--assume-yes] [-E|--expose] [--open] 
+[-w|--watch] [--init] [--setup] [--upgrade] [--reset] [--delete] [--imperative] [--resume <arg>] [--issuer <arg>] 
+[--compose] [--integration] [-k|--kubernetes] [-o|--openshift] [-l|--local] [--dashboard] [-h|--help] [--] <command> ... 
 
 	<command>:          Command to execute. Please type sc <help> for a list of commands!
 	... :               Other arguments passed to command.
@@ -86,7 +85,8 @@ Usage: sc [-T|--test] [-P|--prod] [-D|--dryrun] [-v|--verbose] [-a|--all] [-y|--
 	--reset:            Reset flag.
 	--delete:           Deletion flag.
 	--imperative:       Imperative flag.
-	-d, --data:         Pass arbitrary data. (no default)
+	--resume:           Resume plots from the given ordinal. (default: '0')
+	--issuer:           Set let's encrypt issuer to prod or staging. (default: 'prod')
 	--compose:          Run or build for podman-compose.
 	--integration:      Run for integration testing.
 	-k, --kubernetes:   Use vanilla kubernetes.
@@ -134,6 +134,7 @@ Usage: sc [-T|--test] [-P|--prod] [-D|--dryrun] [-v|--verbose] [-a|--all] [-y|--
 	patch <arg>:        Applies patches to the current cluster.
 	registry [img]:     Inspects the OpenShift image registry.
 	resources|rc:       Lists project resources.
+	restore:            Restore databases.
 	certificate|cert:   Prints certificate information.
 	tekton|tkn [svc]:   Triggers tekton runs for all or individual services.
 
