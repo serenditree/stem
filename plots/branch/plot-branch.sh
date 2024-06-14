@@ -7,7 +7,7 @@ source ./plot.env
 # BRANCH
 ########################################################################################################################
 _SERVICE=branch-${_BRANCH}
-_ORDINAL="$((_OFFSET + 18))"
+_ORDINAL="$((_OFFSET + 20))"
 
 _IMAGE=serenditree/branch-${_BRANCH}
 _VERSION=latest
