@@ -55,7 +55,7 @@ function sc_cluster_restore() {
         kubectl create secret generic exoscale-config --from-file="$EXOSCALE_CONFIG" --namespace serenditree
     fi
     for _comp in user seed; do
-        echo kubectl create --filename "${_ST_HOME_STEM}/rc/jobs/${_comp}-restore.yml" --namespace serenditree
+        kubectl create --filename "${_ST_HOME_STEM}/rc/jobs/${_comp}-restore.yml" --namespace serenditree
     done
 }
 
