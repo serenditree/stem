@@ -49,6 +49,7 @@ function sc_terra_up_assets() {
 }
 
 function sc_terra_up_context() {
+    sc_heading 1 "Setting up context"
     local -r _kubeconfig_sks=${KUBECONFIG}.sks
     cp -v "$KUBECONFIG" "${KUBECONFIG}.bak"
     local -r _context_sks="$(sed -En 's/.*current-context: (.*)/\1/p' "$_kubeconfig_sks")"
@@ -81,8 +82,14 @@ function sc_terra_up() {
         if exo compute sks versions --output-format text | grep -Eq "^${_kubernetes_version}$"; then
             [[ -z "$_ARG_DRYRUN" ]] && terraform -chdir="$_ST_TERRA_DIR" apply "$_plan" || exit 1
 
-            sc_heading 1 "Setting up context"
-            [[ -z "$_ARG_DRYRUN" ]] && sc_terra_up_context
+
+            if [[ -z "$_ARG_DRYRUN" ]]; then
+                sc_terra_up_context
+                echo "Patching storage class..."
+                kubectl patch storageclass exoscale-sbs \
+                    --namespace kube-system \
+                    --patch '{"metadata":{"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
+            fi
         else
             echo "Kubernetes version $_kubernetes_version is not available. Aborting..."
             exit 1

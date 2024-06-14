@@ -9,7 +9,6 @@ kube-prometheus-stack:
       storageSpec:
         volumeClaimTemplate:
           spec:
-            storageClassName: exoscale-sbs
             accessModes:
               - ReadWriteOnce
             resources:
@@ -26,7 +25,6 @@ kube-prometheus-stack:
       storage:
         volumeClaimTemplate:
           spec:
-            storageClassName: exoscale-sbs
             accessModes:
               - ReadWriteOnce
             resources:
