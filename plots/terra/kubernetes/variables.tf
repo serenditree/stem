@@ -55,7 +55,7 @@ variable "compute_nodes" {
   }))
   default = {
     dev = {
-      replicas      = 2
+      replicas      = 3
       instance_type = "standard.large"
       disk_size     = 32
     }
@@ -68,5 +68,5 @@ variable "compute_nodes" {
 variable "kubeconfig" {
   description = "Target location of kubeconfig"
   type        = string
-  default     = ""
+  default     = "kubeconfig"
 }
