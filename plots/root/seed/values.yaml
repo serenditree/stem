@@ -8,7 +8,9 @@ mongodb:
   clusterDomain: cluster.local
   fullnameOverride: root-seed
   architecture: "replicaset"
-  replicaCount: 2
+  replicaCount: 3
+  arbiter:
+    enabled: false
   persistence:
     size: 10Gi
   initdbScriptsConfigMap: root-seed-init
