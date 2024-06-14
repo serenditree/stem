@@ -3,4 +3,5 @@ kind: Service
 metadata:
   name: ingress-nginx-controller
   annotations:
+    service.beta.kubernetes.io/exoscale-loadbalancer-name: "serenditree"
     service.beta.kubernetes.io/exoscale-loadbalancer-service-strategy: "round-robin"

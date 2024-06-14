@@ -36,8 +36,6 @@ if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "$_ARG_SET
             sleep 1s
         done
         echo "Load-balancer IP: ${_nlb_ip}"
-        echo "Updating load-balancer name..."
-        exo compute nlb update "${_nlb_id}" --name serenditree
 
         sc_heading 1 "Setting up dns records..."
         exo dns add A "serenditree.io" --name "" --address "$_nlb_ip"
