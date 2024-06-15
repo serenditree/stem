@@ -48,6 +48,6 @@ if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "$_ARG_SET
         kubectl --namespace kube-system rollout restart ds exoscale-csi-node
         kubectl --namespace kube-system rollout status ds exoscale-csi-node --watch
 
-        kubectl apply --namespace kube-system --filename ./policies/*
+        kubectl apply --filename ./policies/*
     fi
 fi
