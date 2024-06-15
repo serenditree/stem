@@ -51,9 +51,11 @@ function sc_terra_up_assets() {
 function sc_terra_up_context() {
     sc_heading 1 "Setting up context"
     local -r _kubeconfig_sks=${KUBECONFIG}.sks
+    echo -n "Creating backup of ${KUBECONFIG}: "
     cp -v "$KUBECONFIG" "${KUBECONFIG}.bak"
     local -r _context_sks="$(sed -En 's/.*current-context: (.*)/\1/p' "$_kubeconfig_sks")"
     sed -i '/current-context/d' "$_kubeconfig_sks"
+    echo "Merging contexts..."
     KUBECONFIG="${KUBECONFIG}:${_kubeconfig_sks}" kubectl config view --flatten >"${KUBECONFIG}.merged"
     mv "${KUBECONFIG}.merged" "${KUBECONFIG}"
     chmod 600 "$KUBECONFIG"
