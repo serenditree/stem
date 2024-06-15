@@ -4,7 +4,7 @@ metadata:
   name: ingress-nginx-controller
 data:
   global-rate-limit-status-code: "429"
-  global-rate-limit-memcached-host: "terra-cache-memcached"
+  global-rate-limit-memcached-host: "terra-cache-memcached.ingress-nginx.svc.416c2e71-1f17-4867-ac9b-d2de2f82f45f.cluster.local"
   global-rate-limit-memcached-port: "11211"
   global-rate-limit-memcached-connect-timeout: "50ms"
   global-rate-limit-memcached-max-idle-timeout: "50ms"
