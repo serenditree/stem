@@ -45,9 +45,9 @@ if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "$_ARG_SET
 
         cilium status --wait
 
-        kubectl -n kube-system rollout restart ds exoscale-csi-node
-        kubectl -n kube-system rollout status ds exoscale-csi-node --watch
+        kubectl --namespace kube-system rollout restart ds exoscale-csi-node
+        kubectl --namespace kube-system rollout status ds exoscale-csi-node --watch
 
-        kubectl apply -f ./policies/*
+        kubectl apply --namespace kube-system --filename ./policies/*
     fi
 fi
