@@ -6,6 +6,9 @@ metadata:
   name: leaf
   annotations:
     nginx.ingress.kubernetes.io/from-to-www-redirect: "true"
+    nginx.ingress.kubernetes.io/global-rate-limit: "10"
+    nginx.ingress.kubernetes.io/global-rate-limit-window: "1s"
+    nginx.ingress.kubernetes.io/global-rate-limit-key: "${remote_addr}-${$request_uri}"
     cert-manager.io/issuer: "lets-encrypt-{{ .Values.ingress.letsencrypt.issuer }}"
 spec:
   ingressClassName: nginx
