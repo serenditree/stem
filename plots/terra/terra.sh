@@ -50,12 +50,12 @@ function sc_terra_up_assets() {
 
 function sc_terra_up_context() {
     sc_heading 1 "Setting up context"
-    if kubectl config get-contexts "$_ST_CONTEXT_KUBERNETES" &>/dev/null; then
-        local -r _cluster=$(kubectl config get-contexts "$_ST_CONTEXT_KUBERNETES" --no-headers |
+    if kubectl config get-contexts "$_ST_CONTEXT" &>/dev/null; then
+        local -r _cluster=$(kubectl config get-contexts "$_ST_CONTEXT" --no-headers |
             tr -d '*' | awk '{print $2}')
-        local -r _user=$(kubectl config get-contexts "$_ST_CONTEXT_KUBERNETES" --no-headers |
+        local -r _user=$(kubectl config get-contexts "$_ST_CONTEXT" --no-headers |
             tr -d '*' | awk '{print $3}')
-        kubectl config delete-context "$_ST_CONTEXT_KUBERNETES"
+        kubectl config delete-context "$_ST_CONTEXT"
         kubectl config delete-cluster "$_cluster"
         kubectl config delete-user "$_user"
     fi
