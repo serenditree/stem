@@ -85,7 +85,7 @@ function sc_status() {
     fi
     if [[ -n "$_authenticated" ]];then
         echo && sc_heading 2 Pods
-        kubectl get pods --output wide
+        kubectl get pods --all-namespaces --output wide
         echo && sc_heading 2 Apps
         argocd app list 2>/dev/null || echo "not logged in"
     fi
