@@ -1,3 +1,7 @@
+argo-cd:
+  configs:
+    secret:
+      argocdServerAdminPassword: ~
 global:
   setupApps: false
   setupTekton: false

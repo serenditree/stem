@@ -20,11 +20,14 @@ if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "${_ARG_SE
     _github_token=$(pass serenditree/github.com)
     _quay_token=$(pass serenditree/quay.io)
     _redhat_token=$(pass serenditree/registry.redhat.io)
+    _argocd_password="$(pass serenditree/argocd)"
+    _argocd_password_bcrypt="$(htpasswd -nbBC 10 "" "$_argocd_password" | tr -d ':\n' | sed 's/$2y/$2a/')"
 
     [[ -z "$_ARG_DRYRUN" ]] && _ST_HELM_NAME=argocd
     helm $_ST_HELM_CMD $_ST_HELM_NAME . \
         --namespace argocd \
         --create-namespace \
+        --set "argo-cd.configs.secret.argocdServerAdminPassword=$_argocd_password_bcrypt" \
         --set "global.context=$_ST_CONTEXT" \
         --set "global.clusterDomain=$_cluster_domain" \
         --set "ingress.letsencrypt.issuer=$_ARG_ISSUER" \
@@ -34,28 +37,26 @@ if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "${_ARG_SE
         --set "tekton.basic.redhat=${_redhat_token#*:}" | $_ST_HELM_PIPE
 
     if [[ -z "${_ARG_DRYRUN}${_ARG_UPGRADE}" ]]; then
-        echo "Waiting for pods to become ready..."
+        sc_heading 2 "Waiting for pods to become ready..."
         kubectl wait --for condition=established --all crd
         kubectl -n argocd wait --for condition=ready --all pod --timeout 2m
-        echo "Patching argocd config map..."
-        sc_cluster_patch argocd-cm
-        echo "Starting port-forwarding..."
+        sc_heading 2 "Starting port-forwarding..."
         kubectl port-forward --namespace argocd svc/argocd-server 9098:443 &>/tmp/nohup-port-fwd.log &
         sleep 3s
-
-        _argocd_password="$(pass serenditree/argocd)"
-        _secret="$(kubectl get secret/argocd-initial-admin-secret \
-            --namespace argocd  \
-            -o jsonpath='{.data.password}' | \
-            base64 --decode)"
-
-        argocd login localhost:9098 --insecure --username admin --password "$_secret"
-        argocd account update-password --account admin --new-password "$_argocd_password" --current-password "$_secret"
+        sc_heading 2 "ArgoCD login..."
+        argocd login localhost:9098 \
+            --insecure \
+            --name serenditree \
+            --username admin \
+            --password "$_argocd_password"
+        sc_heading 2 "Adding git repository..."
         argocd repo add git@github.com:serenditree/stem.git \
             --ssh-private-key-path ~/.ssh/stem@serenditree.io \
             --name stem
+        sc_heading 2 "Patching ArgoCD config map..."
+        sc_cluster_patch argocd-cm
 
-        echo "Installing apps..."
+        sc_heading 2 "Installing apps..."
         if [[ -z "$_ARG_DRYRUN" ]]; then
             helm upgrade $_ST_HELM_NAME . \
                 --namespace argocd \
@@ -67,5 +68,7 @@ if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "${_ARG_SE
                 --reuse-values \
                 --set "global.setupApps=true" | yq eval
         fi
+        sc_heading 2 "Re-login..."
+        argocd relogin --password "$_argocd_password"
     fi
 fi
