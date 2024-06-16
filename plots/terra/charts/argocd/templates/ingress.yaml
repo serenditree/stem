@@ -16,6 +16,14 @@ spec:
     path: plots/terra/charts/ingress
     kustomize:
       namespace: ingress-nginx
+      patches:
+        - patch: |-
+            - op: add
+              path: /data/global-rate-limit-memcached-host
+              value: terra-cache-memcached.ingress-nginx.svc.{{ .Values.global.clusterDomain }}
+          target:
+            kind: ConfigMap
+            name: ingress-nginx-controller
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: ingress-nginx
