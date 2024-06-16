@@ -26,6 +26,7 @@ _ST_HELP="Please type 'sc <help>' for a list of commands or $_ST_HELP_DETAIL"
 # ARG_OPTIONAL_SINGLE([resume],[],[Resume plots from the given ordinal.],[0])
 # ARG_OPTIONAL_SINGLE([issuer],[],[Set let's encrypt issuer to prod or staging.],[prod])
 # ARG_OPTIONAL_BOOLEAN([compose],[],[Run or build for podman-compose.])
+# ARG_OPTIONAL_BOOLEAN([insert],[],[Inserts a new plot.])
 # ARG_OPTIONAL_BOOLEAN([integration],[],[Run for integration testing.])
 # ARG_OPTIONAL_BOOLEAN([kubernetes],[k],[Use vanilla kubernetes.])
 # ARG_OPTIONAL_BOOLEAN([openshift],[o],[Use openshift.])
@@ -82,6 +83,7 @@ _arg_imperative="off"
 _arg_resume="0"
 _arg_issuer="prod"
 _arg_compose="off"
+_arg_insert="off"
 _arg_integration="off"
 _arg_kubernetes="off"
 _arg_openshift="off"
@@ -92,7 +94,7 @@ _arg_help="off"
 
 print_help()
 {
-    printf 'Usage: %s [-T|--test] [-P|--prod] [-D|--dryrun] [-v|--verbose] [-a|--all] [-y|--assume-yes] [-E|--expose] [--open] [-w|--watch] [--init] [--setup] [--upgrade] [--reset] [--delete] [--imperative] [--resume <arg>] [--issuer <arg>] [--compose] [--integration] [-k|--kubernetes] [-o|--openshift] [-l|--local] [--dashboard] [-h|--help] [--] <command> ... \n' " sc" && echo
+    printf 'Usage: %s [-T|--test] [-P|--prod] [-D|--dryrun] [-v|--verbose] [-a|--all] [-y|--assume-yes] [-E|--expose] [--open] [-w|--watch] [--init] [--setup] [--upgrade] [--reset] [--delete] [--imperative] [--resume <arg>] [--issuer <arg>] [--compose] [--insert] [--integration] [-k|--kubernetes] [-o|--openshift] [-l|--local] [--dashboard] [-h|--help] [--] <command> ... \n' " sc" && echo
     printf '\t%-20s%s\n' "<command>:" "Command to execute. Please type sc <help> for a list of commands!"
     printf '\t%-20s%s\n' "... :" "Other arguments passed to command."
     printf '\t%-20s%s\n' "-T, --test:" "Sets the target stage to test. (default is dev)"
@@ -113,6 +115,7 @@ print_help()
     printf '\t%-20s%s\n' "--resume:" "Resume plots from the given ordinal. (default: '0')"
     printf '\t%-20s%s\n' "--issuer:" "Set let's encrypt issuer to prod or staging. (default: 'prod')"
     printf '\t%-20s%s\n' "--compose:" "Run or build for podman-compose."
+    printf '\t%-20s%s\n' "--insert:" "Inserts a new plot."
     printf '\t%-20s%s\n' "--integration:" "Run for integration testing."
     printf '\t%-20s%s\n' "-k, --kubernetes:" "Use vanilla kubernetes."
     printf '\t%-20s%s\n' "-o, --openshift:" "Use openshift."
@@ -283,6 +286,10 @@ parse_commandline()
                 _arg_compose="on"
                 test "${1:0:5}" = "--no-" && _arg_compose="off"
                 ;;
+            --no-insert|--insert)
+                _arg_insert="on"
+                test "${1:0:5}" = "--no-" && _arg_insert="off"
+                ;;
             --no-integration|--integration)
                 _arg_integration="on"
                 test "${1:0:5}" = "--no-" && _arg_integration="off"
@@ -420,6 +427,7 @@ export _ARG_RESUME=$_arg_resume
 export _ARG_ISSUER=$_arg_issuer
 export _ARG_COMPOSE=${_arg_compose/off/}
 export _ARG_INTEGRATION=${_arg_integration/off/}
+export _ARG_INSERT=${_arg_insert/off/}
 export _ARG_KUBERNETES=${_arg_kubernetes/off/}
 export _ARG_OPENSHIFT=${_arg_openshift/off/}
 export _ARG_LOCAL=${_arg_local/off/}
@@ -472,7 +480,7 @@ function sc_help() {
     printf '\t%-20s%s\n' "loc:" "Prints lines of code."
     printf '\t%-20s%s\n' "login <reg>:" "Login to configured registries."
     printf '\t%-20s%s\n' "logs|log [svc]:" "Prints logs of all or individual services on the local pod."
-    printf '\t%-20s%s\n' "plots:" "Prints all available plots. [--open]"
+    printf '\t%-20s%s\n' "plots [pos] [dir]:" "Prints all available plots. [--open] [--insert]"
     printf '\t%-20s%s\n' "ps:" "Lists locally running serenditree containers."
     printf '\t%-20s%s\n' "push [svc]:" "Push all or individual images."
     printf '\t%-20s%s\n' "registry:" "Inspect images in remote registries. [--verbose]"
@@ -583,7 +591,11 @@ logs | log)
     sc_pod_logs ${_ARG_LEFTOVERS[*]} || echo "Did you mean 'sc cluster logs'?"
     ;;
 plots)
-    sc_plots_inspect "$(sc_args_to_pattern ${_ARG_LEFTOVERS[*]})"
+    if [[ -n "$_ARG_INSERT" ]]; then
+        sc_plots_insert ${_ARG_LEFTOVERS[*]} | sort -nk3
+    else
+        sc_plots_inspect "$(sc_args_to_pattern ${_ARG_LEFTOVERS[*]})"
+    fi
     ;;
 ps)
     sc_pod_list

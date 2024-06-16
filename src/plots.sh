@@ -58,3 +58,31 @@ function sc_plots_do() {
         sc_plot_do $_plot "$*"
     done
 }
+
+# Inserts a new plot and adjusts ordinals.
+# $1: Position of the plot.
+function sc_plots_insert() {
+    local -r _from=$1
+    local -r _increment=1
+    local _current
+    local _offset
+    while read -r _plot; do
+        _current=$(sed -En 's/^_ORDINAL=([0-9]+).*/\1/p' "$_plot")
+        _offset=
+        if [[ -z "$_current" ]]; then
+            _current=$(sed -En 's/^_ORDINAL=.*_OFFSET \+ ([0-9]+).*/\1/p' "$_plot")
+            _offset=true
+        fi
+        if [[ -n "$_current" ]] && [[ $_current -ge $_from ]]; then
+            local _new=$(( _current + _increment ))
+            printf "Setting ordinal %d to %d (offset %s) in %s...\n" "$_current" "$_new" ${_offset:-false} "$_plot"
+            if [[ -z "$_ARG_DRYRUN" ]]; then
+                if [[ -z "$_offset" ]]; then
+                    sed -Ei "s/^_ORDINAL=${_current}.*/_ORDINAL=${_new}/" "$_plot"
+                else
+                    sed -Ei "s/^(_ORDINAL=.*_OFFSET \+ )${_current}(.*)/\1${_new}\2/" "$_plot"
+                fi
+            fi
+        fi
+    done <<< "$(find . -type d -path '*/\.*' -prune -o -name 'plot*sh' -print)"
+}

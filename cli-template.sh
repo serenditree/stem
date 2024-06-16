@@ -41,6 +41,7 @@ echo "Done"
 # ARG_OPTIONAL_SINGLE([resume], [], [Resume plots from the given ordinal.], [0])
 # ARG_OPTIONAL_SINGLE([issuer], [], [Set let's encrypt issuer to prod or staging.], [prod])
 # ARG_OPTIONAL_BOOLEAN([compose], [], [Run or build for podman-compose.])
+# ARG_OPTIONAL_BOOLEAN([insert], [], [Inserts a new plot.])
 # ARG_OPTIONAL_BOOLEAN([integration], [], [Run for integration testing.])
 # ARG_OPTIONAL_BOOLEAN([kubernetes], [k], [Use vanilla kubernetes.])
 # ARG_OPTIONAL_BOOLEAN([openshift], [o], [Use openshift.])
@@ -86,6 +87,7 @@ export _ARG_RESUME=$_arg_resume
 export _ARG_ISSUER=$_arg_issuer
 export _ARG_COMPOSE=${_arg_compose/off/}
 export _ARG_INTEGRATION=${_arg_integration/off/}
+export _ARG_INSERT=${_arg_insert/off/}
 export _ARG_KUBERNETES=${_arg_kubernetes/off/}
 export _ARG_OPENSHIFT=${_arg_openshift/off/}
 export _ARG_LOCAL=${_arg_local/off/}
@@ -138,7 +140,7 @@ function sc_help() {
     printf '\t%-20s%s\n' "loc:" "Prints lines of code."
     printf '\t%-20s%s\n' "login <reg>:" "Login to configured registries."
     printf '\t%-20s%s\n' "logs|log [svc]:" "Prints logs of all or individual services on the local pod."
-    printf '\t%-20s%s\n' "plots:" "Prints all available plots. [--open]"
+    printf '\t%-20s%s\n' "plots [pos] [dir]:" "Prints all available plots. [--open] [--insert]"
     printf '\t%-20s%s\n' "ps:" "Lists locally running serenditree containers."
     printf '\t%-20s%s\n' "push [svc]:" "Push all or individual images."
     printf '\t%-20s%s\n' "registry:" "Inspect images in remote registries. [--verbose]"
@@ -249,7 +251,11 @@ logs | log)
     sc_pod_logs ${_ARG_LEFTOVERS[*]} || echo "Did you mean 'sc cluster logs'?"
     ;;
 plots)
-    sc_plots_inspect "$(sc_args_to_pattern ${_ARG_LEFTOVERS[*]})"
+    if [[ -n "$_ARG_INSERT" ]]; then
+        sc_plots_insert ${_ARG_LEFTOVERS[*]} | sort -nk3
+    else
+        sc_plots_inspect "$(sc_args_to_pattern ${_ARG_LEFTOVERS[*]})"
+    fi
     ;;
 ps)
     sc_pod_list
