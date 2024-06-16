@@ -4,11 +4,11 @@ resources:
   - https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/exoscale/deploy.yaml
 
 patches:
-  - path: cm.yml
+  - path: cm.yaml
     target:
       kind: ConfigMap
       name: ingress-nginx-controller
-  - path: svc.yml
+  - path: svc.yaml
     target:
       kind: Service
       name: ingress-nginx-controller
