@@ -1,0 +1,6 @@
+apiVersion: v2
+type: application
+name: terra-cilium
+description: "Cilium policies"
+version: 0.0.1
+appVersion: "0.0.1"

@@ -47,7 +47,7 @@ if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "$_ARG_SET
 
         kubectl --namespace kube-system rollout restart ds exoscale-csi-node
         kubectl --namespace kube-system rollout status ds exoscale-csi-node --watch
-
-        kubectl apply --filename ./policies/*
     fi
+    [[ -z "$_ARG_DRYRUN" ]] && _ST_HELM_NAME=cilium-policies
+    helm $_ST_HELM_CMD $_ST_HELM_NAME . --namespace kube-system | $_ST_HELM_PIPE
 fi

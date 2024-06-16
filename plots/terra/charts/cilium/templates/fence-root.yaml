@@ -1,12 +1,16 @@
+{{ range tuple "root-seed/mongodb" "root-user/mariadb-galera" }}
+{{- $component := substr 10 100 . }}
+{{- $name := substr 0 9 . }}
+---
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: fence-root-seed
+  name: fence-{{ $name }}
   namespace: serenditree
 spec:
   endpointSelector:
     matchLabels:
-      app.kubernetes.io/component: mongodb
+      app.kubernetes.io/component: {{ $component }}
   ingress:
     - fromEndpoints:
         - {}
@@ -26,9 +30,10 @@ spec:
               - matchPattern: "*"
     - toEndpoints:
         - matchLabels:
-            app.kubernetes.io/component: mongodb
+            app.kubernetes.io/component: {{ $component }}
     - toServices:
         - k8sServiceSelector:
             selector:
               matchLabels:
-                app.kubernetes.io/component: mongodb
+                app.kubernetes.io/component: {{ $component }}
+{{- end }}
