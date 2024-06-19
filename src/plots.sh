@@ -59,11 +59,12 @@ function sc_plots_do() {
     done
 }
 
-# Inserts a new plot and adjusts ordinals.
-# $1: Position of the plot.
+# Prepares the insertion/deletion of a plot by adjusting ordinals.
+# $1: Position of the plot (ordinal).
+# $2: Increment/decrement.
 function sc_plots_insert() {
     local -r _from=$1
-    local -r _increment=1
+    local -r _increment=$2
     local _current
     local _offset
     while read -r _plot; do
@@ -85,4 +86,51 @@ function sc_plots_insert() {
             fi
         fi
     done <<< "$(find . -type d -path '*/\.*' -prune -o -name 'plot*sh' -print)"
+}
+
+# Prepares a plot template.
+# $1: Position of the plot (ordinal).
+# $2: Name of the plot.
+# $3: Directory for the plot.
+function sc_plots_template() {
+    local -r _ordinal=$1
+    local -r _name=$2
+    local -r _path=$3
+
+    echo "Creating plot '${_name}' with ordinal '${_ordinal}' at '${_ST_HOME_STEM}/${_path}/plot.sh'..."
+    if [[ -z "$_ARG_DRYRUN" ]]; then
+        mkdir -p "${_ST_HOME_STEM}/$_path"
+        cat <<EOF >"${_ST_HOME_STEM}/${_path}/plot.sh"
+#!/usr/bin/env bash
+########################################################################################################################
+# $(tr '[:lower:]' '[:upper:]' <<<$_name)
+########################################################################################################################
+_SERVICE=$_name
+_ORDINAL=$_ordinal
+
+_IMAGE=serenditree/\$_SERVICE
+_TAG=latest
+
+if [[ " \$* " =~ " info " ]] || [[ -n "\$_ARG_DRYRUN" ]]; then
+    echo "\${_ORDINAL} \${_SERVICE} \${_IMAGE} \${_TAG} \$(realpath \$0)"
+fi
+########################################################################################################################
+# BUILD
+########################################################################################################################
+if [[ " \$* " =~ " build " ]]; then
+    sc_heading 1 "Building \${_IMAGE}:\${_TAG}"
+########################################################################################################################
+# UP
+########################################################################################################################
+elif [[ " \$* " =~ " up " ]]; then
+    sc_heading 1 "Starting \${_SERVICE}:\${_TAG}"
+    sc_heading 1 "Setting up \${_SERVICE}"
+########################################################################################################################
+# DOWN
+########################################################################################################################
+elif [[ " \$* " =~ " down " ]]; then
+    sc_heading 1 "Deleting \${_SERVICE}"
+fi
+EOF
+    fi
 }

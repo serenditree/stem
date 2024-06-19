@@ -140,7 +140,7 @@ function sc_help() {
     printf '\t%-20s%s\n' "loc:" "Prints lines of code."
     printf '\t%-20s%s\n' "login <reg>:" "Login to configured registries."
     printf '\t%-20s%s\n' "logs|log [svc]:" "Prints logs of all or individual services on the local pod."
-    printf '\t%-20s%s\n' "plots [pos] [dir]:" "Prints all available plots. [--open] [--insert]"
+    printf '\t%-20s%s\n' "plots [pos] [name] [dir]:" "Prints or inserts/deletes plots. [--open] [--insert|--delete]"
     printf '\t%-20s%s\n' "ps:" "Lists locally running serenditree containers."
     printf '\t%-20s%s\n' "push [svc]:" "Push all or individual images."
     printf '\t%-20s%s\n' "registry:" "Inspect images in remote registries. [--verbose]"
@@ -252,7 +252,10 @@ logs | log)
     ;;
 plots)
     if [[ -n "$_ARG_INSERT" ]]; then
-        sc_plots_insert ${_ARG_LEFTOVERS[*]} | sort -nk3
+        sc_plots_insert "${_ARG_SUB_COMMAND}" "1" | sort -nk3
+        sc_plots_template ${_ARG_LEFTOVERS[*]}
+    elif [[ -n "$_ARG_DELETE" ]]; then
+        sc_plots_insert "${_ARG_SUB_COMMAND}" "-1" | sort -nk3
     else
         sc_plots_inspect "$(sc_args_to_pattern ${_ARG_LEFTOVERS[*]})"
     fi
