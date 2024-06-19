@@ -1,3 +1,4 @@
+{{- if .Values.global.setupProm }}
 {{- if .Values.global.setupApps }}
 ---
 apiVersion: argoproj.io/v1alpha1
@@ -23,4 +24,5 @@ spec:
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true
+{{- end }}
 {{- end }}

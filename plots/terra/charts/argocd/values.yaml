@@ -5,6 +5,7 @@ argo-cd:
 global:
   setupApps: false
   setupTekton: false
+  setupProm: false
   context: ~
   clusterDomain: ~
 ingress:
