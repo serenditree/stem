@@ -122,10 +122,10 @@ services:
       test: bash health.sh
 
   root-search:
-    container_name: root-search
     image: docker.io/opensearchproject/opensearch:2
+    hostname: root-search
+    restart: unless-stopped
     pull_policy: missing
-    restart: always
     environment:
       - cluster.name=root-search
       - node.name=root-search
@@ -148,12 +148,12 @@ services:
       - '127.0.0.1:9600:9600'
 
   root-dashboard:
-    container_name: root-dashboard
+    image: docker.io/opensearchproject/opensearch-dashboards:2
+    hostname: root-dashboard
+    restart: unless-stopped
+    pull_policy: missing
     depends_on:
       - root-search
-    image: docker.io/opensearchproject/opensearch-dashboards:2
-    pull_policy: missing
-    restart: always
     environment:
       - 'OPENSEARCH_HOSTS=["http://root-search:9200"]'
       - 'DISABLE_SECURITY_DASHBOARDS_PLUGIN=true'
