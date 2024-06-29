@@ -56,7 +56,7 @@ export _ST_VERSION_NODE=21
 export _ST_VERSION_FLUENTD=1.15.1
 export _ST_VERSION_MONGODB=5.0
 export _ST_VERSION_MARIADB=10.6
-export _ST_VERSION_NGINX=1.21
+export _ST_VERSION_NGINX=1.27
 
 ########################################################################################################################
 # BUILD
@@ -134,6 +134,7 @@ elif [[ "$_ST_CONTEXT" == "$_openshift_local" ]]; then
     export _ST_REGISTRY=default-route-openshift-image-registry.apps-crc.testing
 else
     echo "${_BOLD}Warning:${_NORMAL} Serenditree context is not set"
+    export _ST_CONTEXT=
 fi
 
 ########################################################################################################################
