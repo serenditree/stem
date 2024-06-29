@@ -100,10 +100,16 @@ function sc_setup_image_update() {
 
 function sc_setup_maven_update() {
     pushd "$_ST_HOME_BRANCH" &>/dev/null || exit 1
-    echo "Searching dependency updates..."
-    mvn validate -Pversion |
-        sed -rn '/\[INFO\] The following version/,/\[INFO\] +$/p' |
-        sed -r -e 's/\[INFO\] +//' -e 's/.*available version.*/Latest:/' -e 's/.*are available.*/Updates:/' |
-        head -n-1
+    if [[ -n "$_ARG_YES" ]]; then
+        echo "Updating dependencies..."
+        quarkus up
+        mvn validate -Pupdate
+    else
+        echo "Searching dependency updates..."
+        mvn validate -Pversion |
+            sed -rn '/\[INFO\] The following version/,/\[INFO\] +$/p' |
+            sed -r -e 's/\[INFO\] +//' -e 's/.*available version.*/Latest:/' -e 's/.*are available.*/Updates:/' |
+            head -n-1
+    fi
     popd &>/dev/null || exit 1
 }

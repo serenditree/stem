@@ -412,7 +412,7 @@ export _ARG_VERBOSE=${_arg_verbose/off/}
 export _ARG_TEST=${_arg_test/off/}
 export _ARG_PROD=${_arg_prod/off/}
 export _ARG_ALL=${_arg_all/off/}
-export _ARG_ASSUME_YES=${_arg_assume_yes/off/}
+export _ARG_YES=${_arg_assume_yes/off/}
 
 export _ARG_EXPOSE=${_arg_expose/off/}
 export _ARG_OPEN=${_arg_open/off/}
@@ -490,7 +490,7 @@ function sc_help() {
     printf '\t%-20s%s\n' "update [comp]:" "Update components."
 
     printf '\n\t%s\n' "${_BOLD}Cluster commands:${_NORMAL}"
-    printf '\t%-20s%s\n' "up [comp]:" "Cluster start/setup. [--init|--setup|--upgrade] [--imperative] [--dashboard]"
+    printf '\t%-20s%s\n' "up [comp]:" "Cluster start/setup. [--init|--setup|--upgrade] [--dashboard]"
     printf '\t%-20s%s\n\n' "down:" "Cluster stop/deletion. [--reset|--delete]"
 
     printf '\t%-20s%s\n' "clean:" "Deletes dispensable resources."
