@@ -124,12 +124,14 @@ resource "exoscale_sks_cluster" "serenditree" {
   metrics_server = true
   auto_upgrade   = false
 }
-
+########################################################################################################################
+# Kubeconfig
+########################################################################################################################
 resource "exoscale_sks_kubeconfig" "sks_kubeconfig" {
   zone       = exoscale_sks_cluster.serenditree.zone
   cluster_id = exoscale_sks_cluster.serenditree.id
 
-  user        = "serenditree/kubeadmin"
+  user        = "kubeadmin/serenditree"
   groups      = ["system:masters"]
   ttl_seconds = 2629800
 }
