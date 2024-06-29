@@ -3,11 +3,11 @@ kind: ConfigMap
 metadata:
   name: ingress-nginx-controller
 data:
+  enable-modsecurity: "true"
+  enable-owasp-modsecurity-crs: "true"
   global-rate-limit-status-code: "429"
   global-rate-limit-memcached-port: "11211"
   global-rate-limit-memcached-connect-timeout: "50"
   global-rate-limit-memcached-max-idle-timeout: "50"
   global-rate-limit-memcached-pool-size: "10"
 #  global-rate-limit-memcached-host: "set in ../argocd/charts/templates/ingress.yaml"
-#  enable-modsecurity: "true"
-#  enable-owasp-modsecurity-crs: "true"
