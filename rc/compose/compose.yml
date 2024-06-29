@@ -1,4 +1,4 @@
-version: '3'
+version: '3.8'
 services:
 
   leaf:
@@ -77,7 +77,7 @@ services:
     ports:
       - "8084:8080"
     volumes:
-      - root-map:/serenditree/data
+      - ${_ST_HOME_STEM}/plots/root/map/data/database:/serenditree/data:z
     healthcheck:
       test: curl localhost:8080/index.json
 
@@ -121,47 +121,67 @@ services:
     healthcheck:
       test: bash health.sh
 
-  root-breeze:
-    image: localhost/serenditree/root-breeze:latest
-    hostname: root-breeze
-    restart: unless-stopped
-    ports:
-      - "24224:24224/udp"
-    depends_on:
-      - elasticsearch
-
-  elasticsearch:
-    image: docker.io/elastic/elasticsearch:8.2.3
-    ports:
-      - "9200:9200"
-      - "9300:9300"
+  root-search:
+    container_name: root-search
+    image: docker.io/opensearchproject/opensearch:2
+    pull_policy: missing
+    restart: always
     environment:
-      - "ES_JAVA_OPTS=-Xms512m -Xmx2048m"
+      - cluster.name=root-search
+      - node.name=root-search
+      - bootstrap.memory_lock=true
       - discovery.type=single-node
-      - xpack.security.enabled=false
-
-  kibana:
-    image: docker.io/elastic/kibana:8.2.3
+      - 'OPENSEARCH_JAVA_OPTS=-Xms2048m -Xmx2048m'
+      - 'DISABLE_INSTALL_DEMO_CONFIG=true'
+      - 'DISABLE_SECURITY_PLUGIN=true'
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    volumes:
+      - root-search:/usr/share/opensearch/data
     ports:
-      - "5601:5601"
-    environment:
-      - xpack.security.enabled=false
-    depends_on:
-      - elasticsearch
+      - '127.0.0.1:9200:9200'
+      - '127.0.0.1:9600:9600'
 
-  kafdrop:
-    image: docker.io/obsidiandynamics/kafdrop:latest
-    restart: unless-stopped
-    hostname: kafdrop
-    ports:
-      - "9000:9000"
-    environment:
-      KAFKA_BROKERCONNECT: root-wind:9092
+  root-dashboard:
+    container_name: root-dashboard
     depends_on:
-      - root-wind
+      - root-search
+    image: docker.io/opensearchproject/opensearch-dashboards:2
+    pull_policy: missing
+    restart: always
+    environment:
+      - 'OPENSEARCH_HOSTS=["http://root-search:9200"]'
+      - 'DISABLE_SECURITY_DASHBOARDS_PLUGIN=true'
+    ports:
+      - '127.0.0.1:5601:5601'
+
+#  root-breeze:
+#    image: localhost/serenditree/root-breeze:latest
+#    hostname: root-breeze
+#    restart: unless-stopped
+#    ports:
+#      - "24224:24224/udp"
+#    depends_on:
+#      - root-search
+
+#  kafdrop:
+#    image: docker.io/obsidiandynamics/kafdrop:latest
+#    restart: unless-stopped
+#    hostname: kafdrop
+#    ports:
+#      - "9000:9000"
+#    environment:
+#      KAFKA_BROKERCONNECT: root-wind:9092
+#    depends_on:
+#      - root-wind
 
 volumes:
-  root-map:
   root-user:
   root-seed:
   root-wind:
+  root-search:
