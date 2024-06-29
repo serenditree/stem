@@ -20,9 +20,8 @@ if [[ " $* " =~ " build " ]]; then
     [[ -n "$_ARG_DRYRUN" ]] && exit 0
     _CONTAINER_REF=$(buildah from $_ST_FROM_ROOT_BREEZE)
 
-    buildah config --user 0:0 $_CONTAINER_REF
-    buildah run $_CONTAINER_REF -- gem install fluent-plugin-elasticsearch --no-document
-    buildah run $_CONTAINER_REF -- gem install fluent-plugin-input-gelf --no-document
+    buildah run --user 0:0 $_CONTAINER_REF -- gem install fluent-plugin-elasticsearch --no-document
+    buildah run --user 0:0 $_CONTAINER_REF -- gem install fluent-plugin-input-gelf --no-document
     buildah config --user 1001:0 $_CONTAINER_REF
 
     buildah add --chown 1001:0 $_CONTAINER_REF ./fluentd.conf /opt/bitnami/fluentd/conf/
