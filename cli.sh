@@ -666,8 +666,10 @@ cluster)
             printf '\n\t%-20s%s\n' "--setup" "Setup of the cluster in the current context."
             printf '\n\t%-20s%s\n' "--upgrade" "Upgrades the cluster in the current context."
             printf '\t%-20s%s\n' "--imperative" "Use imperative scripts for cloud setup."
-        else
+        elif [[ -n "$_ST_CONTEXT"  ]]; then
             time sc_plots_do "$(sc_args_to_pattern ${_ARG_LEFTOVERS[*]})" up
+        else
+            echo "Context not set. Canceling..."
         fi
         ;;
     down)
