@@ -40,6 +40,7 @@ function sc_setup_helm() {
             bitnami:https://charts.bitnami.com/bitnami \
             strimzi:https://strimzi.io/charts \
             prometheus:https://prometheus-community.github.io/helm-charts \
+            argo:https://argoproj.github.io/argo-helm \
             cert-manager:https://charts.jetstack.io; do
             echo -n "${_repo%%:*}..."
             if helm repo ls | grep -Eq "^${_repo%%:*}"; then
@@ -62,12 +63,14 @@ export -f sc_setup_helm
 
 # Helm dependency version update check.
 function sc_setup_helm_update() {
-    #helm repo update
+    helm repo update
     for _repo in \
         bitnami/mongodb \
         bitnami/mariadb-galera \
+        bitnami/memcached \
         strimzi/strimzi-kafka-operator \
         prometheus/kube-prometheus-stack \
+        argo/argo-cd \
         cert-manager/cert-manager; do
         { \
         echo "id: $_repo"
