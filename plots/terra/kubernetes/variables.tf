@@ -56,7 +56,7 @@ variable "compute_nodes" {
   default = {
     dev = {
       replicas      = 3
-      instance_type = "standard.large"
+      instance_type = "standard.medium"
       disk_size     = 32
     }
   }
