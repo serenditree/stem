@@ -10,4 +10,4 @@ data:
   global-rate-limit-memcached-connect-timeout: "50"
   global-rate-limit-memcached-max-idle-timeout: "50"
   global-rate-limit-memcached-pool-size: "10"
-#  global-rate-limit-memcached-host: "set in ../argocd/charts/templates/ingress.yaml"
+# global-rate-limit-memcached-host: "set in ../argocd/charts/templates/ingress.yaml"
