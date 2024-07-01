@@ -56,7 +56,7 @@ if [[ " $* " =~ " build " ]]; then
     fi
 
     echo "Adding application..."
-    buildah add --chown 1001:0 $_CONTAINER_REF ${_VOLUME_SRC}/dist
+    buildah add --chown 1001:0 $_CONTAINER_REF ${_VOLUME_SRC}/dist/browser
     echo "Adding configuration..."
     _NGINX_CONFIG_FILE="serenditree.${_CONFIG}.conf"
     _SERVER_BLOCK=/opt/bitnami/nginx/conf/server_blocks/${_NGINX_CONFIG_FILE}

@@ -42,8 +42,6 @@ if [[ " $* " =~ " build " ]]; then
         buildah config --env LANG="en_US.UTF-8" $_CONTAINER_REF
         buildah config --env LANGUAGE="en_US:en" $_CONTAINER_REF
         buildah config --env NODE_VERSION="$_ST_VERSION_NODE" $_CONTAINER_REF
-        # TODO remove this workaround
-        buildah config --env NODE_OPTIONS="--openssl-legacy-provider" $_CONTAINER_REF
     elif [[ "$_FLAVOR" == "builder" ]]; then
         _DESCRIPTION="Node builder image including curl."
 
