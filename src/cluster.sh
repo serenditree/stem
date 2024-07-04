@@ -5,11 +5,15 @@
 ########################################################################################################################
 
 function sc_cluster_deploy() {
+    local -r _args=$1
     local _apps
+    sc_cluster_expose argocd && sc_login argocd
     for _app in branch leaf; do
-        if sc_prompt "Deploy ${_app}?" argocd app actions run --all --kind Deployment $_app restart; then
-            echo "Deployment of $_app started..."
-            _apps+=" $_app"
+        if [[ "$_app" =~ $_args ]]; then
+            if sc_prompt "Deploy ${_app}?" argocd app actions run --all --kind Deployment $_app restart; then
+                echo "Deployment of $_app started..."
+                _apps+=" $_app"
+            fi
         fi
     done
     [[ -n "$_apps" ]] && argocd app wait $_apps --health

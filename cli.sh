@@ -697,7 +697,7 @@ cluster)
         sc_login_db cluster ${_ARG_LEFTOVERS[*]}
         ;;
     deploy)
-        sc_cluster_deploy
+        sc_cluster_deploy "$(sc_args_to_pattern ${_ARG_LEFTOVERS[*]})"
         ;;
     login)
         if [[ -n "$_ST_CONTEXT_OPENSHIFT" ]]; then
