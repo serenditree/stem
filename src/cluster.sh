@@ -10,8 +10,9 @@ function sc_cluster_deploy() {
     sc_cluster_expose argocd && sc_login argocd
     for _app in branch leaf; do
         if [[ "$_app" =~ $_args ]]; then
-            if sc_prompt "Deploy ${_app}?" argocd app actions run --all --kind Deployment $_app restart; then
-                echo "Deployment of $_app started..."
+            if [[ -n "$_ARG_YES" ]] || sc_prompt "Deploy ${_app}?" echo -n; then
+                sc_heading 2 "Deployment of $_app started..."
+                argocd app actions run --all --kind Deployment $_app restart
                 _apps+=" $_app"
             fi
         fi
