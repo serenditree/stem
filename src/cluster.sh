@@ -7,7 +7,7 @@
 function sc_cluster_deploy() {
     local -r _args=$1
     local _apps
-    sc_cluster_expose argocd && sc_login argocd
+    sc_login argocd
     for _app in branch leaf; do
         if [[ "$_app" =~ $_args ]]; then
             if [[ -n "$_ARG_YES" ]] || sc_prompt "Deploy ${_app}?" echo -n; then
