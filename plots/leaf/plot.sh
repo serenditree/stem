@@ -49,11 +49,14 @@ if [[ " $* " =~ " build " ]]; then
     # STEP PACKAGE
     _CONTAINER_REF=$(buildah from $_ST_FROM_LEAF)
 
+    echo "Upgrading distribution..."
+    buildah run --user 0:0 $_CONTAINER_REF -- apt-get update
+    buildah run --user 0:0 $_CONTAINER_REF -- apt-get dist-upgrade -y
     if [[ "$_CONFIG" == "compose" ]]; then
         echo "Installing curl..."
-        buildah run --user 0:0 $_CONTAINER_REF -- apt-get update
         buildah run --user 0:0 $_CONTAINER_REF -- apt-get install -y curl
     fi
+    buildah run --user 0:0 $_CONTAINER_REF -- apt-get clean
 
     echo "Adding application..."
     buildah add --chown 1001:0 $_CONTAINER_REF ${_VOLUME_SRC}/dist/browser
