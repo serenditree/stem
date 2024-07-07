@@ -136,8 +136,20 @@ function sc_cluster_certificate() {
 
 # Deletes dispensable resources.
 function sc_cluster_clean() {
-    kubectl delete pod --namespace serenditree --field-selector status.phase==Succeeded
-    kubectl get rs | grep -E '(0\s+){3}' | cut -d' ' -f1 | xargs kubectl delete rs
+    # Completed pods except the two most recent ones.
+    kubectl get pod \
+        --namespace serenditree \
+        --field-selector='status.phase==Succeeded' \
+        --sort-by '{.metadata.creationTimestamp}' \
+        --output=custom-columns='Name:.metadata.name' \
+        --no-headers |
+        head -n -2 |
+        xargs kubectl delete pod
+    # Orphaned replica sets.
+    kubectl get rs \
+        --namespace serenditree \
+        --output=jsonpath='{.items[?(@.spec.replicas==0)].metadata.name}' |
+        xargs kubectl delete rs
 }
 
 # Inspects all or defined images of the OpenShift registry.
