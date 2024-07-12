@@ -7,8 +7,9 @@ rootSeed:
 mongodb:
   clusterDomain: cluster.local
   fullnameOverride: root-seed
-  architecture: "replicaset"
+  architecture: replicaset
   replicaCount: 3
+  resourcesPreset: medium
   arbiter:
     enabled: false
   persistence:

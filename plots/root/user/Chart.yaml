@@ -18,5 +18,5 @@ dependencies:
 
   - name: mariadb-galera
     repository: https://charts.bitnami.com/bitnami
-    version: 8.2.6
+    version: 14.0.0
     condition: rootUser.mariadb

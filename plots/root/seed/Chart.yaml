@@ -18,5 +18,5 @@ dependencies:
 
   - name: mongodb
     repository: https://charts.bitnami.com/bitnami
-    version: 12.1.31
+    version: 15.6.12
     condition: rootSeed.mongodb
