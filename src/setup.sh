@@ -72,14 +72,16 @@ function sc_setup_helm_update() {
         prometheus/kube-prometheus-stack \
         argo/argo-cd \
         cert-manager/cert-manager; do
-        { \
-        echo "id: $_repo"
-        # current version
-        find $_SC_HOME_STEM -name Chart.yaml -exec grep -hA2 "name: ${_repo#*/}" {} \+ |
-            sed -r -e 's/^[- ]+//' |
-            sed -r '/^$/d'
-        echo -n 'latest: '
-        helm search repo $_repo --output json | jq -r '.[0] | .version'; \
+        {
+            echo "id: $_repo"
+            # current version
+            find $_SC_HOME_STEM -name Chart.yaml \
+                -exec sh -c 'grep -hA2 "name: $2" $1 && echo path: $1' _ {} ${_repo#*/} \; |
+                    sed -r 's/(^[- ]+)|(.\/)//' |
+                    sort
+            # latest version
+            echo -n 'latest: '
+            helm search repo $_repo --output json | jq -r '.[0] | .version';
         } | column -t -s ':' -l 2 && echo
     done
     echo "details: helm search repo ID --output json"
