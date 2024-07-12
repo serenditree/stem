@@ -63,7 +63,7 @@ export -f sc_setup_helm
 
 # Helm dependency version update check.
 function sc_setup_helm_update() {
-    helm repo update
+    helm repo update && echo
     for _repo in \
         bitnami/mongodb \
         bitnami/mariadb-galera \
