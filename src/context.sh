@@ -6,10 +6,13 @@
 
 # Returns the kubernetes cluster domain.
 function sc_context_cluster_domain() {
-    if [[ -n "$_ST_CONTEXT_KUBERNETES" ]]; then
-        echo "$(kubectl config get-contexts "$_ST_CONTEXT_KUBERNETES" --no-headers | awk '{print $3}').cluster.local"
+    if kubectl version &>/dev/null; then
+        kubectl get cm coredns \
+            --namespace kube-system \
+            --output=jsonpath="{.data.Corefile}" |
+            sed -rn 's/.*kubernetes ([^ ]+) .*/\1/p'
     else
-        echo "cluster.local"
+        echo "unavailable"
     fi
 }
 export -f sc_context_cluster_domain
