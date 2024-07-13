@@ -2,7 +2,7 @@ global:
   clusterDomain: ~
 memcached:
   architecture: high-availability
-  resourcesPreset: medium
+  resourcesPreset: micro
   autoscaling:
     enabled: true
     minReplicas: 1

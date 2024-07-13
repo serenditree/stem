@@ -9,7 +9,7 @@ mariadb-galera:
   fullnameOverride: root-user
   namespaceOverride: serenditree
   replicaCount: 3
-  resourcesPreset: medium
+  resourcesPreset: micro
   persistence:
     size: 10Gi
   initdbScriptsConfigMap: root-user-init
