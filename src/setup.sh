@@ -94,9 +94,9 @@ function sc_setup_image_update() {
             sc_heading 2 "$_image"
             skopeo inspect docker://${_image%:*} |
                 jq -r '.RepoTags[]' |
-                sort -V |
+                sort -Vr |
                 sed -rn '/^[[:digit:]]+\.[[:digit:]]+\.?[[:digit:]]*$/p' |
-                tail -n5
+                head -n10
         done
     else
         env | grep "_ST_FROM_" | cut -d'=' -f2 | xargs podman pull
