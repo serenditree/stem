@@ -9,7 +9,7 @@ mongodb:
   fullnameOverride: root-seed
   architecture: replicaset
   replicaCount: 3
-  #resourcesPreset: micro
+  resourcesPreset: none
   arbiter:
     enabled: false
   persistence:
