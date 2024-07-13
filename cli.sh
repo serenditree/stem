@@ -724,7 +724,7 @@ cluster)
         time sc_cluster_registry ${_ARG_LEFTOVERS[*]}
         ;;
     resources | rc)
-        time sc_cluster_resources
+        time sc_cluster_resources ${_ARG_LEFTOVERS[*]}
         ;;
     restore)
         time sc_cluster_restore
