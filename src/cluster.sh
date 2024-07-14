@@ -130,16 +130,18 @@ function sc_cluster_resources() {
     cat \
         <(echo "NAMESPACE;NAME;CPU REQUESTS;CPU LIMITS;MEMORY REQUESTS;MEMORY LIMITS") \
         <(kubectl describe node |
-              sed -n '/Non-terminated Pods/,/Allocated resources/p' |
-              sed -E -e '/(Allocated|Non|Namespace|---)/d' \
+              sed -n -e '/Non-terminated Pods/,/Allocated resources/p' |
+              sed '0,/--/{/--/d;}' |
+              sed -E -e '/(Allocated|Non|Namespace)/d' \
                   -e 's/([0-9]+)(m|Mi)/\1/g' \
                   -e 's/([0-9]+)Gi/\1000/g' \
                   -e 's/ ([1-9]) / \1000 /g' \
                   -e 's/\([^)]+\)//g' \
                   -e 's/ \w+$//' \
-                  -e 's/^\W+//' |
-              sort -k2 |
-              sed -E 's/ +/;/g') |
+                  -e 's/ +$//' \
+                  -e 's/^ +//' \
+                  -e 's/--+.*/;;;;;/' \
+                  -e 's/ +/;/g') |
         $_pipe
 
 }
