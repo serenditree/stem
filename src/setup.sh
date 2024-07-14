@@ -127,4 +127,5 @@ function sc_setup_yarn_update() {
     yarn install
     yarn upgrade-interactive
     ./dev/yarn.py
+    echo "Done"
 }
