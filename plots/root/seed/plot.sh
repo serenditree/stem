@@ -50,7 +50,7 @@ elif [[ " $* " =~ " up " ]]; then
             --name $_CONTAINER \
             --env-file ./plot.env \
             $([[ -z "$_ARG_INTEGRATION" ]] && echo --volume ${_VOLUME_SRC}:${_VOLUME_DST}:Z) \
-            --health-cmd "mongo --disableImplicitSessions --eval 'db.hello().isWritablePrimary' | grep -q true" \
+            --health-cmd "mongosh --port 27017 --eval \"db.adminCommand('ping')\"" \
             --health-interval 3s \
             --health-retries 1 \
             --ulimit nproc=64000 \
