@@ -285,7 +285,8 @@ update)
         echo "Update components. Without specification, all components are updated or checked for latest versions."
         printf '\n\t%-20s%s\n' "helm" "Check for latest chart versions."
         printf '\n\t%-20s%s' "{image* | img}" "Update base images or check for upgrades. [--upgrade]"
-        printf '\n\t%-20s%s\n' "{maven | mvn}" "Check for maven dependency updates."
+        printf '\n\t%-20s%s\n' "{maven | mvn}" "Updates maven dependencies or checks for updates. [--assume-yes]"
+        printf '\n\t%-20s%s\n' "yarn" "Updates node modules."
     else
         case ${_ARG_SUB_COMMAND} in
         helm)
@@ -297,6 +298,9 @@ update)
         maven | mvn)
             sc_setup_maven_update
             ;;
+        yarn)
+            sc_setup_yarn_update
+            ;;
         *)
             sc_heading 1 helm
             sc_setup_helm_update
@@ -304,6 +308,8 @@ update)
             sc_setup_image_update
             sc_heading 1 maven
             sc_setup_maven_update
+            sc_heading 1 yarn
+            sc_setup_yarn_update
         esac
     fi
     ;;
