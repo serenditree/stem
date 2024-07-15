@@ -87,7 +87,7 @@ EOL
 # Initializes available contexts.
 function sc_context_init() {
     local -r _noop=noop/serenditree
-    if ! kubectl config view | grep -q "$_noop"; then
+    if ! kubectl config view | grep -q "name: $_noop"; then
         sc_context_init_noop $_noop
     fi
     for _context in "${_ST_CONTEXTS[@]}"; do
