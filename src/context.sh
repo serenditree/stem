@@ -53,7 +53,7 @@ export -f sc_context_init_kube
 # Adds noop cluster and user.
 # $1 Name for cluster and user
 function sc_context_init_noop() {
-    cat > /tmp/openssl.cnf <<EOL
+    cat > /tmp/openssl.cnf <<EOF
 [req]
 default_bits       = 2048
 default_md         = sha256
@@ -74,7 +74,7 @@ subjectKeyIdentifier=hash
 authorityKeyIdentifier=keyid:always,issuer:always
 basicConstraints = critical, CA:true
 keyUsage = critical, digitalSignature, cRLSign, keyCertSign
-EOL
+EOF
     openssl req -x509 -newkey rsa:2048 -days 365 -noenc -config /tmp/openssl.cnf \
         -keyout /tmp/key.pem \
         -out /tmp/cert.pem &>/dev/null
