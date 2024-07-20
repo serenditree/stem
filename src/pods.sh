@@ -251,15 +251,21 @@ function sc_pod_data_restore() {
     exo --use-account=serenditree storage download --recursive --force sos://serenditree-backup ${HOME}/Downloads/
     # Restore root-user
     sc_heading 1 "Restoring root-user..."
+    if [[ -n "$_ARG_COMPOSE" ]]; then
+        local -r _pod=pod_serenditree
+        local -r _network="--network serenditree_default"
+    else
+        local -r _pod=serenditree
+    fi
     local -r _mariadb="mariadb --host=root-user --port=3306 --protocol=TCP  --user=root --password=root serenditree"
-    podman run --rm --name mariadbrestore --pod serenditree --volume ${HOME}/Downloads:/backup:z \
+    podman run --rm --name mariadbrestore --pod $_pod $_network --volume ${HOME}/Downloads:/backup:z \
         localhost/serenditree/root-user:latest \
         sh -c "gunzip < /backup/user-backup.gz | $_mariadb &&
                     echo 'SELECT COUNT(*) FROM User;' | tee /dev/stderr | $_mariadb -N &&
                     echo 'SELECT id,username FROM User LIMIT 42;' | tee /dev/stderr | $_mariadb -N"
     # Restore root-seed
     sc_heading 1 "Restoring root-seed..."
-    podman run --rm --name mongorestore --pod serenditree --volume ${HOME}/Downloads:/backup:z \
+    podman run --rm --name mongorestore --pod $_pod $_network --volume ${HOME}/Downloads:/backup:z \
         localhost/serenditree/root-seed:latest \
         sh -c "mongorestore mongodb://root-seed:27017 \
                     --username root \
