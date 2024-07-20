@@ -146,6 +146,7 @@ function sc_help() {
     printf '\t%-20s%s\n' "registry:" "Inspect images in remote registries. [--verbose]"
     printf '\t%-20s%s\n' "release:" "Updates the parent git repository and pushes new commits."
     printf '\t%-20s%s\n' "reset:" "Removes all local images created by this cli."
+    printf '\t%-20s%s\n' "restore:" "Restores local databases from remote data."
     printf '\t%-20s%s\n' "status:" "Prints status information and checks prerequisites."
     printf '\t%-20s%s\n' "update [comp]:" "Update components."
 
@@ -275,6 +276,9 @@ release)
 reset)
     sc_pod_down
     podman image ls --format '{{.Repository}}:{{.Tag}}' | grep "localhost/serenditree" | xargs podman rmi
+    ;;
+restore)
+    sc_pod_data_restore
     ;;
 status)
     sc_status

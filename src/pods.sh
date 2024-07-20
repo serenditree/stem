@@ -244,3 +244,30 @@ function sc_pod_health() {
     return $_exit
 }
 export -f sc_pod_health
+
+# Restores local databases from remote data.
+function sc_pod_data_restore() {
+    sc_heading 1 "Downloading archives..."
+    exo --use-account=serenditree storage download --recursive --force sos://serenditree-backup ${HOME}/Downloads/
+    # Restore root-user
+    sc_heading 1 "Restoring root-user..."
+    local -r _mariadb="mariadb --host=root-user --port=3306 --protocol=TCP  --user=root --password=root serenditree"
+    podman run --rm --name mariadbrestore --pod serenditree --volume ${HOME}/Downloads:/backup:z \
+        localhost/serenditree/root-user:latest \
+        sh -c "gunzip < /backup/user-backup.gz | $_mariadb &&
+                    echo 'SELECT COUNT(*) FROM User;' | tee /dev/stderr | $_mariadb -N &&
+                    echo 'SELECT id,username FROM User LIMIT 42;' | tee /dev/stderr | $_mariadb -N"
+    # Restore root-seed
+    sc_heading 1 "Restoring root-seed..."
+    podman run --rm --name mongorestore --pod serenditree --volume ${HOME}/Downloads:/backup:z \
+        localhost/serenditree/root-seed:latest \
+        sh -c "mongorestore mongodb://root-seed:27017 \
+                    --username root \
+                    --password root \
+                    --authenticationDatabase admin \
+                    --nsInclude='serenditree.*' \
+                    --archive=/backup/seed-backup.gz \
+                    --gzip \
+                    --preserveUUID \
+                    --drop"
+}
