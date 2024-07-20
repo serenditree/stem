@@ -61,30 +61,43 @@ function sc_setup_helm() {
 }
 export -f sc_setup_helm
 
-# Helm dependency version update check.
+# Helm dependency version update check or upgrade.
 function sc_setup_helm_update() {
-    helm repo update && echo
-    for _repo in \
-        bitnami/mongodb \
-        bitnami/mariadb-galera \
-        bitnami/memcached \
-        strimzi/strimzi-kafka-operator \
-        prometheus/kube-prometheus-stack \
-        argo/argo-cd \
-        cert-manager/cert-manager; do
+    local -r _log=/tmp/sc-helm-update.log
+    if [[ -z "$_ARG_UPGRADE" ]]; then
+        helm repo update && echo
         {
-            echo "id: $_repo"
-            # current version
-            find $_SC_HOME_STEM -name Chart.yaml \
-                -exec sh -c 'grep -hA2 "name: $2" $1 && echo path: $1' _ {} ${_repo#*/} \; |
-                    sed -r 's/(^[- ]+)|(.\/)//' |
-                    sort
-            # latest version
-            echo -n 'latest: '
-            helm search repo $_repo --output json | jq -r '.[0] | .version';
-        } | column -t -s ':' -l 2 && echo
-    done
-    echo "details: helm search repo ID --output json"
+            for _repo in \
+                bitnami/mongodb \
+                bitnami/mariadb-galera \
+                bitnami/memcached \
+                strimzi/strimzi-kafka-operator \
+                prometheus/kube-prometheus-stack \
+                argo/argo-cd \
+                cert-manager/cert-manager; do
+                {
+                    echo "id: $_repo"
+                    # current version
+                    find . -name Chart.yaml \
+                        -exec sh -c 'grep -hA2 "name: $2" $1 && echo path: $1' _ {} ${_repo#*/} \; |
+                            sed -r 's/(^[- ]+)|(.\/)//' |
+                            sort
+                    # latest version
+                    echo -n 'latest: '
+                    helm search repo $_repo --output json | jq -r '.[0] | .version';
+                } | column -t -s ':' -l 2 && echo
+            done
+        } | tee "$_log"
+        echo "details: helm search repo ID --output json"
+    elif [[ -f "$_log" ]]; then
+        echo -n "Upgrading helm dependencies..."
+        grep -E '^(path|version|latest)' "$_log" | awk '{print $2}' | xargs -n3 bash -c 'sed -i "s/$1/$2/" $0'
+        sc_heading 2 "done"
+        git diff | grep "version:" | sed -r 's/(^\W+)//'
+    else
+        echo -e "File $_log does not exits.\nPlease run 'sc update helm' first..."
+        exit 1
+    fi
 }
 
 # Updates base images or checks for upgrades.

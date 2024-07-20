@@ -55,8 +55,8 @@ echo "Done"
 # ARGBASH_GO
 # [
 
-# shellcheck disable=SC2046
-cd "$(dirname $(realpath $0))"
+trap 'popd || exit 1' EXIT
+pushd "$(dirname "$(realpath $0)")" || exit 1
 
 ########################################################################################################################
 # ARGUMENTS
