@@ -93,6 +93,7 @@ function sc_setup_helm_update() {
         echo -n "Upgrading helm dependencies..."
         grep -E '^(path|version|latest)' "$_log" | awk '{print $2}' | xargs -n3 bash -c 'sed -i "s/$1/$2/" $0'
         sc_heading 2 "done"
+        rm "$_log"
         git diff | grep "version:" | sed -r 's/(^\W+)//'
     else
         echo -e "File $_log does not exits.\nPlease run 'sc update helm' first..."
