@@ -309,7 +309,8 @@ update)
             sc_heading 1 helm
             sc_setup_helm_update
             sc_heading 1 images
-            sc_setup_image_update
+            _ARG_UPGRADE=yes \
+                sc_setup_image_update
             sc_heading 1 maven
             sc_setup_maven_update
             sc_heading 1 yarn
