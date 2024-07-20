@@ -395,8 +395,8 @@ assign_positional_args 1 "${_positionals[@]}"
 # [ <-- needed because of Argbash
 #
 
-# shellcheck disable=SC2046
-cd "$(dirname $(realpath $0))"
+trap 'popd &>/dev/null || exit 1' EXIT
+pushd "$(dirname "$(realpath $0)")" &>/dev/null || exit 1
 
 ########################################################################################################################
 # ARGUMENTS

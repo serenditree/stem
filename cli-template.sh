@@ -55,8 +55,8 @@ echo "Done"
 # ARGBASH_GO
 # [
 
-trap 'popd || exit 1' EXIT
-pushd "$(dirname "$(realpath $0)")" || exit 1
+trap 'popd &>/dev/null || exit 1' EXIT
+pushd "$(dirname "$(realpath $0)")" &>/dev/null || exit 1
 
 ########################################################################################################################
 # ARGUMENTS
