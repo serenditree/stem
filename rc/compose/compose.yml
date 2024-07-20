@@ -105,7 +105,7 @@ services:
     volumes:
       - root-seed:/bitnami/mongodb
     healthcheck:
-      test: mongo --disableImplicitSessions --eval 'db.hello().isWritablePrimary' | grep -q true
+      test: mongosh --port 27017 --eval "db.adminCommand('ping')"
     ulimits:
       nproc: 64000
       nofile: 64000
@@ -160,14 +160,14 @@ services:
     ports:
       - '127.0.0.1:5601:5601'
 
-#  root-breeze:
-#    image: localhost/serenditree/root-breeze:latest
-#    hostname: root-breeze
-#    restart: unless-stopped
-#    ports:
-#      - "24224:24224/udp"
-#    depends_on:
-#      - root-search
+  root-breeze:
+    image: localhost/serenditree/root-breeze:latest
+    hostname: root-breeze
+    restart: unless-stopped
+    ports:
+      - "24224:24224/udp"
+    depends_on:
+      - root-search
 
 #  kafdrop:
 #    image: docker.io/obsidiandynamics/kafdrop:latest
