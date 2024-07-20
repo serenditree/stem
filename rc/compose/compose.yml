@@ -169,16 +169,16 @@ services:
     depends_on:
       - root-search
 
-#  kafdrop:
-#    image: docker.io/obsidiandynamics/kafdrop:latest
-#    restart: unless-stopped
-#    hostname: kafdrop
-#    ports:
-#      - "9000:9000"
-#    environment:
-#      KAFKA_BROKERCONNECT: root-wind:9092
-#    depends_on:
-#      - root-wind
+  kafdrop:
+    image: docker.io/obsidiandynamics/kafdrop:latest
+    restart: unless-stopped
+    hostname: kafdrop
+    ports:
+      - "9000:9000"
+    environment:
+      KAFKA_BROKERCONNECT: root-wind:9092
+    depends_on:
+      - root-wind
 
 volumes:
   root-user:
