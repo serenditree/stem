@@ -115,6 +115,7 @@ if [[ -z "$_ST_CONTEXT_TKN" ]]; then
 fi
 
 export _ST_CONTEXTS=("$_kubernetes" "$_kubernetes_local" "$_openshift" "$_openshift_local")
+export _ST_CONTEXTS_NOOP="noop/serenditree"
 export _ST_REGISTRY=quay.io
 if [[ "$_ST_CONTEXT" == "$_kubernetes" ]]; then
     export _ST_CONTEXT_IS_KUBERNETES=on

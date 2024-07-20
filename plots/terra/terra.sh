@@ -56,8 +56,8 @@ function sc_terra_up_context() {
         local -r _user=$(kubectl config get-contexts "$_ST_CONTEXT" --no-headers |
             tr -d '*' | awk '{print $3}')
         kubectl config delete-context "$_ST_CONTEXT"
-        [[ "$_cluster" != "noop/serenditree" ]] && kubectl config delete-cluster "$_cluster"
-        [[ "$_user" != "noop/serenditree" ]] && kubectl config delete-user "$_user"
+        [[ "$_cluster" != "$_ST_CONTEXTS_NOOP" ]] && kubectl config delete-cluster "$_cluster"
+        [[ "$_user" != "$_ST_CONTEXTS_NOOP" ]] && kubectl config delete-user "$_user"
     fi
     local -r _kubeconfig_sks=${KUBECONFIG}.sks
     echo -n "Creating backup of ${KUBECONFIG}: "

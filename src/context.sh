@@ -54,7 +54,6 @@ function sc_context_init_kube() {
 export -f sc_context_init_kube
 
 # Adds noop cluster and user.
-# $1 Name for cluster and user
 function sc_context_init_noop() {
     cat > /tmp/openssl.cnf <<EOF
 [req]
@@ -82,20 +81,27 @@ EOF
         -keyout /tmp/key.pem \
         -out /tmp/cert.pem &>/dev/null
 
-    local -r _noop=$1
-    kubectl config set-cluster $_noop --server https://localhost --embed-certs --certificate-authority /tmp/cert.pem
-    kubectl config set-credentials $_noop --embed-certs --client-key /tmp/key.pem --client-certificate /tmp/cert.pem
+    kubectl config set-cluster "$_ST_CONTEXTS_NOOP" \
+        --server https://localhost \
+        --embed-certs \
+        --certificate-authority /tmp/cert.pem
+    kubectl config set-credentials "$_ST_CONTEXTS_NOOP" \
+        --embed-certs \
+        --client-key /tmp/key.pem \
+        --client-certificate /tmp/cert.pem
 }
 
 # Initializes available contexts.
 function sc_context_init() {
-    local -r _noop=noop/serenditree
-    if ! kubectl config view | grep -q "name: $_noop"; then
-        sc_context_init_noop $_noop
+    if ! kubectl config view | grep -q "name: $_ST_CONTEXTS_NOOP"; then
+        sc_context_init_noop
     fi
     for _context in "${_ST_CONTEXTS[@]}"; do
         if ! kubectl config get-contexts $_context &>/dev/null; then
-            kubectl config set-context $_context --cluster $_noop --user $_noop --namespace serenditree
+            kubectl config set-context $_context \
+                --cluster "$_ST_CONTEXTS_NOOP" \
+                --user "$_ST_CONTEXTS_NOOP" \
+                --namespace serenditree
         fi
     done
 
