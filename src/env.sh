@@ -135,7 +135,7 @@ elif [[ "$_ST_CONTEXT" == "$_openshift_local" ]]; then
     export _ST_CONTEXT_OPENSHIFT_LOCAL=$_openshift_local
     export _ST_REGISTRY=default-route-openshift-image-registry.apps-crc.testing
 else
-    echo "${_BOLD}Warning:${_NORMAL} Serenditree context is not set"
+    echo "${_BOLD}Warning:${_NORMAL} Serenditree context is not set" >&2
     export _ST_CONTEXT=
 fi
 
