@@ -14,10 +14,8 @@ _CONTAINER=$_SERVICE
 _EXPOSE=9092/tcp
 
 _KAFKA_MIRROR=https://archive.apache.org/dist/kafka
-_KAFKA_VERSION=2.7.0
-_KAFKA_SCALA_VERSION=2.13
-_KAFKA_PATH="kafka_${_KAFKA_SCALA_VERSION}-${_KAFKA_VERSION}"
-_KAFKA_ARCHIVE="data/kafka-${_KAFKA_SCALA_VERSION}-${_KAFKA_VERSION}.tar.gz"
+_KAFKA_PATH="kafka_${_ST_VERSION_KAFKA_SCALA}-${_ST_VERSION_KAFKA}"
+_KAFKA_ARCHIVE="data/kafka-${_ST_VERSION_KAFKA_SCALA}-${_ST_VERSION_KAFKA}.tar.gz"
 _KAFKA_PORT=${_EXPOSE%/*}
 _KAFKA_TOPICS="seed-created seed-deleted"
 
@@ -36,7 +34,7 @@ if [[ " $* " =~ " build " ]]; then
     if [[ ! -f ${_KAFKA_ARCHIVE} ]]; then
         echo "Downloading ${_KAFKA_ARCHIVE}..."
         mkdir -p ${_KAFKA_ARCHIVE%/*}
-        curl "${_KAFKA_MIRROR}/${_KAFKA_VERSION}/${_KAFKA_PATH}.tgz" --output ${_KAFKA_ARCHIVE}
+        curl "${_KAFKA_MIRROR}/${_ST_VERSION_KAFKA}/${_KAFKA_PATH}.tgz" --output ${_KAFKA_ARCHIVE}
     fi
     _KAFKA_PATH="${_ST_CONTAINER_ROOT}/${_KAFKA_PATH}"
 
@@ -48,8 +46,8 @@ if [[ " $* " =~ " build " ]]; then
     sed -i 's/=INFO/=WARN/g' ${_MOUNT_REF}/${_KAFKA_PATH}/config/*log4j.properties
 
     buildah config --env KAFKA_PATH=$_KAFKA_PATH $_CONTAINER_REF
-    buildah config --env KAFKA_VERSION=$_KAFKA_VERSION $_CONTAINER_REF
-    buildah config --env KAFKA_SCALA_VERSION=$_KAFKA_SCALA_VERSION $_CONTAINER_REF
+    buildah config --env KAFKA_VERSION=$_ST_VERSION_KAFKA $_CONTAINER_REF
+    buildah config --env KAFKA_SCALA_VERSION=$_ST_VERSION_KAFKA_SCALA $_CONTAINER_REF
     buildah config --env KAFKA_PORT=$_KAFKA_PORT $_CONTAINER_REF
     buildah config --env KAFKA_TOPICS="$_KAFKA_TOPICS" $_CONTAINER_REF
 
