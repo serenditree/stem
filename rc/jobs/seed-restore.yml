@@ -31,19 +31,19 @@ spec:
               name: exoscale-config
       containers:
         - name: mongodb
-          image: docker.io/bitnami/mongodb:5.0
+          image: quay.io/serenditree/root-seed:latest
           command:
             - /bin/sh
             - -c
           args:
             - >-
               mongorestore
-              mongodb://root-seed-0.root-seed-headless:27017,root-seed-1.root-seed-headless:27017
+              mongodb://root-seed-0.root-seed-headless:27017,root-seed-1.root-seed-headless:27017,root-seed-2.root-seed-headless:27017
               --username root 
               --password $(ROOT_PASSWORD)
               --authenticationMechanism SCRAM-SHA-256 
               --authenticationDatabase admin 
-              --db serenditree 
+              --nsInclude='serenditree.*'
               --archive=/seed-backup/seed-backup.gz
               --gzip
               --preserveUUID

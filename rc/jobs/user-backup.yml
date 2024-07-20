@@ -17,13 +17,13 @@ spec:
           restartPolicy: OnFailure
           initContainers:
             - name: mariadb
-              image: docker.io/bitnami/mariadb:10.6
+              image: quay.io/serenditree/root-user:latest
               command:
                 - /bin/sh
                 - -c
               args:
-               - >- 
-                 mysqldump 
+               - >-
+                 mariadb-dump 
                  -h root-user 
                  -u root 
                  -p$(ROOT_PASSWORD) 

@@ -31,14 +31,14 @@ spec:
               name: exoscale-config
       containers:
         - name: mariadb
-          image: docker.io/bitnami/mariadb:10.6
+          image: quay.io/serenditree/root-user:latest
           command:
             - /bin/sh
             - -c
           args:
             - >-
               gunzip < /user-backup/user-backup.gz |
-              mysql 
+              mariadb 
               -h root-user 
               -u root 
               -p$(ROOT_PASSWORD) 
