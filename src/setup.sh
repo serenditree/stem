@@ -96,7 +96,7 @@ function sc_setup_helm_update() {
         rm "$_log"
         git diff | grep "version:" | sed -r 's/(^\W+)//'
     else
-        echo -e "File $_log does not exits.\nPlease run 'sc update helm' first..."
+        echo -e "File $_log does not exits.\nPlease run 'sc update helm' first!"
         exit 1
     fi
 }
