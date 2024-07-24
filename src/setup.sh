@@ -64,7 +64,7 @@ export -f sc_setup_helm
 # Helm dependency version update check or upgrade.
 function sc_setup_helm_update() {
     local -r _log=/tmp/sc-helm-update.log
-    if [[ -z "$_ARG_UPGRADE" ]]; then
+    if [[ -z "$_ARG_YES" ]]; then
         helm repo update && echo
         {
             for _repo in \
@@ -90,11 +90,13 @@ function sc_setup_helm_update() {
         } | tee "$_log"
         echo "details: helm search repo ID --output json"
     elif [[ -f "$_log" ]]; then
-        echo -n "Upgrading helm dependencies..."
+        echo "Upgrading helm dependencies..."
         grep -E '^(path|version|latest)' "$_log" | awk '{print $2}' | xargs -n3 bash -c 'sed -i "s/$1/$2/" $0'
-        sc_heading 2 "done"
-        rm "$_log"
-        git diff | grep "version:" | sed -r 's/(^\W+)//'
+        git diff |
+            grep -EB 2 "version: [1-9.]+" |
+            sed -E -e '/repository/d' -e 's/^(\W+|.*:)//' |
+            xargs -n3 |
+            column -t
     else
         echo -e "File $_log does not exits.\nPlease run 'sc update helm' first!"
         exit 1
