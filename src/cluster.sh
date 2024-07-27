@@ -66,7 +66,7 @@ function sc_cluster_restore() {
 
 # Creates cronjobs of jobs for database backups
 function sc_cluster_backup() {
-    if ! kubectl get secret exoscale-config &>/dev/null; then
+    if ! kubectl get secret exoscale-config --namespace serenditree &>/dev/null; then
         kubectl create secret generic exoscale-config --from-file="$EXOSCALE_CONFIG" --namespace serenditree
     fi
     for _comp in user seed; do
