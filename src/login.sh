@@ -73,10 +73,12 @@ function sc_login_db() {
     user | maria)
         if [[ "$_ctx" == "cluster" ]]; then
             local -r _credentials=$(pass serenditree/root.user)
-            kubectl port-forward svc/root-user 3306:3306 &
-            sleep 1s
-            mysql -u"${_credentials%%:*}" -p"${_credentials#*:}" --protocol=TCP serenditree
-            killall kubectl && echo "Port-forwarding stopped"
+            kubectl --namespace serenditree port-forward svc/root-user 3306:3306 &
+            if [[ -z "$_ARG_EXPOSE" ]]; then
+                sleep 1s
+                mysql -u"${_credentials%%:*}" -p"${_credentials#*:}" --protocol=TCP serenditree
+                killall kubectl && echo "Port-forwarding stopped"
+            fi
         else
             mysql -uuser -puser --port=8085 --protocol=TCP serenditree
         fi
@@ -84,10 +86,12 @@ function sc_login_db() {
     seed | mongo)
         if [[ "$_ctx" == "cluster" ]]; then
             local -r _credentials=$(pass serenditree/root.seed)
-            kubectl port-forward pod/root-seed-0 27017:27017 &
-            sleep 1s
-            mongosh --username="${_credentials%%:*}" --password="${_credentials#*:}" serenditree
-            killall kubectl && echo "Port-forwarding stopped"
+            kubectl --namespace serenditree port-forward pod/root-seed-0 27017:27017 &
+            if [[ -z "$_ARG_EXPOSE" ]]; then
+                sleep 1s
+                mongosh --username="${_credentials%%:*}" --password="${_credentials#*:}" serenditree
+                killall kubectl && echo "Port-forwarding stopped"
+            fi
         else
             mongosh --username=user --password=user --port=8086  serenditree
         fi
