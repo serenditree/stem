@@ -29,7 +29,7 @@ spec:
                   --password $(ROOT_PASSWORD)
                   --authenticationMechanism SCRAM-SHA-256 
                   --authenticationDatabase admin 
-                  --nsInclude='serenditree.*'
+                  --db serenditree
                   --archive=/seed-backup/seed-backup.gz
                   --gzip
               env:
