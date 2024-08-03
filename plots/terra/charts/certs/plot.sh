@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 ########################################################################################################################
-# TERRA HTTPS
+# TERRA CERTS
 ########################################################################################################################
-_SERVICE=terra-https
+_SERVICE=terra-certs
 _ORDINAL=7
 
 _IMAGE=-
@@ -18,8 +18,8 @@ if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]]; then
     if [[ -n "$_ARG_SETUP" ]]; then
         sc_heading 1 "Setting up $_SERVICE"
         if [[ -z "$_ARG_DRYRUN" ]]; then
-            argocd app sync terra-https
-            argocd app wait terra-https --health
+            argocd app sync $_SERVICE
+            argocd app wait $_SERVICE --health
         fi
     fi
 fi

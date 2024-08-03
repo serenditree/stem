@@ -1,7 +1,7 @@
 apiVersion: v2
 type: application
-name: terra-https
-description: "HTTPS resources"
+name: terra-certs
+description: "Cert-manager resources"
 version: 0.0.1
 appVersion: "0.0.1"
 

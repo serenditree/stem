@@ -4,7 +4,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: terra-https
+  name: terra-certs
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
@@ -12,7 +12,7 @@ spec:
   project: default
   source:
     repoURL: 'git@github.com:serenditree/stem.git'
-    path: plots/terra/charts/https
+    path: plots/terra/charts/certs
     targetRevision: dev
     helm:
       valueFiles:
