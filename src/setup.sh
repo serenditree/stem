@@ -37,6 +37,7 @@ function sc_setup_helm() {
     if [[ -z "$_ARG_DRYRUN" ]]; then
         echo "Adding repos..."
         for _repo in \
+            cilium:https://helm.cilium.io \
             bitnami:https://charts.bitnami.com/bitnami \
             strimzi:https://strimzi.io/charts \
             prometheus:https://prometheus-community.github.io/helm-charts \
@@ -68,6 +69,7 @@ function sc_setup_helm_update() {
         helm repo update && echo
         {
             for _repo in \
+                cilium/cilium \
                 bitnami/mongodb \
                 bitnami/mariadb-galera \
                 bitnami/memcached \
