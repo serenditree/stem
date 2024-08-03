@@ -7,8 +7,8 @@
 # Checks required applications.
 function sc_status_required_applications() {
     echo -n "Required applications..."
-    local _required="argbash|argocd|buildah|cilium|crc|exo|git|helm|jq|kubectl|oc|openshift-install|pass|podman|skopeo|"
-    local _required+="terraform|tkn|xxd|yarnpkg"
+    local _required="argbash|argocd|buildah|crc|exo|git|helm|jq|kubectl|oc|openshift-install|pass|podman|skopeo|"
+    local _required+="terraform|tkn|yarnpkg"
     local -r _missing=$(
         cat <(compgen -c | grep -E "^($_required)$") <(echo -e "${_required//|/\\n}") |
             sort |

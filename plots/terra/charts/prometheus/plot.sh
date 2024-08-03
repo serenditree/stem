@@ -20,9 +20,9 @@ if [[ -z "SKIP" ]] && [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] 
         argocd app sync $_SERVICE
         argocd app wait $_SERVICE --health
     echo "Configuring cilium service monitors..."
-    cilium upgrade --reuse-values \
-        --set hubble.metrics.serviceMonitor.enabled=true \
-        --set prometheus.serviceMonitor.enabled=true \
-        --set operator.prometheus.serviceMonitor.enabled=true
+    helm upgrade cilium ../cilium \
+        --namespace kube-system \
+        --reuse-values \
+        --values ../cilium/values-prometheus.yaml
     fi
 fi

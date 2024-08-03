@@ -1,3 +1,4 @@
+{{- if .Values.global.setupPolicies }}
 {{ range tuple "root-seed/mongodb" "root-user/mariadb-galera" }}
 {{- $component := substr 10 100 . }}
 {{- $name := substr 0 9 . }}
@@ -36,4 +37,5 @@ spec:
             selector:
               matchLabels:
                 app.kubernetes.io/component: {{ $component }}
+{{- end }}
 {{- end }}

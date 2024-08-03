@@ -1,0 +1,30 @@
+global:
+  setupPolicies: false
+cilium:
+  cluster:
+    name: serenditree
+  routingMode: tunnel
+  tunnelProtocol: vxlan
+  envoy:
+    enabled: true
+  encryption:
+    enabled: true
+    type: ipsec
+    ipsec:
+      secretName: cilium-ipsec-keys
+  hubble:
+    enabled: true
+    relay:
+      enabled: true
+    ui:
+      enabled: true
+    metrics:
+      enableOpenMetrics: true
+      enabled:
+        - dns
+        - drop
+        - tcp
+        - flow
+        - port-distribution
+        - icmp
+        - httpV2:exemplars=true;labelsContext=source_namespace,source_app,source_ip,destination_namespace,destination_app,destination_ip,traffic_direction

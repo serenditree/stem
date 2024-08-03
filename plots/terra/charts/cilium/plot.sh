@@ -17,37 +17,22 @@ fi
 if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "$_ARG_SETUP" ]]; then
     sc_heading 1 "Setting up $_SERVICE"
     if [[ -z "$_ARG_DRYRUN" ]]; then
-        _ipsec_key="$(dd if=/dev/urandom count=20 bs=1 2> /dev/null | xxd -p -c 64)"
-        _ipsec_key_secret=cilium-ipsec-keys
+        _ipsec_key="$(dd if=/dev/urandom count=20 bs=1 2>/dev/null | hexdump -ve '1/1 "%02x"')"
 
-        kubectl create secret generic $_ipsec_key_secret \
+        kubectl create secret generic cilium-ipsec-keys \
             --namespace kube-system \
             --from-literal=keys="3+ rfc4106(gcm(aes)) $_ipsec_key 128"
 
-        _cluster_domain="$(sc_context_cluster_domain)"
-        _metrics="dns,drop,tcp,flow,port-distribution,icmp,"
-        _metrics+="httpV2:exemplars=true;labelsContext=source_namespace\,source_app\,source_ip\,"
-        _metrics+="destination_namespace\,destination_app\,destination_ip\,traffic_direction"
+        _ST_HELM_NAME=cilium
+        _ST_HELM_ARGS="--namespace kube-system --wait"
+    fi
 
-        cilium install \
-            --set etcd.clusterDomain="$_cluster_domain" \
-            --set hubble.peerService.clusterDomain="$_cluster_domain" \
-            --set encryption.enabled="true" \
-            --set encryption.type="ipsec" \
-            --set encryption.ipsec.secretName="${_ipsec_key_secret}" \
-            --set prometheus.enabled="true" \
-            --set operator.prometheus.enabled="true" \
-            --set hubble.enabled="true" \
-            --set hubble.relay.enabled="true" \
-            --set hubble.ui.enabled="true" \
-            --set hubble.metrics.enableOpenMetrics="true" \
-            --set hubble.metrics.enabled="{${_metrics}}"
+    sc_heading 2 "Waiting for helm $_ST_HELM_CMD to succeed..."
+    helm $_ST_HELM_CMD $_ST_HELM_NAME . $_ST_HELM_ARGS | $_ST_HELM_PIPE
 
-        cilium status --wait
-
+    if [[ -z "$_ARG_DRYRUN" ]]; then
+        helm upgrade cilium . --reuse-values --set global.setupPolicies=true
         kubectl --namespace kube-system rollout restart ds exoscale-csi-node
         kubectl --namespace kube-system rollout status ds exoscale-csi-node --watch
     fi
-    [[ -z "$_ARG_DRYRUN" ]] && _ST_HELM_NAME=cilium-policies
-    helm $_ST_HELM_CMD $_ST_HELM_NAME . --namespace kube-system | $_ST_HELM_PIPE
 fi
