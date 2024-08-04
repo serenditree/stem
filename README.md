@@ -64,7 +64,7 @@ that processes command-line arguments and calls the functions of dedicated scrip
 
 ```
 > sc help
-Usage:  sc [-T|--test] [-P|--prod] [-D|--dryrun] [-v|--verbose] [-a|--all] [-y|--assume-yes] [-E|--expose] [--open] 
+Usage:  sc [-T|--test] [-P|--prod] [-D|--dryrun] [-v|--verbose] [-a|--all] [-y|--yes] [-E|--expose] [--open] 
 [-w|--watch] [--init] [--setup] [--upgrade] [--reset] [--delete] [--imperative] [--resume <arg>] [--issuer <arg>] 
 [--compose] [--integration] [-k|--kubernetes] [-o|--openshift] [-l|--local] [--dashboard] [-h|--help] [--] <command> ... 
 
@@ -75,7 +75,7 @@ Usage:  sc [-T|--test] [-P|--prod] [-D|--dryrun] [-v|--verbose] [-a|--all] [-y|-
 	-D, --dryrun:       Activates dryrun mode.
 	-v, --verbose:      Verbose flag.
 	-a, --all:          All...
-	-y, --assume-yes:   Assumes yes on prompts.
+	-y, --yes:   Assumes yes on prompts.
 	-E, --expose:       Exposes database ports on local pods.
 	--open:             Open plots.
 	-w, --watch:        Watch supported commands.

@@ -107,7 +107,9 @@ function sc_setup_helm_update() {
 
 # Updates base images or checks for upgrades.
 function sc_setup_image_update() {
-    if [[ -n "$_ARG_UPGRADE" ]]; then
+    if [[ -n "$_ARG_YES" ]]; then
+        env | grep "_ST_FROM_" | cut -d'=' -f2 | xargs podman pull
+    else
         env | grep "_ST_FROM_" | cut -d'=' -f2 | while read -r _image; do
             sc_heading 2 "$_image"
             skopeo inspect docker://${_image%:*} |
@@ -116,8 +118,6 @@ function sc_setup_image_update() {
                 sed -rn '/^[[:digit:]]+\.[[:digit:]]+\.?[[:digit:]]*$/p' |
                 head -n10
         done
-    else
-        env | grep "_ST_FROM_" | cut -d'=' -f2 | xargs podman pull
     fi
 }
 

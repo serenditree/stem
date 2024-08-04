@@ -13,7 +13,7 @@ _ST_HELP="Please type 'sc <help>' for a list of commands or $_ST_HELP_DETAIL"
 # ARG_OPTIONAL_BOOLEAN([dryrun],[D],[Activates dryrun mode.])
 # ARG_OPTIONAL_BOOLEAN([verbose],[v],[Verbose flag.])
 # ARG_OPTIONAL_BOOLEAN([all],[a],[All...])
-# ARG_OPTIONAL_BOOLEAN([assume-yes],[y],[Assumes yes on prompts.])
+# ARG_OPTIONAL_BOOLEAN([yes],[y],[Assumes yes on prompts.])
 # ARG_OPTIONAL_BOOLEAN([expose],[E],[Exposes database ports on local pods.])
 # ARG_OPTIONAL_BOOLEAN([open],[],[Open plots.])
 # ARG_OPTIONAL_BOOLEAN([watch],[w],[Watch supported commands.])
@@ -70,7 +70,7 @@ _arg_prod="off"
 _arg_dryrun="off"
 _arg_verbose="off"
 _arg_all="off"
-_arg_assume_yes="off"
+_arg_yes="off"
 _arg_expose="off"
 _arg_open="off"
 _arg_watch="off"
@@ -94,7 +94,7 @@ _arg_help="off"
 
 print_help()
 {
-    printf 'Usage: %s [-T|--test] [-P|--prod] [-D|--dryrun] [-v|--verbose] [-a|--all] [-y|--assume-yes] [-E|--expose] [--open] [-w|--watch] [--init] [--setup] [--upgrade] [--reset] [--delete] [--imperative] [--resume <arg>] [--issuer <arg>] [--compose] [--insert] [--integration] [-k|--kubernetes] [-o|--openshift] [-l|--local] [--dashboard] [-h|--help] [--] <command> ... \n' " sc" && echo
+    printf 'Usage: %s [-T|--test] [-P|--prod] [-D|--dryrun] [-v|--verbose] [-a|--all] [-y|--yes] [-E|--expose] [--open] [-w|--watch] [--init] [--setup] [--upgrade] [--reset] [--delete] [--imperative] [--resume <arg>] [--issuer <arg>] [--compose] [--insert] [--integration] [-k|--kubernetes] [-o|--openshift] [-l|--local] [--dashboard] [-h|--help] [--] <command> ... \n' " sc" && echo
     printf '\t%-20s%s\n' "<command>:" "Command to execute. Please type sc <help> for a list of commands!"
     printf '\t%-20s%s\n' "... :" "Other arguments passed to command."
     printf '\t%-20s%s\n' "-T, --test:" "Sets the target stage to test. (default is dev)"
@@ -102,7 +102,7 @@ print_help()
     printf '\t%-20s%s\n' "-D, --dryrun:" "Activates dryrun mode."
     printf '\t%-20s%s\n' "-v, --verbose:" "Verbose flag."
     printf '\t%-20s%s\n' "-a, --all:" "All..."
-    printf '\t%-20s%s\n' "-y, --assume-yes:" "Assumes yes on prompts."
+    printf '\t%-20s%s\n' "-y, --yes:" "Assumes yes on prompts."
     printf '\t%-20s%s\n' "-E, --expose:" "Exposes database ports on local pods."
     printf '\t%-20s%s\n' "--open:" "Open plots."
     printf '\t%-20s%s\n' "-w, --watch:" "Watch supported commands."
@@ -202,12 +202,12 @@ parse_commandline()
                     { begins_with_short_option "$_next" && shift && set -- "-a" "-${_next}" "$@"; } || die "The short option '$_key' can't be decomposed to ${_key:0:2} and -${_key:2}, because ${_key:0:2} doesn't accept value and '-${_key:2:1}' doesn't correspond to a short option."
                 fi
                 ;;
-            -y|--no-assume-yes|--assume-yes)
-                _arg_assume_yes="on"
-                test "${1:0:5}" = "--no-" && _arg_assume_yes="off"
+            -y|--no-yes|--yes)
+                _arg_yes="on"
+                test "${1:0:5}" = "--no-" && _arg_yes="off"
                 ;;
             -y*)
-                _arg_assume_yes="on"
+                _arg_yes="on"
                 _next="${_key##-y}"
                 if test -n "$_next" -a "$_next" != "$_key"
                 then
@@ -412,7 +412,7 @@ export _ARG_VERBOSE=${_arg_verbose/off/}
 export _ARG_TEST=${_arg_test/off/}
 export _ARG_PROD=${_arg_prod/off/}
 export _ARG_ALL=${_arg_all/off/}
-export _ARG_YES=${_arg_assume_yes/off/}
+export _ARG_YES=${_arg_yes/off/}
 
 export _ARG_EXPOSE=${_arg_expose/off/}
 export _ARG_OPEN=${_arg_open/off/}
@@ -628,8 +628,8 @@ update)
         sc_heading 2 "sc update <comp>"
         echo "Update components. Without specification, all components are updated or checked for latest versions."
         printf '\n\t%-20s%s\n' "helm" "Check for latest chart versions."
-        printf '\n\t%-20s%s' "{image* | img}" "Update base images or check for upgrades. [--upgrade]"
-        printf '\n\t%-20s%s\n' "{maven | mvn}" "Updates maven dependencies or checks for updates. [--assume-yes]"
+        printf '\n\t%-20s%s' "{image* | img}" "Update base images or check for upgrades. [--yes]"
+        printf '\n\t%-20s%s\n' "{maven | mvn}" "Updates maven dependencies or checks for updates. [--yes]"
         printf '\n\t%-20s%s\n' "yarn" "Updates node modules."
     else
         case ${_ARG_SUB_COMMAND} in
@@ -649,8 +649,7 @@ update)
             sc_heading 1 helm
             sc_setup_helm_update
             sc_heading 1 images
-            _ARG_UPGRADE=yes \
-                sc_setup_image_update
+            sc_setup_image_update
             sc_heading 1 maven
             sc_setup_maven_update
             sc_heading 1 yarn

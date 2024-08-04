@@ -28,7 +28,7 @@ echo "Done"
 # ARG_OPTIONAL_BOOLEAN([dryrun], [D], [Activates dryrun mode.])
 # ARG_OPTIONAL_BOOLEAN([verbose], [v], [Verbose flag.])
 # ARG_OPTIONAL_BOOLEAN([all], [a], [All...])
-# ARG_OPTIONAL_BOOLEAN([assume-yes], [y], [Assumes yes on prompts.])
+# ARG_OPTIONAL_BOOLEAN([yes], [y], [Assumes yes on prompts.])
 # ARG_OPTIONAL_BOOLEAN([expose], [E], [Exposes database ports on local pods.])
 # ARG_OPTIONAL_BOOLEAN([open], [], [Open plots.])
 # ARG_OPTIONAL_BOOLEAN([watch], [w], [Watch supported commands.])
@@ -72,7 +72,7 @@ export _ARG_VERBOSE=${_arg_verbose/off/}
 export _ARG_TEST=${_arg_test/off/}
 export _ARG_PROD=${_arg_prod/off/}
 export _ARG_ALL=${_arg_all/off/}
-export _ARG_YES=${_arg_assume_yes/off/}
+export _ARG_YES=${_arg_yes/off/}
 
 export _ARG_EXPOSE=${_arg_expose/off/}
 export _ARG_OPEN=${_arg_open/off/}
@@ -288,8 +288,8 @@ update)
         sc_heading 2 "sc update <comp>"
         echo "Update components. Without specification, all components are updated or checked for latest versions."
         printf '\n\t%-20s%s\n' "helm" "Check for latest chart versions."
-        printf '\n\t%-20s%s' "{image* | img}" "Update base images or check for upgrades. [--upgrade]"
-        printf '\n\t%-20s%s\n' "{maven | mvn}" "Updates maven dependencies or checks for updates. [--assume-yes]"
+        printf '\n\t%-20s%s' "{image* | img}" "Update base images or check for upgrades. [--yes]"
+        printf '\n\t%-20s%s\n' "{maven | mvn}" "Updates maven dependencies or checks for updates. [--yes]"
         printf '\n\t%-20s%s\n' "yarn" "Updates node modules."
     else
         case ${_ARG_SUB_COMMAND} in
@@ -309,8 +309,7 @@ update)
             sc_heading 1 helm
             sc_setup_helm_update
             sc_heading 1 images
-            _ARG_UPGRADE=yes \
-                sc_setup_image_update
+            sc_setup_image_update
             sc_heading 1 maven
             sc_setup_maven_update
             sc_heading 1 yarn
