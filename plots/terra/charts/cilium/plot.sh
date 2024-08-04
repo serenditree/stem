@@ -24,15 +24,19 @@ if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "$_ARG_SET
             --from-literal=keys="3+ rfc4106(gcm(aes)) $_ipsec_key 128"
 
         _ST_HELM_NAME=cilium
-        _ST_HELM_ARGS="--namespace kube-system --wait"
+        _ST_HELM_ARGS="--namespace kube-system --wait --wait-for-jobs --debug"
     fi
 
-    sc_heading 2 "Waiting for helm $_ST_HELM_CMD to succeed..."
+    echo "Waiting for 'helm $_ST_HELM_CMD cilium' to succeed..."
     helm $_ST_HELM_CMD $_ST_HELM_NAME . $_ST_HELM_ARGS | $_ST_HELM_PIPE
 
     if [[ -z "$_ARG_DRYRUN" ]]; then
+        echo "Setting up policies..."
         helm upgrade cilium . --reuse-values --set global.setupPolicies=true
+        echo "Restarting csi..."
         kubectl --namespace kube-system rollout restart ds exoscale-csi-node
         kubectl --namespace kube-system rollout status ds exoscale-csi-node --watch
+        echo "Waiting for all pods to become ready..."
+        kubectl wait --for condition=ready --all pod --namespace kube-system --timeout 5m
     fi
 fi

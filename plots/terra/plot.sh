@@ -31,7 +31,7 @@ if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "$_ARG_SET
         elif [[ -n "${_ST_CONTEXT_IS_REMOTE}" ]]; then
             _EXOSCALE_PROFILE="$(exo config show --output-template '{{.Name}}')"
             if [[ "$_EXOSCALE_PROFILE"  == "serenditree" ]]; then
-                source ./terra.sh
+                source ./plot-terra.sh
                 sc_terra_up
                 if [[ -z "${_ARG_INIT}${_ARG_UPGRADE}" ]]; then
                     sc_setup_project
@@ -58,7 +58,7 @@ elif [[ " $* " =~ " down " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]]; then
         source ./local/openshift.sh
         sc_openshift_local_down
     elif [[ -n "${_ST_CONTEXT_IS_REMOTE}" ]]; then
-        source ./terra.sh
+        source plot-terra.sh
         sc_prompt "Delete cluster?" sc_terra_down
         sc_heading 2 "Cluster removed"
     fi
