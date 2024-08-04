@@ -95,7 +95,7 @@ function sc_setup_helm_update() {
         echo "Upgrading helm dependencies..."
         grep -E '^(path|version|latest)' "$_log" | awk '{print $2}' | xargs -n3 bash -c 'sed -i "s/$1/$2/" $0'
         git diff |
-            grep -EB 2 "version: [1-9.]+" |
+            grep -EB 2 "version: [0-9.v]+" |
             sed -E -e '/repository/d' -e 's/^(\W+|.*:)//' |
             xargs -n3 |
             column -t
