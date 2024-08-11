@@ -212,6 +212,7 @@ function sc_cluster_expose() {
 
     local -r _logs=/tmp/nohup-port-fwd.log
     for _svc in argocd/svc/argocd-server~9098:443 \
+        kube-system/svc/hubble-ui~9080:80 \
         strimzi/svc/kafdrop~9000:9000 \
         tekton-pipelines/svc/tekton-dashboard~9097:9097; do
         if [[ $_svc =~ $_pattern ]]; then
