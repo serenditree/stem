@@ -39,7 +39,7 @@ if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "${_ARG_SE
     if [[ -z "${_ARG_DRYRUN}${_ARG_UPGRADE}" ]]; then
         sc_heading 2 "Waiting for pods to become ready..."
         kubectl wait --for condition=established --all crd
-        kubectl -n argocd wait --for condition=ready --all pod --timeout 2m
+        kubectl -n argocd wait --for condition=ready --all pod --timeout 3m
         sc_heading 2 "Starting port-forwarding..."
         kubectl port-forward --namespace argocd svc/argocd-server 9098:443 &>/tmp/nohup-port-fwd.log &
         sleep 3s
