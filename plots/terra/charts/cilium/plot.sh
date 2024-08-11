@@ -17,11 +17,9 @@ fi
 if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "$_ARG_SETUP" ]]; then
     sc_heading 1 "Setting up $_SERVICE"
     if [[ -z "$_ARG_DRYRUN" ]]; then
-        _ipsec_key="$(dd if=/dev/urandom count=20 bs=1 2>/dev/null | hexdump -ve '1/1 "%02x"')"
-
-        kubectl create secret generic cilium-ipsec-keys \
-            --namespace kube-system \
-            --from-literal=keys="3+ rfc4106(gcm(aes)) $_ipsec_key 128"
+        kubectl create secret generic cilium-ipsec-key \
+            --from-literal key="3+ rfc4106(gcm(aes)) $(openssl rand -hex 20) 128" \
+            --namespace kube-system
 
         _ST_HELM_NAME=cilium
         _ST_HELM_ARGS="--namespace kube-system --wait --wait-for-jobs"

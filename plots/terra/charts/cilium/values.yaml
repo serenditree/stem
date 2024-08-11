@@ -11,7 +11,8 @@ cilium:
     enabled: true
     type: ipsec
     ipsec:
-      secretName: cilium-ipsec-keys
+      secretName: cilium-ipsec-key
+      keyFile: key
   hubble:
     enabled: true
     relay:
