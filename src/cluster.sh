@@ -177,12 +177,12 @@ function sc_cluster_clean() {
         --output=custom-columns='Name:.metadata.name' \
         --no-headers |
         head -n -2 |
-        xargs kubectl delete pod
+        xargs --no-run-if-empty kubectl --namespace serenditree delete pod
     # Orphaned replica sets.
     kubectl get rs \
         --namespace serenditree \
         --output=jsonpath='{.items[?(@.spec.replicas==0)].metadata.name}' |
-        xargs kubectl delete rs
+        xargs --no-run-if-empty kubectl --namespace serenditree delete rs
 }
 
 # Inspects all or defined images of the OpenShift registry.
