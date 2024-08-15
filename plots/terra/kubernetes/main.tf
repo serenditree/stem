@@ -155,6 +155,10 @@ resource "exoscale_sks_nodepool" "serenditree" {
   disk_size       = each.value.disk_size
   instance_prefix = "serenditree-${each.key}"
 
+  labels = {
+    "serenditree.io/stage" = each.key
+  }
+
   anti_affinity_group_ids = [exoscale_anti_affinity_group.serenditree[each.key].id]
   security_group_ids      = [exoscale_security_group.serenditree.id]
 }
