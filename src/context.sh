@@ -154,7 +154,7 @@ function sc_context() {
         nl -w1 -s' '
 
     local _authenticated=1
-    sc_cluster_status && _authenticated=0
+    [[ -n "$_ST_CONTEXT" ]] && sc_cluster_status && _authenticated=0
 
     return $_authenticated
 }

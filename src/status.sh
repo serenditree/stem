@@ -75,7 +75,7 @@ function sc_status_env() {
 function sc_status() {
     sc_heading 1 "Cluster Context"
     sc_context && local -r _authenticated=on
-    echo "Cluster domain: $(sc_context_cluster_domain)"
+    [[ -n "$_ST_CONTEXT" ]] && echo "Cluster domain: $(sc_context_cluster_domain)"
 
     sc_heading 1 n "Cluster"
     if [[ -n "${_ST_CONTEXT_KUBERNETES}${_ST_CONTEXT_KUBERNETES_LOCAL}" ]]; then
