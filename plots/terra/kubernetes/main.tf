@@ -122,7 +122,7 @@ resource "exoscale_sks_cluster" "serenditree" {
   exoscale_ccm   = true
   exoscale_csi   = var.csi
   metrics_server = true
-  auto_upgrade   = false
+  auto_upgrade   = true
 }
 ########################################################################################################################
 # Kubeconfig
