@@ -8,11 +8,6 @@ metadata:
 spec:
   pipelineRef:
     name: branch
-  podTemplate:
-    securityContext:
-      runAsUser: 1000
-      runAsGroup: 0
-      fsGroup: 1000
   serviceAccountName: pipelines
   params:
     - name: config

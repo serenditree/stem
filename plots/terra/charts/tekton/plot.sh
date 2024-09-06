@@ -53,5 +53,7 @@ if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "$_ARG_SET
         kubectl patch serviceaccount pipelines \
             --patch-file="${_ST_HOME_STEM}/rc/patches/tekton-sa.yaml" \
             --namespace tekton-pipelines
+        sc_heading 2 "Removing enforce-label from namespace..."
+        kubectl label namespaces tekton-pipelines pod-security.kubernetes.io/enforce-
     fi
 fi
