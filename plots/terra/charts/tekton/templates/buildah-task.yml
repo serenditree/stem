@@ -46,17 +46,21 @@ spec:
       volumeMounts:
         - name: containers
           mountPath: /var/lib/containers
-#    - name: push
-#      image: $(params.builder-image)
-#      workingDir: $(workspaces.buildah.path)
-#      command:
-#        - sc/cli.sh
-#      args:
-#        - push
-#        - $(params.image)
-#      volumeMounts:
-#        - name: containers
-#          mountPath: /var/lib/containers
+      securityContext:
+        privileged: true
+    - name: push
+      image: $(params.builder-image)
+      workingDir: $(workspaces.buildah.path)
+      command:
+        - sc/cli.sh
+      args:
+        - push
+        - $(params.image)
+      volumeMounts:
+        - name: containers
+          mountPath: /var/lib/containers
+      securityContext:
+        privileged: true
   volumes:
     - name: containers
       persistentVolumeClaim:
