@@ -183,6 +183,8 @@ function sc_cluster_clean() {
         --namespace serenditree \
         --output=jsonpath='{.items[?(@.spec.replicas==0)].metadata.name}' |
         xargs --no-run-if-empty kubectl --namespace serenditree delete rs
+    # Pipeline runs except the two most recent ones.
+    tkn pipelinerun delete --keep 2 --namespace tekton-pipelines
 }
 
 # Inspects all or defined images of the OpenShift registry.
