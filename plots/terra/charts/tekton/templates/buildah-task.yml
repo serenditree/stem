@@ -46,8 +46,6 @@ spec:
       volumeMounts:
         - name: containers
           mountPath: /var/lib/containers
-      securityContext:
-        privileged: true
 #    - name: push
 #      image: $(params.builder-image)
 #      workingDir: $(workspaces.buildah.path)
@@ -59,8 +57,6 @@ spec:
 #      volumeMounts:
 #        - name: containers
 #          mountPath: /var/lib/containers
-#      securityContext:
-#        privileged: true
   volumes:
     - name: containers
       persistentVolumeClaim:
