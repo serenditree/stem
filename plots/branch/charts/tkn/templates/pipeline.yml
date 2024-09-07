@@ -41,6 +41,8 @@ spec:
     # FETCH-SRC
     ####################################################################################################################
     - name: fetch-src
+      runAfter:
+        - fetch-sc
       taskRef:
         kind: ClusterTask
         name: serenditree-git
@@ -59,7 +61,6 @@ spec:
     ####################################################################################################################
     - name: build
       runAfter:
-        - fetch-sc
         - fetch-src
       taskRef:
         kind: ClusterTask
