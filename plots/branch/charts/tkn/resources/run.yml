@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  generateName: branch-seed-
+  generateName: branch-
   labels:
     app.kubernetes.io/component: tekton
 spec:
@@ -13,7 +13,7 @@ spec:
     - name: config
       value: tekton-branch
     - name: image
-      value: branch-seed
+      value: branch
     - name: repo-url
       value: https://github.com/serenditree/branch.git
     - name: repo-branch
