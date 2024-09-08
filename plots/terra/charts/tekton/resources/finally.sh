@@ -1,6 +1,6 @@
-echo "Aggregated status $(params.PIPELINE_AGGREGATE_STATUS)"
+echo "Aggregated status $(params.status)"
 
-TEXT="Pipeline $(params.PIPELINE_NAME) for revision $(params.PIPELINE_REVISION)"
+TEXT="Pipeline $(params.pipeline) for revision $(params.revision)"
 STATUS=succeeded
 for _status in $@; do
     if [[ "${_status##*:}" != "Succeeded" ]]; then

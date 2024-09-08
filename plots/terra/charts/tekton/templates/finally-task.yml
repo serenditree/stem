@@ -8,22 +8,22 @@ metadata:
 spec:
   description: 'Task to react to and notify about pipeline completion.'
   params:
-    - name: PIPELINE_NAME
+    - name: pipeline
       type: string
       description: 'Name of the pipeline.'
-    - name: PIPELINE_STATUS
-      type: array
-      description: 'Array of task:status pairs.'
-    - name: PIPELINE_AGGREGATE_STATUS
-      type: string
-      description: 'Aggregated status of the pipeline.'
-    - name: PIPELINE_REVISION
+    - name: revision
       type: string
       description: 'Name of the revision to build.'
-    - name: PIPELINE_RUN
+    - name: run
       type: string
       default: undefined
-      description: 'UID of the pipeline run.'
+      description: 'ID of the pipeline run.'
+    - name: status
+      type: string
+      description: 'Aggregated status of the pipeline.'
+    - name: details
+      type: array
+      description: 'Array of task:status pairs.'
   stepTemplate:
     env:
       - name: WEBHOOK
@@ -35,6 +35,6 @@ spec:
     - name: notify
       image: alpine/curl
       args:
-        - $(params.PIPELINE_STATUS)
+        - $(params.details)
       script: |
 {{ .Files.Get "resources/finally.sh" | indent 8 }}
