@@ -11,4 +11,4 @@ for _status in $@; do
     DETAILS="${DETAILS}\n- ${_status/None/ :x:}"
 done
 
-curl -X POST -H 'Content-type: application/json' --data "{\"text\": \"*${TEXT} ${STATUS}*${DETAILS}\"}" "${WEBHOOK}"
+curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"*${TEXT} ${STATUS}*${DETAILS}\"}" "${WEBHOOK}"
