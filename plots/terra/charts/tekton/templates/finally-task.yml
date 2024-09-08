@@ -36,5 +36,5 @@ spec:
       image: alpine/curl
       args:
         - $(params.PIPELINE_STATUS)
-      script: |
+      script: |-
 {{ .Files.Get "resources/finally.sh" | indent 8 }}
