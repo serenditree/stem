@@ -33,18 +33,4 @@ spec:
       image: alpine/git
       workingdir: $(workspaces.git.path)
       script: |
-        mkdir -pv $(params.subdirectory)
-        cd $(params.subdirectory) || exit 1
-
-        if [[ -d .git ]] && [[ -n "$(params.clone)" ]]; then
-          echo "Cleaning repository..."
-          rm -rf .
-        fi
-        if [[ ! -d .git ]]; then
-          git clone $(params.url) . || exit 1
-        fi
-
-        git checkout $(params.revision) || exit 1
-        git pull --ff-only || exit 1
-
-        git rev-parse HEAD | tr -d '\n'
+{{ .Files.Get "resources/git.sh" | indent 8 }}
