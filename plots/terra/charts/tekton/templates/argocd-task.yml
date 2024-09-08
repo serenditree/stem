@@ -4,7 +4,7 @@ metadata:
   name: serenditree-argocd
 spec:
   params:
-    - name: TIMEOUT
+    - name: timeout
       description: 'Timeout for healthcheck in seconds.'
       type: string
       default: '420'
@@ -20,4 +20,4 @@ spec:
       script: |
         argocd login $ARGOCD_SERVER --username $ARGOCD_USERNAME --password $ARGOCD_PASSWORD --insecure --plaintext
         argocd app sync $ARGOCD_APPLICATION --server $ARGOCD_SERVER
-        argocd app wait $ARGOCD_APPLICATION --server $ARGOCD_SERVER --health --timeout $(params.TIMEOUT)
+        argocd app wait $ARGOCD_APPLICATION --server $ARGOCD_SERVER --health --timeout $(params.timeout)
