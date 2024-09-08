@@ -3,7 +3,7 @@ argo-cd:
     secret:
       argocdServerAdminPassword: ~
 global:
-  setupApps: false
+  setupApps: ~
   setupTekton: true
   setupProm: false
   context: ~
@@ -16,6 +16,7 @@ strimzi:
   kafdrop:
     enabled: false
 tekton:
+  webhook: ~
   basic:
     github: ~
     quay: ~

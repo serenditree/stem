@@ -16,6 +16,7 @@ fi
 ########################################################################################################################
 if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "${_ARG_SETUP}${_ARG_UPGRADE}" ]]; then
     sc_heading 1 "Setting up $_SERVICE"
+    _setup_apps=true
     _cluster_domain=$(sc_context_cluster_domain)
     _github_token=$(pass serenditree/github.com)
     _quay_token=$(pass serenditree/quay.io)
@@ -23,15 +24,18 @@ if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "${_ARG_SE
     _argocd_password="$(pass serenditree/argocd)"
     _argocd_password_bcrypt="$(htpasswd -nbBC 10 "" "$_argocd_password" | tr -d ':\n' | sed 's/$2y/$2a/')"
 
-    [[ -z "$_ARG_DRYRUN" ]] && _ST_HELM_NAME=argocd
+    [[ -z "$_ARG_DRYRUN" ]]  && _ST_HELM_NAME=argocd
+    [[ -n "$_ARG_SETUP" ]] && _setup_apps=false
     helm $_ST_HELM_CMD $_ST_HELM_NAME . \
         --namespace argocd \
         --create-namespace \
-        --set "argo-cd.configs.secret.argocdServerAdminPassword=$_argocd_password_bcrypt" \
-        --set "global.context=$_ST_CONTEXT" \
-        --set "global.clusterDomain=$_cluster_domain" \
-        --set "ingress.letsencrypt.issuer=$_ARG_ISSUER" \
+        --set "global.setupApps=${_setup_apps}" \
+        --set "argo-cd.configs.secret.argocdServerAdminPassword=${_argocd_password_bcrypt}" \
+        --set "global.context=${_ST_CONTEXT}" \
+        --set "global.clusterDomain=${_cluster_domain}" \
+        --set "ingress.letsencrypt.issuer=${_ARG_ISSUER}" \
         --set "ingress.letsencrypt.email=$(pass serenditree/contact)" \
+        --set "tekton.webhook=$(pass serenditree/tekton)" \
         --set "tekton.basic.github=${_github_token#*:}" \
         --set "tekton.basic.quay=${_quay_token#*:}" \
         --set "tekton.basic.redhat=${_redhat_token#*:}" | $_ST_HELM_PIPE
@@ -59,17 +63,11 @@ if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "${_ARG_SE
         sc_cluster_patch argocd-cm
 
         sc_heading 2 "Installing apps..."
-        if [[ -z "$_ARG_DRYRUN" ]]; then
-            helm upgrade $_ST_HELM_NAME . \
-                --namespace argocd \
-                --reuse-values \
-                --set "global.setupApps=true"
-        else
-            helm template . \
-                --namespace argocd \
-                --reuse-values \
-                --set "global.setupApps=true" | yq eval
-        fi
+        helm upgrade $_ST_HELM_NAME . \
+            --namespace argocd \
+            --reuse-values \
+            --set "global.setupApps=true"
+
         sc_heading 2 "Re-login..."
         argocd relogin --password "$_argocd_password"
     fi

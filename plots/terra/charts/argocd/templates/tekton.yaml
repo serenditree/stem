@@ -24,6 +24,8 @@ spec:
           value: 'true'
         - name: branch
           value: 'true'
+        - name: webhook
+          value: {{ .Values.tekton.webhook }}
         - name: basic.github
           value: {{ .Values.tekton.basic.github }}
         - name: basic.quay
