@@ -1,0 +1,55 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: ClusterTask
+metadata:
+  name: serenditree-finally
+  labels:
+    app.kubernetes.io/component: tekton
+spec:
+  description: 'Task to react to and notify about pipeline completion.'
+  params:
+    - name: PIPELINE_NAME
+      type: string
+      description: 'Name of the pipeline.'
+    - name: PIPELINE_STATUS
+      type: array
+      description: 'Array of task:status pairs.'
+    - name: PIPELINE_AGGREGATE_STATUS
+      type: string
+      description: 'Aggregated status of the pipeline.'
+    - name: PIPELINE_REVISION
+      type: string
+      description: 'Name of the revision to build.'
+    - name: PIPELINE_RUN
+      type: string
+      default: undefined
+      description: 'UID of the pipeline run.'
+  stepTemplate:
+    env:
+      - name: WEBHOOK
+        valueFrom:
+          secretKeyRef:
+            name: webhook
+            key: webhook
+  steps:
+    - name: notify
+      image: alpine/curl
+      args:
+        - $(params.PIPELINE_STATUS)
+      script: |
+        echo "Aggregated status $(params.PIPELINE_AGGREGATE_STATUS)"
+        TEXT="Pipeline $(params.PIPELINE_NAME) for revision $(params.PIPELINE_REVISION)"
+
+        STATUS=succeeded
+        for _status in $@; do
+            if [[ "${_status##*:}" != "Succeeded" ]]; then
+              STATUS=failed
+            fi
+            _status=${_status/Succeeded/ :green_heart:}
+            _status=${_status/Failed/ :broken_heart:}
+            DETAILS="${DETAILS}\n- ${_status/None/ :x:}"
+        done
+
+        curl -X POST -H 'Content-type: application/json' \
+          --data "{\"text\": \"*${TEXT} ${STATUS}*${DETAILS}\"}" \
+          "${WEBHOOK}"
