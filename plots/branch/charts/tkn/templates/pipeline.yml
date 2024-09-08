@@ -73,3 +73,22 @@ spec:
       workspaces:
         - name: buildah
           workspace: pipeline
+  finally:
+    - name: finally
+      taskRef:
+        kind: ClusterTask
+        name: serenditree-finally
+      params:
+        - name: PIPELINE_NAME
+          value: branch
+        - name: PIPELINE_REVISION
+          value: todo
+        - name: PIPELINE_RUN
+          value: $(context.pipelineRun.name)
+        - name: PIPELINE_AGGREGATE_STATUS
+          value: $(tasks.status)
+        - name: PIPELINE_STATUS
+          value:
+            - 'fetch-sc:$(tasks.fetch-sc.status)'
+            - 'fetch-src:$(tasks.fetch-src.status)'
+            - 'build:$(tasks.build.status)'
