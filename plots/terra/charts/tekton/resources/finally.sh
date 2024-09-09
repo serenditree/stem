@@ -11,7 +11,7 @@ for _status in $@; do
 done
 TEXT='Pipeline $(params.pipeline) for revision $(params.git-sha)'
 TEXT=${TEXT//\"//}
-DETAILS+='\n\nCommit: $(params.git-log)\nImage: $(params.image-sha)'
+DETAILS+='\n\nImage: $(params.image-sha)'
 DETAILS=${DETAILS//\"//}
 
 curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"*${TEXT} ${STATUS}*${DETAILS}\"}" "${WEBHOOK}"

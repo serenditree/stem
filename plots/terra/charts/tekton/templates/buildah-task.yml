@@ -38,32 +38,32 @@ spec:
       script: |
         env | grep _ST_ | sed -E 's/(.*(CREDENTIALS|PASSWORD)[^=]+=).*/\1***/' | sort
         mkdir -pv $_ST_REPO $_ST_CACHE
-#   - name: build
-#     image: $(params.builder-image)
-#     workingDir: $(workspaces.buildah.path)
-#     command:
-#       - sc/cli.sh
-#     args:
-#       - build
-#       - $(params.image)
-#     volumeMounts:
-#       - name: containers
-#         mountPath: /var/lib/containers
-#     securityContext:
-#       privileged: true
-#   - name: push
-#     image: $(params.builder-image)
-#     workingDir: $(workspaces.buildah.path)
-#     command:
-#       - sc/cli.sh
-#     args:
-#       - push
-#       - $(params.image)
-#     volumeMounts:
-#       - name: containers
-#         mountPath: /var/lib/containers
-#     securityContext:
-#       privileged: true
+    - name: build
+      image: $(params.builder-image)
+      workingDir: $(workspaces.buildah.path)
+      command:
+        - sc/cli.sh
+      args:
+        - build
+        - $(params.image)
+      volumeMounts:
+        - name: containers
+          mountPath: /var/lib/containers
+      securityContext:
+        privileged: true
+    - name: push
+      image: $(params.builder-image)
+      workingDir: $(workspaces.buildah.path)
+      command:
+        - sc/cli.sh
+      args:
+        - push
+        - $(params.image)
+      volumeMounts:
+        - name: containers
+          mountPath: /var/lib/containers
+      securityContext:
+        privileged: true
     - name: digest
       image: $(params.builder-image)
       workingDir: $(workspaces.buildah.path)
