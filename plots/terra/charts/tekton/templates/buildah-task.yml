@@ -68,7 +68,8 @@ spec:
       image: $(params.builder-image)
       workingDir: $(workspaces.buildah.path)
       script: |
-        {{ "buildah images --format '{{.Digest}}'" }} | head -n1 | tee $(results.sha.path)
+        {{ "buildah inspect --format '{{.FromImageDigest}}' localhost/serenditree/$(params.image)" }} |
+          tee $(results.sha.path)
       volumeMounts:
         - name: containers
           mountPath: /var/lib/containers

@@ -1,6 +1,6 @@
 echo "Aggregated status: $(params.status)"
 
-TEXT="Pipeline _$(params.pipeline)_ for revision _$(params.git-sha)_"
+TEXT="Pipeline _$(params.pipeline)_ for commit _$(params.git-sha)_"
 STATUS=succeeded
 for _status in $@; do
     if [[ "${_status##*:}" != "Succeeded" ]]; then
