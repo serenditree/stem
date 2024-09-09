@@ -17,6 +17,9 @@ spec:
       type: string
       default: quay.io/serenditree/buildah:latest
       description: The location of the buildah builder image.
+  results:
+    - name: iid
+      description: Image ID of the created container image.
   workspaces:
     - name: buildah
   stepTemplate:
@@ -38,6 +41,9 @@ spec:
     - name: build
       image: $(params.builder-image)
       workingDir: $(workspaces.buildah.path)
+      env:
+        - name: _TKN_IID_FILE
+          value: $(results.iid.path)
       command:
         - sc/cli.sh
       args:

@@ -78,7 +78,7 @@ function sc_image_commit() {
 
     # buildah config --author "$(git config --get user.email)" $_container_ref
 
-    buildah commit --format oci $_container_ref ${_image}:${_tag}
+    buildah commit --iidfile ${_TKN_IID_FILE:-iid} --format oci $_container_ref ${_image}:${_tag}
 
     buildah inspect $_container_ref | jq '.OCIv1.config'
     buildah rm $_container_ref

@@ -9,16 +9,16 @@ spec:
   params:
     - name: config
       type: string
-      description: Name of the Job and the ConfigMap to use.
+      description: 'Name of the Job and the ConfigMap to use.'
     - name: image
       type: string
-      description: Reference of the image buildah will produce.
+      description: 'Reference of the image buildah will produce.'
     - name: repo-url
       type: string
-      description: The git repository URL to clone from.
+      description: 'The git repository URL to clone from.'
     - name: repo-branch
       type: string
-      description: The git branch to clone.
+      description: 'The git branch to clone.'
   workspaces:
     - name: pipeline
   tasks:
@@ -81,8 +81,12 @@ spec:
       params:
         - name: pipeline
           value: leaf
-        - name: revision
-          value: todo
+        - name: git-sha
+          value: $(tasks.fetch-src.results.sha)
+        - name: git-log
+          value: $(tasks.fetch-src.results.log)
+        - name: image-id
+          value: $(tasks.build.results.iid)
         - name: run
           value: $(context.pipelineRun.name)
         - name: status

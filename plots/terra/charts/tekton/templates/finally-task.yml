@@ -11,9 +11,15 @@ spec:
     - name: pipeline
       type: string
       description: 'Name of the pipeline.'
-    - name: revision
+    - name: git-sha
       type: string
-      description: 'Name of the revision to build.'
+      description: 'SHA of the latest commit.'
+    - name: git-log
+      type: string
+      description: 'Log entry of the latest commit.'
+    - name: image-id
+      type: string
+      description: 'ID of the created container image.'
     - name: run
       type: string
       default: undefined
@@ -24,16 +30,15 @@ spec:
     - name: details
       type: array
       description: 'Array of task:status pairs.'
-  stepTemplate:
-    env:
-      - name: WEBHOOK
-        valueFrom:
-          secretKeyRef:
-            name: webhook
-            key: webhook
   steps:
     - name: notify
       image: alpine/curl
+      env:
+        - name: WEBHOOK
+          valueFrom:
+            secretKeyRef:
+              name: webhook
+              key: webhook
       args:
         - $(params.details)
       script: |
