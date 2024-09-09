@@ -15,5 +15,5 @@ fi
 git checkout $(params.revision)
 git pull --ff-only
 
-git log -1 --pretty="%h by %cn: %s" | tee $(results.log.path)
-git log -1 --pretty="%h" | tee $(results.sha.path)
+git log -1 --pretty="%h %cn: %s" | tr -d '\n' | tee $(results.log.path)
+git log -1 --pretty="%h" | tr -d '\n' | tee $(results.sha.path)

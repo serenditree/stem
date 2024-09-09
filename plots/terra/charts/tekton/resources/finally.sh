@@ -1,4 +1,4 @@
-echo 'Aggregated status: $(params.status)'
+echo "Aggregated status: $(params.status)"
 
 TEXT="Pipeline $(params.pipeline) for revision $(params.git-sha)"
 STATUS=succeeded
