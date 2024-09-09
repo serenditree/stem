@@ -17,7 +17,7 @@ spec:
     - name: git-log
       type: string
       description: 'Log entry of the latest commit.'
-    - name: image-id
+    - name: image-sha
       type: string
       description: 'ID of the created container image.'
     - name: run
