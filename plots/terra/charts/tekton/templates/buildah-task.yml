@@ -68,7 +68,7 @@ spec:
       image: $(params.builder-image)
       workingDir: $(workspaces.buildah.path)
       script: |
-        echo debug | head -n1 | tee $(results.sha.path)
+        {{ "buildah images --format '{{.Digest}}'" }} | head -n1 | tee $(results.sha.path)
       volumeMounts:
         - name: containers
           mountPath: /var/lib/containers
