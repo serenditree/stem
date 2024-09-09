@@ -10,6 +10,7 @@ for _status in $@; do
     _status=${_status/Failed/ :broken_heart:}
     DETAILS="${DETAILS}\n- ${_status/None/ :x:}"
 done
-echo "Commit by $(params.git-log)Image SHA: $(params.image-sha)"
+echo "Commit $(params.git-log)"
+echo "Image SHA: $(params.image-sha)"
 
 curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"*${TEXT} ${STATUS}*${DETAILS}\"}" "${WEBHOOK}"
