@@ -85,8 +85,8 @@ spec:
           value: $(tasks.fetch-src.results.sha)
         - name: git-log
           value: $(tasks.fetch-src.results.log)
-        - name: image-id
-          value: $(tasks.build.results.iid)
+        - name: image-sha
+          value: $(tasks.build.results.sha)
         - name: run
           value: $(context.pipelineRun.name)
         - name: status

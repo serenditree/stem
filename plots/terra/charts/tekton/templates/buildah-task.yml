@@ -18,8 +18,8 @@ spec:
       default: quay.io/serenditree/buildah:latest
       description: The location of the buildah builder image.
   results:
-    - name: iid
-      description: Image ID of the created container image.
+    - name: sha
+      description: Image digest of the created container image.
   workspaces:
     - name: buildah
   stepTemplate:
@@ -41,9 +41,6 @@ spec:
     - name: build
       image: $(params.builder-image)
       workingDir: $(workspaces.buildah.path)
-      env:
-        - name: _TKN_IID_FILE
-          value: $(results.iid.path)
       command:
         - sc/cli.sh
       args:
@@ -62,6 +59,16 @@ spec:
       args:
         - push
         - $(params.image)
+      volumeMounts:
+        - name: containers
+          mountPath: /var/lib/containers
+      securityContext:
+        privileged: true
+    - name: digest
+      image: $(params.builder-image)
+      workingDir: $(workspaces.buildah.path)
+      script: |
+        buildah images --format '{{ "{{" | quote }}.Digest{{ "}}" | quote }}' | head -n1 | tee $(results.sha.path)
       volumeMounts:
         - name: containers
           mountPath: /var/lib/containers
