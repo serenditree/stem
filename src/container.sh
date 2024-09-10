@@ -166,7 +166,7 @@ function sc_push() {
             local -r _buildah_args='--tls-verify=false'
         fi
         buildah push --digestfile /tmp/digestfile $_buildah_args "$_target"
-        echo -n "${_target}@$(</tmp/digestfile)" | tee "$_ST_BUILD_RESULTS_PATH"
+        echo "${_target}@$(</tmp/digestfile)" | tee -a "$_ST_BUILD_RESULTS_PATH"
     fi
 }
 export -f sc_push
