@@ -10,6 +10,6 @@ for _status in $@; do
     _status=${_status/Failed/ :broken_heart:}
     DETAILS="${DETAILS}\n* ${_status/None/ :x:}"
 done
-DETAILS="${DETAILS}\n\n$(params.image-sha)"
+DETAILS="${DETAILS}\n\nImage: \`$(params.image-sha)\`"
 
 curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"*${TEXT} ${STATUS}:*\n${DETAILS}\"}" "${WEBHOOK}"

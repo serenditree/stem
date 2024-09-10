@@ -54,22 +54,14 @@ spec:
     - name: push
       image: $(params.builder-image)
       workingDir: $(workspaces.buildah.path)
+      env:
+        - name: _ST_BUILD_RESULTS_PATH
+          value: $(results.sha.path)
       command:
         - sc/cli.sh
       args:
         - push
         - $(params.image)
-      volumeMounts:
-        - name: containers
-          mountPath: /var/lib/containers
-      securityContext:
-        privileged: true
-    - name: digest
-      image: $(params.builder-image)
-      workingDir: $(workspaces.buildah.path)
-      script: |
-        {{ "buildah inspect --format '{{.FromImageDigest}}' localhost/serenditree/$(params.image)" }} |
-          tee $(results.sha.path)
       volumeMounts:
         - name: containers
           mountPath: /var/lib/containers
