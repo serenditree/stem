@@ -165,7 +165,8 @@ function sc_push() {
         if [[ -z "$_ST_CONTEXT_OPENSHIFT" ]]; then
             local -r _buildah_args='--tls-verify=false'
         fi
-        buildah push --digestfile "$_ST_BUILD_RESULTS_PATH" $_buildah_args "$_target"
+        buildah push --digestfile /tmp/digestfile $_buildah_args "$_target"
+        echo "${_target}@$(</tmp/digestfile)" >"$_ST_BUILD_RESULTS_PATH"
     fi
 }
 export -f sc_push
