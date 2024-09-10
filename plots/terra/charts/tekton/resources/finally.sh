@@ -8,7 +8,7 @@ for _status in $@; do
     fi
     _status=${_status/Succeeded/ :green_heart:}
     _status=${_status/Failed/ :broken_heart:}
-    DETAILS="${DETAILS}\n- ${_status/None/ :x:}"
+    DETAILS="${DETAILS}\n${_status/None/ :x:}"
 done
 DETAILS="${DETAILS}\n\nImage: \`$(params.image-sha)\`"
 
