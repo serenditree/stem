@@ -1,6 +1,6 @@
 echo "Aggregated status: $(params.status)"
 
-TEXT="Pipeline _$(params.pipeline)_ for commit _$(params.git-sha)_"
+TEXT="Pipeline \`$(params.pipeline)\`for commit \`$(params.git-sha)\`"
 STATUS=succeeded
 for _status in $@; do
     if [[ "${_status##*:}" != "Succeeded" ]]; then
@@ -8,8 +8,8 @@ for _status in $@; do
     fi
     _status=${_status/Succeeded/ :green_heart:}
     _status=${_status/Failed/ :broken_heart:}
-    DETAILS="${DETAILS}\n- ${_status/None/ :x:}"
+    DETAILS="${DETAILS}\n* ${_status/None/ :x:}"
 done
 DETAILS="${DETAILS}\n\n$(params.image-sha)"
 
-curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"*${TEXT} ${STATUS}!*\n${DETAILS}\"}" "${WEBHOOK}"
+curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"*${TEXT} ${STATUS}:*\n${DETAILS}\"}" "${WEBHOOK}"
