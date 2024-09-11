@@ -7,9 +7,9 @@ TITLE="*Pipeline \`$(params.pipeline)\` for commit \`$(params.git-sha)\` ${STATU
 for _status in $@; do
     _status=${_status/Succeeded/ :green_heart:}
     _status=${_status/Failed/ :broken_heart:}
-    DETAILS+="\n- ${_status/None/ :x:}"
+    DETAILS="${DETAILS}\n- ${_status/None/ :x:}"
 done
-DETAILS+="\n\n$(params.image-sha)\n\nDuration: ${MINUTES}m${SECONDS}s"
+DETAILS="${DETAILS}\n\n$(params.image-sha)\n\nDuration: ${MINUTES}m${SECONDS}s"
 
 echo -e "${TITLE}\n${DETAILS}\n"
 
