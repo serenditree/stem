@@ -22,12 +22,6 @@ if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "$_ARG_SET
         echo "Waiting for tekton..."
         kubectl wait --for condition=ready --all pod --namespace tekton-pipelines --timeout 5m
     fi
-    sc_heading 1 "Setting up $_SERVICE dashboard"
-    if [[ -z "$_ARG_DRYRUN" ]]; then
-        kubectl apply -f https://storage.googleapis.com/tekton-releases/dashboard/latest/release.yaml
-        echo "Waiting for tekton dashboard..."
-        kubectl wait --for condition=ready --all pod --namespace tekton-pipelines --timeout 5m
-    fi
 
     if [[ -z "${_ARG_DRYRUN}${_ST_CONTEXT_IS_KUBERNETES}" ]]; then
         sc_heading 2 "Patching tekton service account..."
