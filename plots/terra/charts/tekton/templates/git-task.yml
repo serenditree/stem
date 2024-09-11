@@ -23,8 +23,8 @@ spec:
       type: string
       default: ""
   results:
-    - name: log
-      description: The latest commit log that was fetched by this task.
+    - name: start
+      description: Start time in seconds since the Epoch.
     - name: sha
       description: The latest commit SHA.
   workspaces:

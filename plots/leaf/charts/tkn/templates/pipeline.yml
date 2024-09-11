@@ -81,10 +81,10 @@ spec:
       params:
         - name: pipeline
           value: leaf
+        - name: start
+          value: $(tasks.fetch-sc.results.start)
         - name: git-sha
           value: $(tasks.fetch-src.results.sha)
-        - name: git-log
-          value: $(tasks.fetch-src.results.log)
         - name: image-sha
           value: $(tasks.build.results.sha)
         - name: run
