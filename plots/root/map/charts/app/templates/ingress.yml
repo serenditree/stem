@@ -9,7 +9,7 @@ metadata:
     nginx.ingress.kubernetes.io/global-rate-limit: "42"
     nginx.ingress.kubernetes.io/global-rate-limit-window: "1s"
     nginx.ingress.kubernetes.io/global-rate-limit-key: "${remote_addr}"
-    cert-manager.io/issuer: "lets-encrypt-{{ .Values.ingress.letsencrypt.issuer }}"
+    cert-manager.io/cluster-issuer: "lets-encrypt-{{ .Values.ingress.letsencrypt.issuer }}"
 spec:
   ingressClassName: nginx
   tls:

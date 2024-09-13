@@ -17,6 +17,11 @@ spec:
     helm:
       valueFiles:
         - values.yaml
+      parameters:
+        - name: letsencrypt.issuer
+          value: {{ .Values.certs.letsencrypt.issuer }}
+        - name: letsencrypt.email
+          value: {{ .Values.certs.letsencrypt.email }}
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: cert-manager

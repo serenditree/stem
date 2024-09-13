@@ -1,6 +1,7 @@
+{{- if .Values.setupIssuer }}
 ---
 apiVersion: cert-manager.io/v1
-kind: Issuer
+kind: ClusterIssuer
 metadata:
   name: lets-encrypt-{{ .Values.letsencrypt.issuer }}
 spec:
@@ -17,3 +18,4 @@ spec:
       - http01:
           ingress:
             class: nginx
+  {{- end }}

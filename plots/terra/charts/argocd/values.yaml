@@ -8,7 +8,7 @@ global:
   setupProm: false
   context: ~
   clusterDomain: ~
-ingress:
+certs:
   letsencrypt:
     issuer: ~
     email: ~

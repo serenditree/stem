@@ -20,6 +20,9 @@ if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]]; then
         if [[ -z "$_ARG_DRYRUN" ]]; then
             argocd app sync $_SERVICE
             argocd app wait $_SERVICE --health
+            argocd app set $_SERVICE --parameter setupIssuer=true
+            argocd app sync $_SERVICE
+            argocd app wait $_SERVICE --health
         fi
     fi
 fi
