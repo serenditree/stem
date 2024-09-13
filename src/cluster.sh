@@ -227,17 +227,17 @@ function sc_cluster_expose() {
                     sed -En "s/.*127.0.0.1:${_ports%:*}.* ([0-9]+)\/kubectl/\1/p" |
                     xargs kill &>/dev/null && echo "${_svc} terminated"
             elif [[ ${_ports%:*} =~ $_used_ports ]]; then
-                echo "${_svc} up"
+                echo "${_svc} ${_BOLD}up${_NORMAL}"
             else
-                if kubectl get namespace $_namespace &>/dev/null; then
+                if kubectl get --namespace $_namespace $_svc &>/dev/null; then
                     echo "Port-forwarding ${_svc}..."
                     nohup kubectl port-forward $_svc $_ports --namespace $_namespace &>$_logs &
                     _used_ports+="${_ports%:*}"
                 else
-                    echo "$_path unavailable."
+                    echo "$_svc ${_BOLD}unavailable${_NORMAL}"
                 fi
             fi
         fi
     done
-    [[ "$_used_ports" != "none" ]] && echo "Check logs in ${_logs}!"
+    [[ "$_used_ports" != "none" ]] && echo -e "\nCheck logs in ${_logs}!"
 }
