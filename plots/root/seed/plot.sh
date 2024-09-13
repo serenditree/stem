@@ -3,7 +3,7 @@
 # ROOT-SEED
 ########################################################################################################################
 _SERVICE=root-seed
-_ORDINAL=16
+_ORDINAL=15
 
 _IMAGE=serenditree/root-seed
 _VERSION=latest
