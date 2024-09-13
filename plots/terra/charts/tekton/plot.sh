@@ -21,22 +21,18 @@ if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "$_ARG_SET
         kubectl apply -f https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml
         echo "Waiting for tekton..."
         kubectl wait --for condition=ready --all pod --namespace tekton-pipelines --timeout 5m
-    fi
 
-    if [[ -z "${_ARG_DRYRUN}${_ST_CONTEXT_IS_KUBERNETES}" ]]; then
+        sc_heading 2 "Creating tekton resources"
+        helm dependency build
+        argocd app sync terra-tekton
+        argocd app wait terra-tekton --health
+
         sc_heading 2 "Patching tekton service account..."
         kubectl patch serviceaccount pipelines \
             --patch-file="${_ST_HOME_STEM}/rc/patches/tekton-sa.yaml" \
             --namespace tekton-pipelines
+
         sc_heading 2 "Removing enforce-label from namespace..."
         kubectl label namespaces tekton-pipelines pod-security.kubernetes.io/enforce-
     fi
-
-    sc_heading 1 "Creating distributed tekton resources"
-    [[ -z "$_ARG_DRYRUN" ]] && helm dependency build
-    if [[ -z "$_ARG_DRYRUN" ]]; then
-        argocd app sync terra-tekton
-        argocd app wait terra-tekton --health
-    fi
-
 fi
