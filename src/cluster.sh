@@ -210,7 +210,7 @@ function sc_cluster_expose() {
         xargs echo |
         tr ' ' '|')"
     [[ -n "$_used_ports" ]] || _used_ports='none'
-    echo "kubectl listening on ports: $_used_ports" | tr '|' ' '
+    echo -e "kubectl listening on ports: $_used_ports\n" | tr '|' ' '
 
     local -r _logs=/tmp/nohup-port-fwd.log
     for _svc in argocd/svc/argocd-server~9098:443 \
