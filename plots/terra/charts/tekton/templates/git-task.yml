@@ -6,30 +6,31 @@ metadata:
   labels:
     app.kubernetes.io/component: tekton
 spec:
+  description: 'Task for fetching git repositories.'
   params:
     - name: url
-      description: Git url to fetch.
+      description: 'Git url to fetch.'
       type: string
     - name: revision
-      description: Git revision to checkout (branch, tag, sha, ref…).
+      description: 'Git revision to checkout (branch, tag, sha, ref…).'
       type: string
       default: dev
     - name: subdirectory
-      description: Subdirectory inside the repository workspace to clone the git repo into.
+      description: 'Subdirectory inside the repository workspace to clone the git repo into.'
       type: string
       default: ""
     - name: clone
-      description: Clean out the contents of the repository's destination directory!
+      description: 'Removes the local repository and clones the repo.'
       type: string
       default: ""
   results:
     - name: start
-      description: Start time in seconds since the Epoch.
+      description: 'Start time in seconds since the Epoch.'
     - name: sha
-      description: The latest commit SHA.
+      description: 'The latest commit SHA.'
   workspaces:
     - name: git
-      description: The git repository will be fetched onto the volume backing this workspace.
+      description: 'The git repository will be fetched onto the volume backing this workspace.'
   steps:
     - name: fetch
       image: alpine/git

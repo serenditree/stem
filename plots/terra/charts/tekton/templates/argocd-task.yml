@@ -1,8 +1,12 @@
+---
 apiVersion: tekton.dev/v1beta1
 kind: ClusterTask
 metadata:
   name: serenditree-argocd
+  labels:
+    app.kubernetes.io/component: tekton
 spec:
+  description: 'Task for syncing ArgoCD apps.'
   params:
     - name: timeout
       description: 'Timeout for healthcheck in seconds.'

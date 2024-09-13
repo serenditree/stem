@@ -6,20 +6,29 @@ metadata:
   labels:
     app.kubernetes.io/component: tekton
 spec:
+  description: 'Task for building and pushing container images.'
   params:
     - name: config
       type: string
-      description: Name of the configuration to use.
+      description: 'Name of the configuration to use.'
     - name: image
       type: string
-      description: Reference of the image buildah will produce.
+      description: 'Reference of the image buildah will produce.'
     - name: builder-image
       type: string
       default: quay.io/serenditree/buildah:latest
-      description: The location of the buildah builder image.
+      description: 'The location of the buildah builder image.'
+    - name: build-memory
+      type: string
+      default: 1Gi
+      description: 'Memory requests/limits for the builder image during build.'
+    - name: build-cpu
+      type: string
+      default: 500m
+      description: 'CPU requests/limits for the builder image during build.'
   results:
     - name: sha
-      description: Image digest of the created container image.
+      description: 'Image digest of the created container image.'
   workspaces:
     - name: buildah
   stepTemplate:
@@ -41,6 +50,12 @@ spec:
     - name: build
       image: $(params.builder-image)
       workingDir: $(workspaces.buildah.path)
+      resources:
+        requests:
+          memory: $(params.build-memory)
+        limits:
+          memory: $(params.build-memory)
+          cpu: $(params.build-cpu)
       command:
         - sc/cli.sh
       args:
