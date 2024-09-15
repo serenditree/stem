@@ -104,7 +104,7 @@ function sc_cluster_logs() {
     kubectl get pods --no-headers -l name=$1 | cut -d' ' -f1 | xargs kubectl logs -f
 }
 
-# Prints all resources of interest (more than 'get all').
+# Prints resource allocations and all kubernetes resources of interest (more than 'get all').
 function sc_cluster_resources() {
     local -r _csv=$1
     local -r _tmp=/tmp/serenditree-nodes
