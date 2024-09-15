@@ -107,43 +107,66 @@ function sc_cluster_logs() {
 # Prints all resources of interest (more than 'get all').
 function sc_cluster_resources() {
     local -r _csv=$1
-    sc_heading 1 "Cluster resources"
-    local _resources='sa,pv,pvc,cm,secrets,sts,deploy,svc,po,hpa,k,kt'
-    if kubectl get ns | grep -q tekton-pipelines; then
-        _resources+='clustertasks,tasks,pipelines'
-    fi
-    if [[ -n "${_ST_CONTEXT_IS_OPENSHIFT}" ]]; then
-        _resources+=',dc,is,istag'
-    fi
-    if [[ -n "${_ARG_ALL}" ]]; then
-        kubectl get --all-namespaces $_resources
-    else
-        kubectl get --namespace serenditree $_resources
-    fi
-
+    local -r _tmp=/tmp/serenditree-nodes
     sc_heading 1 "Cluster resource allocation"
     if [[ "$_csv" == "csv" ]]; then
         local _pipe="tee"
     else
         local _pipe="column -ts ';'"
     fi
+    kubectl describe node >$_tmp
     cat \
         <(echo "NAMESPACE;NAME;CPU REQUESTS;CPU LIMITS;MEMORY REQUESTS;MEMORY LIMITS") \
-        <(kubectl describe node |
-              sed -n -e '/Non-terminated Pods/,/Allocated resources/p' |
+        <(sed -n '/Non-terminated Pods/,/Allocated resources/p' $_tmp |
               sed '0,/--/{/--/d;}' |
               sed -E -e '/(Allocated|Non|Namespace)/d' \
                   -e 's/([0-9]+)(m|Mi)/\1/g' \
                   -e 's/([0-9]+)Gi/\1000/g' \
-                  -e 's/ ([1-9]) / \1000 /g' \
+                  -e 's/\s([1-9])\s/ \1000 /g' \
                   -e 's/\([^)]+\)//g' \
-                  -e 's/ \w+$//' \
-                  -e 's/ +$//' \
-                  -e 's/^ +//' \
+                  -e 's/\s\w+$//' \
+                  -e 's/\s+$//' \
+                  -e 's/^\s+//' \
                   -e 's/--+.*/;;;;;/' \
-                  -e 's/ +/;/g') |
+                  -e 's/\s+/;/g') |
         $_pipe
 
+    sc_heading 1 "Cluster resource allocation summary"
+    cat \
+        <(echo "RESOURCE;REQUESTS;PERCENT;LIMITS;PERCENT") \
+        <(sed -n '/Allocated resources/,/Events:/p' $_tmp |
+            sed -En '/(cpu|memory)/p' |
+            sed -E  -e 's/[()]//g' -e 's/\s+$//' -e 's/^\s+//' -e 's/\s+/;/g' |
+            awk 'NR % 2 == 1 {print} NR % 2 == 0 {print $0 "\n;;;;"}') |
+        head -n -1 |
+        $_pipe
+
+    sc_heading 1 "Cluster cpu and memory"
+    cat \
+        <(echo "CPU;MEMORY;") \
+        <(paste \
+            <(sed -En 's/\s+cpu:\s+(\S+)/\1/p' $_tmp) \
+            <(sed -En 's/\s+memory:\s+([0-9]+).*/\1/p' $_tmp | awk '{print $1 / 1000}') |
+                sed -E  -e 's/\s+$//' -e 's/^\s+//' -e 's/\s+/;/g' |
+                awk 'NR % 2 == 1 {print $0 "Mi;capacity"} NR % 2 == 0 {print $0 "Mi;allocatable\n;;"}') |
+        head -n -1 |
+        $_pipe
+
+    if [[ -n "$_ARG_ALL" ]]; then
+        sc_heading 1 "Cluster resources"
+        local _resources='sa,pv,pvc,cm,secrets,sts,deploy,svc,po,hpa,k,kt'
+        if kubectl get ns | grep -q tekton-pipelines; then
+            _resources+=',clustertasks,tasks,pipelines'
+        fi
+        if [[ -n "${_ST_CONTEXT_IS_OPENSHIFT}" ]]; then
+            _resources+=',dc,is,istag'
+        fi
+        if [[ -n "${_ARG_ALL}" ]]; then
+            kubectl get --all-namespaces $_resources
+        else
+            kubectl get --namespace serenditree $_resources
+        fi
+    fi
 }
 
 # Prints certificate information.
