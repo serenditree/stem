@@ -143,7 +143,10 @@ function sc_setup_yarn_update() {
     trap 'popd &>/dev/null || exit 1' EXIT
     pushd "$_ST_HOME_LEAF" &>/dev/null || exit 1
     yarn install
-    yarn upgrade-interactive
-    ./dev/yarn.py
-    echo "Done"
+    if [[ -n "$_ARG_YES" ]]; then
+        yarn upgrade-interactive
+        ./dev/yarn.py
+    else
+        yarn outdated
+    fi
 }

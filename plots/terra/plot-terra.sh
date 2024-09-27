@@ -72,6 +72,25 @@ function sc_terra_up_context() {
     sc_context_init_generic "$_context_sks" "$_ST_CONTEXT_KUBERNETES"
 }
 
+function sc_terra_up_scaler() {
+    local -r _iam_config="$1"
+    echo "Preparing autoscaler..."
+    local -r _scaler_access=$(cut -d':' -f1 "${_iam_config}")
+    local -r _scaler_secret=$(cut -d':' -f2 "${_iam_config}")
+    echo "${_scaler_access}" | pass insert --force --multiline serenditree/scaler@exoscale.com.access
+    echo "${_scaler_secret}" | pass insert --force --multiline serenditree/scaler@exoscale.com.secret
+    kubectl create secret generic exoscale-api-credentials \
+        --namespace kube-system \
+        --from-literal=api-key="${_scaler_access}" \
+        --from-literal=api-secret="${_scaler_secret}" \
+        --from-literal=api-zone="at-vie-1"
+    echo "Deploying autoscaler..."
+    local _scaler=https://raw.githubusercontent.com/kubernetes/autoscaler/refs/heads/master/cluster-autoscaler/cloudprovider/exoscale/examples/cluster-autoscaler.yaml
+    curl -s "$_scaler" |
+        sed -E "s%(.*registry.k8s.io/autoscaling/cluster-autoscaler:v).*%\1${_ST_VERSION_KUBERNETES}%" |
+        kubectl apply -f -
+}
+
 function sc_terra_up() {
     if [[ -n "$_ARG_INIT" ]]; then
         sc_terra_up_init
@@ -79,12 +98,16 @@ function sc_terra_up() {
         sc_terra_up_init
         local -r _plan='serenditree.tfplan'
         local -r _plan_realpath="$(realpath $0 | xargs dirname)/${_ST_TERRA_DIR}/${_plan}"
+        local -r _kubeconfig_sks"${KUBECONFIG}.sks"
+        local -r _iam_config="${KUBECONFIG}.sks.iam"
         # shellcheck disable=SC2064
         trap "rm -f $_plan_realpath" EXIT
         terraform -chdir="$_ST_TERRA_DIR" plan \
             -var="api_key=${_ST_TERRA_API_KEY}" \
             -var="api_secret=${_ST_TERRA_API_SECRET}" \
-            -var="kubeconfig=${KUBECONFIG}.sks" \
+            -var="kubernetes_version=${_ST_VERSION_KUBERNETES}" \
+            -var="kubeconfig=${_kubeconfig_sks}" \
+            -var="iam=${_iam_config}" \
             -out "$_plan"
 
         local -r _path='.variables.kubernetes_version.value'
@@ -93,9 +116,9 @@ function sc_terra_up() {
         if exo compute sks versions --output-format text | grep -Eq "^${_kubernetes_version}$"; then
             [[ -z "$_ARG_DRYRUN" ]] && terraform -chdir="$_ST_TERRA_DIR" apply "$_plan" || exit 1
 
-
             if [[ -z "$_ARG_DRYRUN" ]]; then
                 sc_terra_up_context
+                sc_terra_up_scaler "$_iam_config"
                 echo "Patching storage class..."
                 kubectl patch storageclass exoscale-sbs \
                     --namespace kube-system \

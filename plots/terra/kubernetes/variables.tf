@@ -22,13 +22,19 @@ variable "zone" {
 variable "kubernetes_version" {
   description = "Kubernetes version."
   type        = string
-  default     = "1.30.3"
+  default     = ""
 }
 
 variable "service_level" {
   description = "Service level."
   type        = string
   default     = "pro"
+}
+
+variable "auto_upgrade" {
+  description = "Auto-upgrade Kubernetes to the latest patch release."
+  type        = string
+  default     = true
 }
 
 variable "cni" {
@@ -42,7 +48,6 @@ variable "csi" {
   type        = bool
   default     = true
 }
-
 ########################################################################################################################
 # Nodes
 ########################################################################################################################
@@ -61,7 +66,6 @@ variable "compute_nodes" {
     }
   }
 }
-
 ########################################################################################################################
 # Config
 ########################################################################################################################
@@ -69,4 +73,10 @@ variable "kubeconfig" {
   description = "Target location of kubeconfig"
   type        = string
   default     = "kubeconfig"
+}
+
+variable "iam" {
+  description = "Target location for iam-key information for auto-scaling"
+  type        = string
+  default     = "iam"
 }
