@@ -51,7 +51,7 @@ if [[ " $* " =~ " build " ]]; then
         dnf install --installroot ${_MOUNT_REF:?} $_ST_DNF_OPTS_HOST yarnpkg
         dnf clean all --installroot ${_MOUNT_REF:?} --noplugins
 
-        buildah run $_CONTAINER_REF -- yarn global add @angular/cli@12.2.18 sass-migrator
+        buildah run $_CONTAINER_REF -- yarn global add @angular/cli@${_ST_VERSION_ANGULAR} sass-migrator
         buildah run $_CONTAINER_REF -- mkdir -pv $_VOLUME_DST
 
         # buildah config --volume $_VOLUME_DST $_CONTAINER_REF
