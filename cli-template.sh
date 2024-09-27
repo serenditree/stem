@@ -140,7 +140,7 @@ function sc_help() {
     printf '\t%-20s%s\n' "loc:" "Prints lines of code."
     printf '\t%-20s%s\n' "login <reg>:" "Login to configured registries."
     printf '\t%-20s%s\n' "logs|log [svc]:" "Prints logs of all or individual services on the local pod."
-    printf '\t%-20s%s\n' "plots [pos] [name] [dir]:" "Prints or inserts/deletes plots. [--open] [--insert|--delete]"
+    printf '\t%-20s%s\n' "plots [ordinal name path]:" "Prints or inserts/deletes plots. [--open] [--insert|--delete]"
     printf '\t%-20s%s\n' "ps:" "Lists locally running serenditree containers."
     printf '\t%-20s%s\n' "push [svc]:" "Push all or individual images."
     printf '\t%-20s%s\n' "registry:" "Inspect images in remote registries. [--verbose]"
@@ -252,7 +252,10 @@ logs | log)
     sc_pod_logs ${_ARG_LEFTOVERS[*]} || echo "Did you mean 'sc cluster logs'?"
     ;;
 plots)
-    if [[ -n "$_ARG_INSERT" ]]; then
+    if [[ -n "$_ARG_HELP" ]]; then
+        sc_heading 2 "sc plots [ordinal name path]"
+        echo "Prints or inserts/deletes plots. [--open] [--insert|--delete]"
+    elif [[ -n "$_ARG_INSERT" ]]; then
         sc_plots_insert "${_ARG_SUB_COMMAND}" "1" | sort -nk3
         sc_plots_template ${_ARG_LEFTOVERS[*]}
     elif [[ -n "$_ARG_DELETE" ]]; then
