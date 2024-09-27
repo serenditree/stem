@@ -37,12 +37,13 @@ function sc_setup_helm() {
     if [[ -z "$_ARG_DRYRUN" ]]; then
         echo "Adding repos..."
         for _repo in \
-            cilium:https://helm.cilium.io \
-            bitnami:https://charts.bitnami.com/bitnami \
-            strimzi:https://strimzi.io/charts \
-            prometheus:https://prometheus-community.github.io/helm-charts \
             argo:https://argoproj.github.io/argo-helm \
-            cert-manager:https://charts.jetstack.io; do
+            autoscaler:https://kubernetes.github.io/autoscaler \
+            bitnami:https://charts.bitnami.com/bitnami \
+            cert-manager:https://charts.jetstack.io \
+            cilium:https://helm.cilium.io \
+            prometheus:https://prometheus-community.github.io/helm-charts \
+            strimzi:https://strimzi.io/charts; do
             echo -n "${_repo%%:*}..."
             if helm repo ls | grep -Eq "^${_repo%%:*}"; then
                 sc_heading 2 "set"
@@ -69,14 +70,15 @@ function sc_setup_helm_update() {
         helm repo update && echo
         {
             for _repo in \
-                cilium/cilium \
-                bitnami/mongodb \
+                argo/argo-cd \
+                autoscaler/cluster-autoscaler \
                 bitnami/mariadb-galera \
                 bitnami/memcached \
-                strimzi/strimzi-kafka-operator \
+                bitnami/mongodb \
+                cert-manager/cert-manager \
+                cilium/cilium \
                 prometheus/kube-prometheus-stack \
-                argo/argo-cd \
-                cert-manager/cert-manager; do
+                strimzi/strimzi-kafka-operator; do
                 {
                     echo "id: $_repo"
                     # current version

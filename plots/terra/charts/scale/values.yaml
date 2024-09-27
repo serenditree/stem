@@ -1,0 +1,8 @@
+cluster-autoscaler:
+  cloudProvider: exoscale
+  autoDiscovery:
+    clusterName: cluster.local
+  autoscalingGroups:
+    - name: ~
+      minSize: 3
+      maxSize: 10

@@ -79,16 +79,11 @@ function sc_terra_up_scaler() {
     local -r _scaler_secret=$(cut -d':' -f2 "${_iam_config}")
     echo "${_scaler_access}" | pass insert --force --multiline serenditree/scaler@exoscale.com.access
     echo "${_scaler_secret}" | pass insert --force --multiline serenditree/scaler@exoscale.com.secret
-    kubectl create secret generic exoscale-api-credentials \
+    kubectl create secret generic terra-scale-exoscale-cluster-autoscaler \
         --namespace kube-system \
         --from-literal=api-key="${_scaler_access}" \
         --from-literal=api-secret="${_scaler_secret}" \
         --from-literal=api-zone="at-vie-1"
-    echo "Deploying autoscaler..."
-    local _scaler=https://raw.githubusercontent.com/kubernetes/autoscaler/refs/heads/master/cluster-autoscaler/cloudprovider/exoscale/examples/cluster-autoscaler.yaml
-    curl -s "$_scaler" |
-        sed -E "s%(.*registry.k8s.io/autoscaling/cluster-autoscaler:v).*%\1${_ST_VERSION_KUBERNETES}%" |
-        kubectl apply -f -
 }
 
 function sc_terra_up() {
