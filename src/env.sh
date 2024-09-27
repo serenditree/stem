@@ -51,8 +51,10 @@ if [[ -f /etc/fedora-release ]] && [[ -z "$_ST_CONTEXT_TKN" ]]; then
     _ST_VERSION_FEDORA=$(cut -d' ' -f3 /etc/fedora-release)
     export _ST_VERSION_FEDORA
 fi
+export _ST_VERSION_KUBERNETES=1.31.0
 export _ST_VERSION_JAVA=17
 export _ST_VERSION_NODE=22
+export _ST_VERSION_ANGULAR=18
 export _ST_VERSION_FLUENTD=1.17.1
 export _ST_VERSION_MONGODB=7.0
 export _ST_VERSION_MARIADB=11.5
