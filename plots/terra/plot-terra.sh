@@ -98,7 +98,7 @@ function sc_terra_up() {
         sc_terra_up_init
         local -r _plan='serenditree.tfplan'
         local -r _plan_realpath="$(realpath $0 | xargs dirname)/${_ST_TERRA_DIR}/${_plan}"
-        local -r _kubeconfig_sks"${KUBECONFIG}.sks"
+        local -r _kubeconfig_sks="${KUBECONFIG}.sks"
         local -r _iam_config="${KUBECONFIG}.sks.iam"
         # shellcheck disable=SC2064
         trap "rm -f $_plan_realpath" EXIT
