@@ -162,7 +162,7 @@ function sc_help() {
     printf '\t%-20s%s\n' "logs <svc>:" "Prints logs of the given pod(s)."
     printf '\t%-20s%s\n' "patch <arg>:" "Applies patches to the current cluster."
     printf '\t%-20s%s\n' "registry [img]:" "Inspects the OpenShift image registry."
-    printf '\t%-20s%s\n' "resources|rc:" "Lists project resources."
+    printf '\t%-20s%s\n' "resources|rc [csv]:" "Prints resource allocations. Optionally in CSV."
     printf '\t%-20s%s\n' "restore:" "Restore databases."
     printf '\t%-20s%s\n' "certificate|cert:" "Prints certificate information."
     printf '\t%-20s%s\n' "tekton|tkn [svc]:" "Triggers tekton runs for all or individual services."

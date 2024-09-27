@@ -104,7 +104,7 @@ function sc_cluster_logs() {
     kubectl get pods --no-headers -l name=$1 | cut -d' ' -f1 | xargs kubectl logs -f
 }
 
-# Prints resource allocations and all kubernetes resources of interest (more than 'get all').
+# Prints resource allocations.
 function sc_cluster_resources() {
     local -r _csv=$1
     local -r _tmp=/tmp/serenditree-nodes
@@ -151,22 +151,6 @@ function sc_cluster_resources() {
                 awk 'NR % 2 == 1 {print $0 "Mi;capacity"} NR % 2 == 0 {print $0 "Mi;allocatable\n;;"}') |
         head -n -1 |
         $_pipe
-
-    if [[ -n "$_ARG_ALL" ]]; then
-        sc_heading 1 "Cluster resources"
-        local _resources='sa,pv,pvc,cm,secrets,sts,deploy,svc,po,hpa,k,kt'
-        if kubectl get ns | grep -q tekton-pipelines; then
-            _resources+=',clustertasks,tasks,pipelines'
-        fi
-        if [[ -n "${_ST_CONTEXT_IS_OPENSHIFT}" ]]; then
-            _resources+=',dc,is,istag'
-        fi
-        if [[ -n "${_ARG_ALL}" ]]; then
-            kubectl get --all-namespaces $_resources
-        else
-            kubectl get --namespace serenditree $_resources
-        fi
-    fi
 }
 
 # Prints certificate information.
