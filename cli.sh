@@ -595,6 +595,7 @@ plots)
     if [[ -n "$_ARG_HELP" ]]; then
         sc_heading 2 "sc plots [ordinal name path]"
         echo "Prints or inserts/deletes plots. [--open] [--insert|--delete]"
+        echo "Path needs to be absolute."
     elif [[ -n "$_ARG_INSERT" ]]; then
         sc_plots_insert "${_ARG_SUB_COMMAND}" "1" | sort -nk3
         sc_plots_template ${_ARG_LEFTOVERS[*]}

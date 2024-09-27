@@ -91,16 +91,17 @@ function sc_plots_insert() {
 # Prepares a plot template.
 # $1: Position of the plot (ordinal).
 # $2: Name of the plot.
-# $3: Directory for the plot.
+# $3: Path for the plot.
 function sc_plots_template() {
-    local -r _ordinal=$1
-    local -r _name=$2
-    local -r _path=$3
+    local -r _ordinal="$1"
+    local -r _name="$2"
+    local -r _path="$3"
+    local -r _plot="${_path}/plot.sh"
 
-    echo "Creating plot '${_name}' with ordinal '${_ordinal}' at '${_ST_HOME_STEM}/${_path}/plot.sh'..."
+    echo "Creating plot '${_name}' with ordinal '${_ordinal}' at '${_plot}'..."
     if [[ -z "$_ARG_DRYRUN" ]]; then
-        mkdir -p "${_ST_HOME_STEM}/$_path"
-        cat <<EOF >"${_ST_HOME_STEM}/${_path}/plot.sh"
+        mkdir -p "$_path"
+        cat <<EOF >"${_plot}"
 #!/usr/bin/env bash
 ########################################################################################################################
 # $(tr '[:lower:]' '[:upper:]' <<<$_name)
