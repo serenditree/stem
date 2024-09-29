@@ -4,7 +4,7 @@ argo-cd:
       argocdServerAdminPassword: ~
 global:
   setupApps: ~
-  setupTekton: true
+  setupTekton: false
   setupProm: false
   context: ~
   clusterDomain: ~
