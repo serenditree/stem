@@ -44,9 +44,9 @@ spec:
       workingDir: $(workspaces.buildah.path)
       resources:
         requests:
-          memory: 1Gi
+          memory: 2Gi
         limits:
-          memory: 1Gi
+          memory: 2Gi
       command:
         - sc/cli.sh
       args:
