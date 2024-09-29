@@ -74,16 +74,9 @@ function sc_terra_up_context() {
 
 function sc_terra_up_scaler() {
     local -r _iam_config="$1"
-    echo "Preparing autoscaler..."
-    local -r _scaler_access=$(cut -d':' -f1 "${_iam_config}")
-    local -r _scaler_secret=$(cut -d':' -f2 "${_iam_config}")
-    echo "${_scaler_access}" | pass insert --force --multiline serenditree/scaler@exoscale.com.access
-    echo "${_scaler_secret}" | pass insert --force --multiline serenditree/scaler@exoscale.com.secret
-    kubectl create secret generic terra-scale-exoscale-cluster-autoscaler \
-        --namespace kube-system \
-        --from-literal=api-key="${_scaler_access}" \
-        --from-literal=api-secret="${_scaler_secret}" \
-        --from-literal=api-zone="at-vie-1"
+    echo "Saving autoscaler api key..."
+    cut -d':' -f1 "${_iam_config}" | pass insert --force --multiline serenditree/scaler@exoscale.com.access
+    cut -d':' -f2 "${_iam_config}" | pass insert --force --multiline serenditree/scaler@exoscale.com.secret
 }
 
 function sc_terra_up() {
