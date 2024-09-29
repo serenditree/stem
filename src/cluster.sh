@@ -58,7 +58,7 @@ export -f sc_cluster_status
 function sc_cluster_backup_restore_secret() {
     trap 'rm -f /tmp/exoscale.toml' EXIT
     local -r _secret="/tmp/exoscale.toml"
-    if ! kubectl get secret exoscale-backup --namescape serenditree &>/dev/null; then
+    if ! kubectl get secret exoscale-backup --namespace serenditree &>/dev/null; then
         sed -E \
             -e "s/<KEY>/$(pass serenditree/backup@exoscale.com.access)/" \
             -e "s/<SECRET>/$(pass serenditree/backup@exoscale.com.secret)/" \
@@ -82,7 +82,7 @@ function sc_cluster_backup() {
         if [[ -n "$_ARG_SETUP" ]]; then
             kubectl create --filename "${_ST_HOME_STEM}/rc/jobs/${_comp}-backup.yml" --namespace serenditree
         else
-            kubectl apply job "${_comp}-backup-$(date +%Y%m%d-%H%M%S)" \
+            kubectl create job "${_comp}-backup-$(date +%Y%m%d-%H%M%S)" \
                 --from=cronjob/${_comp}-backup \
                 --namespace serenditree
         fi
