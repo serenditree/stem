@@ -17,6 +17,7 @@ fi
 if [[ " $* " =~ " up " ]]; then
     sc_heading 1 "Setting up ${_SERVICE}"
     if [[ -z "$_ARG_DRYRUN" ]]; then
+        sc_heading 2 "Creating secret for autoscaler..."
         kubectl create secret generic "${_SERVICE}-exoscale-cluster-autoscaler" \
             --namespace kube-system \
             --from-literal=api-key="$(pass serenditree/scaler@exoscale.com.access)" \
@@ -31,8 +32,10 @@ if [[ " $* " =~ " up " ]]; then
             ((_index++))
         done
 
+        sc_heading 2 "Setting autoscaling groups"
         echo "$_autoscaling_groups" | xargs argocd app set $_SERVICE
 
+        sc_heading 2 "Starting sync..."
         argocd app sync $_SERVICE
         argocd app wait $_SERVICE --health
     fi
