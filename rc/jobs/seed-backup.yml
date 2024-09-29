@@ -13,7 +13,7 @@ spec:
               emptyDir: { }
             - name: exoscale-config
               secret:
-                secretName: exoscale-config
+                secretName: exoscale-backup
           restartPolicy: OnFailure
           initContainers:
             - name: mongodb

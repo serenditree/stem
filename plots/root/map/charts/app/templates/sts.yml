@@ -44,12 +44,12 @@ spec:
             - name: EXOSCALE_API_KEY
               valueFrom:
                 secretKeyRef:
-                  name: exoscale-credentials
+                  name: exoscale-data
                   key: apikey
             - name: EXOSCALE_API_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: exoscale-credentials
+                  name: exoscale-data
                   key: secret
           volumeMounts:
             - mountPath: {{ .Values.rootMap.dataMountPath }}

@@ -72,11 +72,16 @@ function sc_terra_up_context() {
     sc_context_init_generic "$_context_sks" "$_ST_CONTEXT_KUBERNETES"
 }
 
-function sc_terra_up_scaler() {
+function sc_terra_up_iam() {
     local -r _iam_config="$1"
-    echo "Saving autoscaler api key..."
-    cut -d':' -f1 "${_iam_config}" | pass insert --force --multiline serenditree/scaler@exoscale.com.access
-    cut -d':' -f2 "${_iam_config}" | pass insert --force --multiline serenditree/scaler@exoscale.com.secret
+    for _role in scaler data backup; do
+        echo "Saving ${_role} api key..."
+        cut -d':' -f1 "${_iam_config}.${_role}" |
+            pass insert --force --multiline serenditree/${_role}@exoscale.com.access
+        cut -d':' -f2 "${_iam_config}.${_role}" |
+            pass insert --force --multiline serenditree/${_role}@exoscale.com.secret
+        rm -v "${_iam_config}.${_role}"
+    done
 }
 
 function sc_terra_up() {
@@ -106,7 +111,7 @@ function sc_terra_up() {
 
             if [[ -z "$_ARG_DRYRUN" ]]; then
                 sc_terra_up_context
-                sc_terra_up_scaler "$_iam_config"
+                sc_terra_up_iam "$_iam_config"
                 echo "Patching storage class..."
                 kubectl patch storageclass exoscale-sbs \
                     --namespace kube-system \

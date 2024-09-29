@@ -54,26 +54,35 @@ function sc_cluster_status() {
 }
 export -f sc_cluster_status
 
-# Restores databases
-function sc_cluster_restore() {
-    if ! kubectl get secret exoscale-config &>/dev/null; then
-        kubectl create secret generic exoscale-config --from-file="$EXOSCALE_CONFIG" --namespace serenditree
+# Creates a secret for backup/restore-jobs.
+function sc_cluster_backup_restore_secret() {
+    trap 'rm -f /tmp/exoscale.toml' EXIT
+    local -r _secret="/tmp/exoscale.toml"
+    if ! kubectl get secret exoscale-backup --namescape serenditree &>/dev/null; then
+        sed -E \
+            -e "s/<KEY>/$(pass serenditree/backup@exoscale.com.access)/" \
+            -e "s/<SECRET>/$(pass serenditree/backup@exoscale.com.secret)/" \
+            "${_ST_HOME_STEM}/rc/jobs/secret-template.toml" >"$_secret"
+        kubectl create secret generic exoscale-backup --namespace serenditree --from-file="$_secret"
     fi
+}
+
+# Restores databases.
+function sc_cluster_restore() {
+    sc_cluster_backup_restore_secret
     for _comp in user seed; do
         kubectl create --filename "${_ST_HOME_STEM}/rc/jobs/${_comp}-restore.yml" --namespace serenditree
     done
 }
 
-# Creates cronjobs of jobs for database backups
+# Creates cronjobs of jobs for database backups.
 function sc_cluster_backup() {
-    if ! kubectl get secret exoscale-config --namespace serenditree &>/dev/null; then
-        kubectl create secret generic exoscale-config --from-file="$EXOSCALE_CONFIG" --namespace serenditree
-    fi
+    sc_cluster_backup_restore_secret
     for _comp in user seed; do
         if [[ -n "$_ARG_SETUP" ]]; then
             kubectl create --filename "${_ST_HOME_STEM}/rc/jobs/${_comp}-backup.yml" --namespace serenditree
         else
-            kubectl create job "${_comp}-backup-$(date +%Y%m%d-%H%M%S)" \
+            kubectl apply job "${_comp}-backup-$(date +%Y%m%d-%H%M%S)" \
                 --from=cronjob/${_comp}-backup \
                 --namespace serenditree
         fi

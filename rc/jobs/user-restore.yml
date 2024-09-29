@@ -10,7 +10,7 @@ spec:
           emptyDir: { }
         - name: exoscale-config
           secret:
-            secretName: exoscale-config
+            secretName: exoscale-backup
       restartPolicy: Never
       initContainers:
         - name: exo
