@@ -13,33 +13,30 @@ resource "exoscale_iam_role" "serenditree_scaler" {
         type = "rules"
         rules = [
           {
-            expression = "operation == get-instance"
+            expression = "operation == 'get-instance'"
             action     = "allow"
           },
           {
-            expression = "operation == get-instance-pool"
+            expression = "operation == 'get-instance-pool'"
             action     = "allow"
           },
           {
-            expression = "operation == list-sks-clusters"
+            expression = "operation == 'list-sks-clusters'"
             action     = "allow"
           },
           {
-            expression = "operation == scale-sks-nodepool"
+            expression = "operation == 'scale-sks-nodepool'"
             action     = "allow"
           },
           {
-            expression = "operation == evict-sks-nodepool-members"
+            expression = "operation == 'evict-sks-nodepool-members'"
             action     = "allow"
           },
           {
-            expression = "operation == get-quota"
+            expression = "operation == 'get-quota'"
             action     = "allow"
           }
         ]
-      },
-      compute-legacy = {
-        type = "deny"
       }
     }
   }
