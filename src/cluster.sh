@@ -75,7 +75,7 @@ function sc_cluster_restore() {
     done
 }
 
-# Creates cronjobs of jobs for database backups.
+# Creates cronjobs or jobs for database backups.
 function sc_cluster_backup() {
     sc_cluster_backup_restore_secret
     for _comp in user seed; do
