@@ -24,7 +24,7 @@ if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "${_ARG_SE
     _argocd_password="$(pass serenditree/argocd)"
     _argocd_password_bcrypt="$(htpasswd -nbBC 10 "" "$_argocd_password" | tr -d ':\n' | sed 's/$2y/$2a/')"
 
-    [[ -z "$_ARG_DRYRUN" ]]  && _ST_HELM_NAME=$_SERVICE
+    [[ -z "$_ARG_DRYRUN" ]]  && _ST_HELM_NAME=argocd
     [[ -n "$_ARG_SETUP" ]] && _setup_apps=false
     helm $_ST_HELM_CMD $_ST_HELM_NAME . \
         --namespace argocd \
@@ -61,19 +61,13 @@ if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "${_ARG_SE
             --name stem
         sc_heading 2 "Patching ArgoCD config map..."
         sc_cluster_patch argocd-cm
+
         sc_heading 2 "Installing apps..."
-        argocd app set $_SERVICE \
-            --parameter "global.setupApps=true" \
-            --parameter "global.context=${_ST_CONTEXT}" \
-            --parameter "global.clusterDomain=${_cluster_domain}" \
-            --parameter "certs.letsencrypt.issuer=${_ARG_ISSUER}" \
-            --parameter "certs.letsencrypt.email=$(pass serenditree/contact)" \
-            --parameter "tekton.webhook=$(pass serenditree/tekton)" \
-            --parameter "tekton.basic.github=${_github_token#*:}" \
-            --parameter "tekton.basic.quay=${_quay_token#*:}" \
-            --parameter "tekton.basic.redhat=${_redhat_token#*:}"
-        argocd app sync $_SERVICE
-        argocd app wait $_SERVICE --health
+        helm upgrade $_ST_HELM_NAME . \
+            --namespace argocd \
+            --reuse-values \
+            --set "global.setupApps=true"
+
         sc_heading 2 "Re-login..."
         argocd relogin --password "$_argocd_password"
     fi
