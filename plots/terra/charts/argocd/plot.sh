@@ -67,6 +67,17 @@ if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "${_ARG_SE
             --namespace argocd \
             --reuse-values \
             --set "global.setupApps=true"
+        argocd app set terra-argocd \
+            --parameter "global.setupApps=true" \
+            --parameter "argo-cd.configs.secret.argocdServerAdminPassword=${_argocd_password_bcrypt}" \
+            --parameter "global.context=${_ST_CONTEXT}" \
+            --parameter "global.clusterDomain=${_cluster_domain}" \
+            --parameter "certs.letsencrypt.issuer=${_ARG_ISSUER}" \
+            --parameter "certs.letsencrypt.email=$(pass serenditree/contact)" \
+            --parameter "tekton.webhook=$(pass serenditree/tekton)" \
+            --parameter "tekton.basic.github=${_github_token#*:}" \
+            --parameter "tekton.basic.quay=${_quay_token#*:}" \
+            --parameter "tekton.basic.redhat=${_redhat_token#*:}"
 
         sc_heading 2 "Re-login..."
         argocd relogin --password "$_argocd_password"
