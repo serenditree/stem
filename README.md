@@ -10,15 +10,16 @@ image.
 
 ```
 > sc plots
+ORDINAL  SERVICE            IMAGE                     TAG     PATH
 0        terra-base         -                         -       /home/tanwald/Development/Serenditree/stem/plots/terra/plot.sh
 1        terra-cilium       -                         -       /home/tanwald/Development/Serenditree/stem/plots/terra/charts/cilium/plot.sh
 2        terra-argocd       -                         -       /home/tanwald/Development/Serenditree/stem/plots/terra/charts/argocd/plot.sh
 3        terra-cache        -                         -       /home/tanwald/Development/Serenditree/stem/plots/terra/charts/cache/plot.sh
 4        terra-ingress      -                         -       /home/tanwald/Development/Serenditree/stem/plots/terra/charts/ingress/plot.sh
-5        terra-tekton       -                         -       /home/tanwald/Development/Serenditree/stem/plots/terra/charts/tekton/plot.sh
-6        terra-prometheus   -                         -       /home/tanwald/Development/Serenditree/stem/plots/terra/charts/prometheus/plot.sh
-7        terra-certs        -                         -       /home/tanwald/Development/Serenditree/stem/plots/terra/charts/certs/plot.sh
-8        terra-issuer       -                         -       /home/tanwald/Development/Serenditree/stem/plots/terra/charts/issuer/plot.sh
+5        terra-scale        -                         -       /home/tanwald/Development/Serenditree/stem/plots/terra/charts/scale/plot.sh
+6        terra-tekton       -                         -       /home/tanwald/Development/Serenditree/stem/plots/terra/charts/tekton/plot.sh
+7        terra-prometheus   -                         -       /home/tanwald/Development/Serenditree/stem/plots/terra/charts/prometheus/plot.sh
+8        terra-certs        -                         -       /home/tanwald/Development/Serenditree/stem/plots/terra/charts/certs/plot.sh
 9        terra-strimzi      -                         -       /home/tanwald/Development/Serenditree/stem/plots/terra/charts/strimzi/plot.sh
 10       soil-java-base     serenditree/java-base     latest  /home/tanwald/Development/Serenditree/stem/plots/soil/java/plot-java.sh:base:0
 11       soil-java-builder  serenditree/java-builder  latest  /home/tanwald/Development/Serenditree/stem/plots/soil/java/plot-java.sh:builder:1
@@ -64,9 +65,8 @@ that processes command-line arguments and calls the functions of dedicated scrip
 
 ```
 > sc help
-Usage:  sc [-T|--test] [-P|--prod] [-D|--dryrun] [-v|--verbose] [-a|--all] [-y|--yes] [-E|--expose] [--open] 
-[-w|--watch] [--init] [--setup] [--upgrade] [--reset] [--delete] [--imperative] [--resume <arg>] [--issuer <arg>] 
-[--compose] [--integration] [-k|--kubernetes] [-o|--openshift] [-l|--local] [--dashboard] [-h|--help] [--] <command> ... 
+Serenditree CLI
+Usage:  sc [-T|--test] [-P|--prod] [-D|--dryrun] [-v|--verbose] [-a|--all] [-y|--yes] [-E|--expose] [--open] [-w|--watch] [--init] [--setup] [--upgrade] [--reset] [--delete] [--imperative] [--resume <arg>] [--issuer <arg>] [--compose] [--insert] [--integration] [-k|--kubernetes] [-o|--openshift] [-l|--local] [--dashboard] [-h|--help] [--] <command> ... 
 
 	<command>:          Command to execute. Please type sc <help> for a list of commands!
 	... :               Other arguments passed to command.
@@ -75,7 +75,7 @@ Usage:  sc [-T|--test] [-P|--prod] [-D|--dryrun] [-v|--verbose] [-a|--all] [-y|-
 	-D, --dryrun:       Activates dryrun mode.
 	-v, --verbose:      Verbose flag.
 	-a, --all:          All...
-	-y, --yes:   Assumes yes on prompts.
+	-y, --yes:          Assumes yes on prompts.
 	-E, --expose:       Exposes database ports on local pods.
 	--open:             Open plots.
 	-w, --watch:        Watch supported commands.
@@ -88,6 +88,7 @@ Usage:  sc [-T|--test] [-P|--prod] [-D|--dryrun] [-v|--verbose] [-a|--all] [-y|-
 	--resume:           Resume plots from the given ordinal. (default: '0')
 	--issuer:           Set let's encrypt issuer to prod or staging. (default: 'prod')
 	--compose:          Run or build for podman-compose.
+	--insert:           Inserts a new plot.
 	--integration:      Run for integration testing.
 	-k, --kubernetes:   Use vanilla kubernetes.
 	-o, --openshift:    Use openshift.
@@ -112,17 +113,18 @@ Usage:  sc [-T|--test] [-P|--prod] [-D|--dryrun] [-v|--verbose] [-a|--all] [-y|-
 	loc:                Prints lines of code.
 	login <reg>:        Login to configured registries.
 	logs|log [svc]:     Prints logs of all or individual services on the local pod.
-	plots:              Prints all available plots. [--open]
+	plots [ordinal name path]:Prints or inserts/deletes plots. [--open] [--insert|--delete]
 	ps:                 Lists locally running serenditree containers.
 	push [svc]:         Push all or individual images.
 	registry:           Inspect images in remote registries. [--verbose]
 	release:            Updates the parent git repository and pushes new commits.
 	reset:              Removes all local images created by this cli.
+	restore:            Restores local databases from remote data.
 	status:             Prints status information and checks prerequisites.
 	update [comp]:      Update components.
 
 	Cluster commands:
-	up [comp]:          Cluster start/setup. [--init|--setup|--upgrade] [--imperative] [--dashboard]
+	up [comp]:          Cluster start/setup. [--init|--setup|--upgrade] [--dashboard]
 	down:               Cluster stop/deletion. [--reset|--delete]
 
 	clean:              Deletes dispensable resources.
@@ -133,7 +135,7 @@ Usage:  sc [-T|--test] [-P|--prod] [-D|--dryrun] [-v|--verbose] [-a|--all] [-y|-
 	logs <svc>:         Prints logs of the given pod(s).
 	patch <arg>:        Applies patches to the current cluster.
 	registry [img]:     Inspects the OpenShift image registry.
-	resources|rc:       Lists project resources.
+	resources|rc [csv]: Prints resource allocations. Optionally in CSV.
 	restore:            Restore databases.
 	certificate|cert:   Prints certificate information.
 	tekton|tkn [svc]:   Triggers tekton runs for all or individual services.
