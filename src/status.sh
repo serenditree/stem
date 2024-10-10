@@ -43,7 +43,7 @@ function sc_status_os() {
     if [[ -e /etc/fedora-release ]]; then
         echo "${_BOLD}ok${_NORMAL}"
     else
-        echo "${_BOLD}error:${_NORMAL} only tested on fedora"
+        echo "${_BOLD}error:${_NORMAL} image building only tested on fedora"
     fi
     echo -n "Checking uid..."
     if [[ $(id -u) -eq 1000 ]]; then
