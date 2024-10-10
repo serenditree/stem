@@ -23,8 +23,14 @@ function sc_status_required_applications() {
 
 # Checks required files and folders.
 function sc_status_required_files() {
-    echo -n "Required files and folders..."
-    if [[ -e ~/.m2 ]]; then
+    echo -n "Required files..."
+    if [[ -f ~/.ssh/stem@${_ST_DOMAIN} ]]; then
+        echo "${_BOLD}ok${_NORMAL}"
+    else
+        echo "${_BOLD}warning:${_NORMAL} ssh private key for argocd github access does not exits."
+    fi
+    echo -n "Required folders..."
+    if [[ -d ~/.m2 ]]; then
         echo "${_BOLD}ok${_NORMAL}"
     else
         echo "${_BOLD}warning:${_NORMAL} local maven repository at ~/.m2 does not exits."
@@ -64,11 +70,6 @@ function sc_status_registries() {
 # Prints global environment variables based on context.
 function sc_status_env() {
     env | grep '^_ST_' | sed -E -e 's/=/#/' -e 's/\s+/ /g' | sort | column -ts'#' | cut -c 1-200
-    # Environment variables which have to be defined externally:
-    [[ -n "$_ST_TERRA_API_KEY" ]] || echo "${_BOLD}Warning:${_NORMAL} _ST_TERRA_API_KEY not set"
-    [[ -n "$_ST_TERRA_API_SECRET" ]] || echo "${_BOLD}Warning:${_NORMAL} _ST_TERRA_API_SECRET not set"
-    [[ -n "$_ST_TERRA_PULL_SECRET" ]] || echo "${_BOLD}Warning:${_NORMAL} _ST_TERRA_PULL_SECRET not set"
-    [[ -n "$_ST_TERRA_SSH_KEY" ]] || echo "${_BOLD}Warning:${_NORMAL} _ST_TERRA_SSH_KEY not set"
 }
 
 # Prints an overview of the development environment.
