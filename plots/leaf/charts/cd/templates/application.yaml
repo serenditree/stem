@@ -19,7 +19,7 @@ spec:
           value: "true"
         - name: global.context
           value: {{ .Values.global.context }}
-        - name: leaf-app.branch.host
+        - name: leaf-app.leaf.host
           value: {{ .Values.leaf.host | quote }}
         - name: leaf-app.leaf.minReplicas
           value: {{ .Values.leaf.minReplicas | quote }}

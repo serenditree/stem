@@ -19,7 +19,7 @@ spec:
           value: "true"
         - name: global.context
           value: {{ .Values.global.context }}
-        - name: root-map-app.branch.host
+        - name: root-map-app.rootMap.host
           value: {{ .Values.rootMap.host | quote }}
         - name: root-map-app.ingress.letsencrypt.issuer
           value: {{ .Values.ingress.letsencrypt.issuer }}
