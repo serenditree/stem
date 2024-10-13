@@ -129,6 +129,7 @@ elif [[ " $* " =~ " up " ]]; then
             helm $_ST_HELM_CMD $_ST_HELM_NAME ./charts/cd \
             --set "global.context=$_ST_CONTEXT" \
             --set "ingress.letsencrypt.issuer=$_ARG_ISSUER" \
+            --set "branch.host=$_ST_DOMAIN" \
             --set "branch.jsonWebKey=$(pass serenditree/json.web.key)" | $_ST_HELM_PIPE
 
         if [[ -z "$_ARG_DRYRUN" ]]; then
@@ -139,6 +140,7 @@ elif [[ " $* " =~ " up " ]]; then
                 helm $_ST_HELM_CMD $_ST_HELM_NAME ./charts/app \
                 --set "global.context=$_ST_CONTEXT" \
                 --set "ingress.letsencrypt.issuer=$_ARG_ISSUER" \
+                --set "branch.host=$_ST_DOMAIN" \
                 --set "branch.jsonWebKey=$(pass serenditree/json.web.key)" | $_ST_HELM_PIPE
         fi
     fi

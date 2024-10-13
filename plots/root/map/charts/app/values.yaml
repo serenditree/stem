@@ -1,6 +1,7 @@
 global:
   context: ~
 rootMap:
+  host: ~
   minReplicas: 1
   maxReplicas: 3
   stage: ~

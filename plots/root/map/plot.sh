@@ -122,6 +122,7 @@ elif [[ " $* " =~ " up " ]]; then
         helm $_ST_HELM_CMD $_ST_HELM_NAME ./charts/cd \
             --set "global.context=$_ST_CONTEXT" \
             --set "ingress.letsencrypt.issuer=$_ARG_ISSUER" \
+            --set "rootMap.host=$_ST_DOMAIN" \
             --set "rootMap.dataMountPath=$_VOLUME_DST" \
             --set "rootMap.stage=$_ST_STAGE" | $_ST_HELM_PIPE
 
@@ -132,6 +133,7 @@ elif [[ " $* " =~ " up " ]]; then
             helm $_ST_HELM_CMD $_ST_HELM_NAME ./charts/app \
                 --set "global.context=$_ST_CONTEXT" \
                 --set "ingress.letsencrypt.issuer=$_ARG_ISSUER" \
+                --set "rootMap.host=$_ST_DOMAIN" \
                 --set "rootMap.dataMountPath=$_VOLUME_DST" \
                 --set "rootMap.stage=$_ST_STAGE" | $_ST_HELM_PIPE
         fi

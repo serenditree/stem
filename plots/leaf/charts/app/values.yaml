@@ -1,4 +1,5 @@
 leaf:
+  host: ~
   minReplicas: 1
   maxReplicas: 3
   stage: dev

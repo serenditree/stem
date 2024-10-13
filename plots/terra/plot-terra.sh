@@ -43,8 +43,8 @@ function sc_terra_up_assets() {
         -auto-approve \
         -target="module.bootstrap.null_resource.create_assets[0]" \
         -replace="module.bootstrap.null_resource.create_assets[0]" \
-        -var="api_key=${_ST_TERRA_API_KEY}" \
-        -var="api_secret=${_ST_TERRA_API_SECRET}" \
+        -var="api_key=$(pass serenditree/serenditree@exoscale.com.access)" \
+        -var="api_secret=$(pass serenditree/serenditree@exoscale.com.secret)" \
         -var="cluster_name=${_ST_STAGE}"
 }
 
@@ -96,8 +96,9 @@ function sc_terra_up() {
         # shellcheck disable=SC2064
         trap "rm -f $_plan_realpath" EXIT
         terraform -chdir="$_ST_TERRA_DIR" plan \
-            -var="api_key=${_ST_TERRA_API_KEY}" \
-            -var="api_secret=${_ST_TERRA_API_SECRET}" \
+            -var="api_key=$(pass serenditree/serenditree@exoscale.com.access)" \
+            -var="api_secret=$(pass serenditree/serenditree@exoscale.com.secret)" \
+            -var="zone=${_ST_ZONE}" \
             -var="kubernetes_version=${_ST_VERSION_KUBERNETES}" \
             -var="kubeconfig=${_kubeconfig_sks}" \
             -var="iam=${_iam_config}" \
@@ -144,10 +145,10 @@ function sc_terra_down_loadbalancer() {
 
 function sc_terra_down_dns() {
     echo "Removing A record..."
-    exo dns show serenditree.io A --output-template '{{.ID}}' |
-        xargs exo dns remove serenditree.io --force
+    exo dns show "$_ST_DOMAIN" A --output-template '{{.ID}}' |
+        xargs exo dns remove "$_ST_DOMAIN" --force
     echo "Removing CNAME record \"www\"..."
-    exo dns remove serenditree.io www --force
+    exo dns remove "$_ST_DOMAIN" www --force
 }
 
 function sc_terra_down_volumes() {
@@ -158,8 +159,8 @@ function sc_terra_down_volumes() {
 function sc_terra_down() {
     if [[ -z "$_ARG_DRYRUN" ]]; then
         terraform -chdir="$_ST_TERRA_DIR" destroy \
-            -var="api_key=${_ST_TERRA_API_KEY}" \
-            -var="api_secret=${_ST_TERRA_API_SECRET}"
+            -var="api_key=$(pass serenditree/serenditree@exoscale.com.access)" \
+            -var="api_secret=$(pass serenditree/serenditree@exoscale.com.secret)"
 
         sc_prompt "Remove DNS records?" sc_terra_down_dns
         if [[ -n "${_ST_CONTEXT_KUBERNETES}" ]]; then

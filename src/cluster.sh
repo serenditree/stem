@@ -62,6 +62,7 @@ function sc_cluster_backup_restore_secret() {
         sed -E \
             -e "s/<KEY>/$(pass serenditree/backup@exoscale.com.access)/" \
             -e "s/<SECRET>/$(pass serenditree/backup@exoscale.com.secret)/" \
+            -e "s/<ZONE>/${_ST_ZONE}/" \
             "${_ST_HOME_STEM}/rc/jobs/secret-template.toml" >"$_secret"
         kubectl create secret generic exoscale-backup --namespace serenditree --from-file="$_secret"
     fi

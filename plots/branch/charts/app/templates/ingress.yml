@@ -14,11 +14,11 @@ spec:
   ingressClassName: nginx
   tls:
     - hosts:
-        - www.serenditree.io
-        - serenditree.io
+        - www.{{ .Values.branch.host }}
+        - {{ .Values.branch.host }}
       secretName: serenditree-tls-{{ .Values.ingress.letsencrypt.issuer }}
   rules:
-    - host: serenditree.io
+    - host: {{ .Values.branch.host }}
       http:
         paths:
           {{- range .Values.global.branches }}
@@ -30,7 +30,7 @@ spec:
                 name: branch-seed
                 {{- else }}
                 name: branch-{{ . }}
-                {{- end}}
+                {{- end }}
                 port:
                   number: 8080
           {{- end }}

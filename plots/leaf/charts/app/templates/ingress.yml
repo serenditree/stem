@@ -14,11 +14,11 @@ spec:
   ingressClassName: nginx
   tls:
     - hosts:
-        - www.serenditree.io
-        - serenditree.io
+        - www.{{ .Values.leaf.host }}
+        - {{ .Values.leaf.host }}
       secretName: serenditree-tls-{{ .Values.ingress.letsencrypt.issuer }}
   rules:
-    - host: serenditree.io
+    - host: {{ .Values.leaf.host }}
       http:
         paths:
           - path: /

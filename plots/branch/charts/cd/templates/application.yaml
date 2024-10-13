@@ -19,6 +19,8 @@ spec:
           value: "true"
         - name: global.context
           value: {{ .Values.global.context }}
+        - name: branch-app.branch.host
+          value: {{ .Values.branch.host | quote }}
         - name: branch-app.branch.minReplicas
           value: {{ .Values.branch.minReplicas | quote }}
         - name: branch-app.branch.maxReplicas

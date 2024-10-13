@@ -44,6 +44,15 @@ export _ST_LOG_LEVEL=${_ST_LOG_LEVEL:-info}
 export _ST_POD=serenditree
 
 ########################################################################################################################
+# CONFIG
+########################################################################################################################
+
+export _ST_DOMAIN=${_ST_DOMAIN:-serenditree.io}
+export _ST_ZONE=${_ST_ZONE:-at-vie-1}
+export _ST_GIT=${_ST_GIT:-git@github.com:serenditree/stem.git}
+export _ST_SSH=${_ST_SSH:-${HOME}/.ssh/stem@serenditree.io}
+
+########################################################################################################################
 # VERSIONS
 ########################################################################################################################
 
@@ -51,12 +60,12 @@ if [[ -f /etc/fedora-release ]] && [[ -z "$_ST_CONTEXT_TKN" ]]; then
     _ST_VERSION_FEDORA=$(cut -d' ' -f3 /etc/fedora-release)
     export _ST_VERSION_FEDORA
 fi
-export _ST_VERSION_KUBERNETES=1.31.0
+export _ST_VERSION_KUBERNETES=1.31.1
 export _ST_VERSION_JAVA=17
 export _ST_VERSION_NODE=22
 export _ST_VERSION_ANGULAR=18
 export _ST_VERSION_FLUENTD=1.17.1
-export _ST_VERSION_MONGODB=7.0
+export _ST_VERSION_MONGODB=8.0
 export _ST_VERSION_MARIADB=11.5
 export _ST_VERSION_KAFKA=3.7.1
 export _ST_VERSION_KAFKA_SCALA=2.13

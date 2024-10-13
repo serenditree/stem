@@ -38,9 +38,9 @@ if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "$_ARG_SET
         echo "Load-balancer IP: ${_nlb_ip}"
 
         sc_heading 1 "Setting up dns records..."
-        exo dns add A "serenditree.io" --name "" --address "$_nlb_ip"
-        exo dns add CNAME "serenditree.io" --name "www" --alias "serenditree.io"
-        exo dns show "serenditree.io" --output-template "{{.ID}};{{.Name}};{{.RecordType}};{{.Content}};{{.TTL}}" |
+        exo dns add A "$_ST_DOMAIN" --name "" --address "$_nlb_ip"
+        exo dns add CNAME "$_ST_DOMAIN" --name "www" --alias "$_ST_DOMAIN"
+        exo dns show "$_ST_DOMAIN" --output-template "{{.ID}};{{.Name}};{{.RecordType}};{{.Content}};{{.TTL}}" |
             sort -t ';' -k 3 |
             column -ts ';'
     fi

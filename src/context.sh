@@ -38,7 +38,7 @@ function sc_context_init_kube() {
     until exo compute sks kubeconfig serenditree kubeadmin/serenditree \
         --ttl $_ttl \
         --group $_group  \
-        --zone at-vie-1 >"$_config"
+        --zone "${_ST_ZONE}" >"$_config"
     do
         sleep 1s
     done

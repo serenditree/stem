@@ -10,3 +10,4 @@ metadata:
     app.kubernetes.io/part-of: serenditree
 data:
   serenditree.seed.water.retention: "21"
+  serenditree.host: "https://{{ .Values.branch.host }}"

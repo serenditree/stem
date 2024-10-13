@@ -14,7 +14,7 @@ fi
 ########################################################################################################################
 # UP
 ########################################################################################################################
-if [[ " $* " =~ " up " ]]; then
+if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "$_ARG_SETUP" ]]; then
     sc_heading 1 "Setting up ${_SERVICE}"
     if [[ -z "$_ARG_DRYRUN" ]]; then
         sc_heading 2 "Creating secret for autoscaler..."
@@ -22,7 +22,7 @@ if [[ " $* " =~ " up " ]]; then
             --namespace kube-system \
             --from-literal=api-key="$(pass serenditree/scaler@exoscale.com.access)" \
             --from-literal=api-secret="$(pass serenditree/scaler@exoscale.com.secret)" \
-            --from-literal=api-zone="at-vie-1"
+            --from-literal=api-zone="${_ST_ZONE}"
 
         _autoscaling_groups=
         _index=0
