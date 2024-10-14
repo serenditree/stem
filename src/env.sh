@@ -50,7 +50,7 @@ export _ST_POD=serenditree
 export _ST_DOMAIN=${_ST_DOMAIN:-serenditree.io}
 export _ST_ZONE=${_ST_ZONE:-at-vie-1}
 export _ST_GIT=${_ST_GIT:-git@github.com:serenditree/stem.git}
-export _ST_SSH=${_ST_SSH:-${HOME}/.ssh/stem@serenditree.io}
+export _ST_GIT_SSH=${_ST_GIT_SSH:-${HOME}/.ssh/stem@serenditree.io}
 
 ########################################################################################################################
 # VERSIONS

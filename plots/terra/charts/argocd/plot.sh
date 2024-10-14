@@ -57,7 +57,7 @@ if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "${_ARG_SE
             --password "$_argocd_password"
         sc_heading 2 "Adding git repository..."
         argocd repo add "$_ST_GIT" \
-            --ssh-private-key-path "$_ST_SSH" \
+            --ssh-private-key-path "$_ST_GIT_SSH" \
             --name stem
         sc_heading 2 "Patching ArgoCD config map..."
         sc_cluster_patch argocd-cm

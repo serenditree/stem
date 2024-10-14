@@ -24,7 +24,7 @@ function sc_status_required_applications() {
 # Checks required files and folders.
 function sc_status_required_files() {
     echo -n "Required files..."
-    if [[ -f "$_ST_SSH" ]]; then
+    if [[ -f "$_ST_GIT_SSH" ]]; then
         echo "${_BOLD}ok${_NORMAL}"
     else
         echo "${_BOLD}warning:${_NORMAL} ssh private key for argocd github access does not exits."
