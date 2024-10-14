@@ -70,13 +70,13 @@ variable "compute_nodes" {
 # Config
 ########################################################################################################################
 variable "kubeconfig" {
-  description = "Target location of kubeconfig"
+  description = "Location of kubeconfig."
   type        = string
   default     = "kubeconfig"
 }
 
 variable "iam" {
-  description = "Target location for iam-key information for auto-scaling"
+  description = "Location of iam-key information."
   type        = string
   default     = "iam"
 }

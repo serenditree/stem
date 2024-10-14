@@ -32,7 +32,7 @@ resource "exoscale_iam_role" "serenditree_scaler" {
 
 resource "exoscale_iam_role" "serenditree_data" {
   name        = "serenditree-data"
-  description = "Rule that allows retrieval of data from SOS."
+  description = "Role that allows retrieval of data from a single SOS bucket."
   editable    = false
 
   policy = {
@@ -42,7 +42,11 @@ resource "exoscale_iam_role" "serenditree_data" {
         type = "rules"
         rules = [
           {
-            expression = "parameters.bucket == 'serenditree-data' && operation in ['head-object', 'get-object']"
+            expression = "parameters.bucket != 'serenditree-data'"
+            action     = "deny"
+          },
+          {
+            expression = "operation in ['head-object', 'get-object']"
             action     = "allow"
           }
         ]
@@ -53,7 +57,7 @@ resource "exoscale_iam_role" "serenditree_data" {
 
 resource "exoscale_iam_role" "serenditree_backup" {
   name        = "serenditree-backup"
-  description = "Rule that allows backup and restore of databases."
+  description = "Role that allows backup and restore of databases to and from a single SOS bucket."
   editable    = false
 
   policy = {
@@ -63,7 +67,11 @@ resource "exoscale_iam_role" "serenditree_backup" {
         type = "rules"
         rules = [
           {
-            expression = "parameters.bucket == 'serenditree-backup' && operation in ['head-object', 'get-object', 'put-object']"
+            expression = "parameters.bucket != 'serenditree-backup'"
+            action     = "deny"
+          },
+          {
+            expression = "operation.matches('^(list|head|get|put)-objects?$')"
             action     = "allow"
           }
         ]
