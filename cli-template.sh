@@ -62,34 +62,40 @@ pushd "$(dirname "$(realpath $0)")" &>/dev/null || exit 1
 ########################################################################################################################
 
 export _ARG_COMMAND=$_arg_command
+export _ARG_SUB_COMMAND=${_arg_leftovers[0]}
 # shellcheck disable=SC2206
 export _ARG_LEFTOVERS=(${_arg_leftovers[*]})
-export _ARG_SUB_COMMAND=${_arg_leftovers[0]}
 
+export _ARG_PROD=${_arg_prod/off/}
+export _ARG_TEST=${_arg_test/off/}
+
+export _ARG_ALL=${_arg_all/off/}
 export _ARG_DRYRUN=${_arg_dryrun/off/}
 export _ARG_VERBOSE=${_arg_verbose/off/}
-export _ARG_TEST=${_arg_test/off/}
-export _ARG_PROD=${_arg_prod/off/}
-export _ARG_ALL=${_arg_all/off/}
 export _ARG_YES=${_arg_yes/off/}
 
-export _ARG_EXPOSE=${_arg_expose/off/}
-export _ARG_OPEN=${_arg_open/off/}
+export _ARG_COMPOSE=${_arg_compose/off/}
+export _ARG_KUBERNETES=${_arg_kubernetes/off/}
+export _ARG_LOCAL=${_arg_local/off/}
+export _ARG_OPENSHIFT=${_arg_openshift/off/}
+
+export _ARG_DELETE=${_arg_delete/off/}
 export _ARG_INIT=${_arg_init/off/}
+export _ARG_RESET=${_arg_reset/off/}
+export _ARG_RESUME=$_arg_resume
 export _ARG_SETUP=${_arg_setup/off/}
 export _ARG_UPGRADE=${_arg_upgrade/off/}
-export _ARG_RESET=${_arg_reset/off/}
-export _ARG_DELETE=${_arg_delete/off/}
-export _ARG_WATCH=${_arg_watch/off/}
-export _ARG_RESUME=$_arg_resume
-export _ARG_ISSUER=$_arg_issuer
-export _ARG_COMPOSE=${_arg_compose/off/}
-export _ARG_INTEGRATION=${_arg_integration/off/}
+
+export _ARG_EXPOSE=${_arg_expose/off/}
 export _ARG_INSERT=${_arg_insert/off/}
-export _ARG_KUBERNETES=${_arg_kubernetes/off/}
-export _ARG_OPENSHIFT=${_arg_openshift/off/}
-export _ARG_LOCAL=${_arg_local/off/}
+export _ARG_OPEN=${_arg_open/off/}
+export _ARG_WATCH=${_arg_watch/off/}
+
 export _ARG_DASHBOARD=${_arg_dashboard/off/}
+export _ARG_ISSUER=$_arg_issuer
+
+export _ARG_INTEGRATION=${_arg_integration/off/}
+
 export _ARG_HELP=${_arg_help/off/}
 
 ########################################################################################################################
@@ -132,13 +138,12 @@ function sc_help() {
     printf '\t%-20s%s\n' "database|db <db>:" "Open local database console. {user|maria|seed|mongo}"
     printf '\t%-20s%s\n' "deploy [svc]:" "Deploys all or individual services to the local stack."
     printf '\t%-20s%s\n' "env:" "Prints global environment variables based on context."
-    printf '\t%-20s%s\n' "expose:" "Port-forward operational services. [--reset|--delete]"
     printf '\t%-20s%s\n' "git [--] <cmd>:" "Execute arbitrary git commands."
     printf '\t%-20s%s\n' "health|hc:" "Runs health-checks on services. [--watch]"
     printf '\t%-20s%s\n' "loc:" "Prints lines of code."
     printf '\t%-20s%s\n' "login <reg>:" "Login to configured registries."
     printf '\t%-20s%s\n' "logs|log [svc]:" "Prints logs of all or individual services on the local pod."
-    printf '\t%-20s%s\n' "plots [ordinal name path]:" "Prints or inserts/deletes plots. [--open] [--insert|--delete]"
+    printf '\t%-20s%s\n' "plots:" "Prints or inserts/deletes plots. [--open] [{--insert|--delete} ordinal name path]"
     printf '\t%-20s%s\n' "ps:" "Lists locally running serenditree containers."
     printf '\t%-20s%s\n' "push [svc]:" "Push all or individual images."
     printf '\t%-20s%s\n' "registry:" "Inspect images in remote registries. [--verbose]"
@@ -152,17 +157,18 @@ function sc_help() {
     printf '\t%-20s%s\n' "up [comp]:" "Cluster start/setup. [--init|--setup|--upgrade] [--dashboard]"
     printf '\t%-20s%s\n\n' "down:" "Cluster stop/deletion. [--reset|--delete]"
 
+    printf '\t%-20s%s\n' "certificate|cert:" "Prints certificate information."
     printf '\t%-20s%s\n' "clean:" "Deletes dispensable resources."
     printf '\t%-20s%s\n' "dashboard:" "Launches the clusters dashboard."
     printf '\t%-20s%s\n' "database|db <db>:" "Open database console. {user|maria|seed|mongo}"
     printf '\t%-20s%s\n' "deploy:" "Deploys new images."
+    printf '\t%-20s%s\n' "expose:" "Port-forward operational services. [--reset|--delete]"
     printf '\t%-20s%s\n' "login:" "Login to OpenShift and its internal registry."
     printf '\t%-20s%s\n' "logs <svc>:" "Prints logs of the given pod(s)."
     printf '\t%-20s%s\n' "patch <arg>:" "Applies patches to the current cluster."
     printf '\t%-20s%s\n' "registry [img]:" "Inspects the OpenShift image registry."
     printf '\t%-20s%s\n' "resources|rc [csv]:" "Prints resource allocations. Optionally in CSV."
     printf '\t%-20s%s\n' "restore:" "Restore databases."
-    printf '\t%-20s%s\n' "certificate|cert:" "Prints certificate information."
     printf '\t%-20s%s\n' "tekton|tkn [svc]:" "Triggers tekton runs for all or individual services."
 
     echo -e "\nPlease type $_ST_HELP_DETAIL"
@@ -214,13 +220,6 @@ deploy)
     ;;
 env)
     sc_status_env
-    ;;
-expose)
-    if [[ -n "$_ARG_RESET" ]]; then
-        _ARG_DELETE=on sc_cluster_expose "$(sc_args_to_pattern ${_ARG_LEFTOVERS[*]})"
-        unset _ARG_DELETE
-    fi
-    sc_cluster_expose "$(sc_args_to_pattern ${_ARG_LEFTOVERS[*]})"
     ;;
 git)
     sc_git ${_ARG_LEFTOVERS[*]}
@@ -378,6 +377,13 @@ cluster)
         ;;
     deploy)
         sc_cluster_deploy "$(sc_args_to_pattern ${_ARG_LEFTOVERS[*]})"
+        ;;
+    expose)
+        if [[ -n "$_ARG_RESET" ]]; then
+            _ARG_DELETE=on sc_cluster_expose "$(sc_args_to_pattern ${_ARG_LEFTOVERS[*]})"
+            unset _ARG_DELETE
+        fi
+        sc_cluster_expose "$(sc_args_to_pattern ${_ARG_LEFTOVERS[*]})"
         ;;
     login)
         if [[ -n "$_ST_CONTEXT_OPENSHIFT" ]]; then
