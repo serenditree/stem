@@ -8,30 +8,30 @@ _ST_HELP_DETAIL="'sc <command> --help' for details about a certain command!"
 _ST_HELP="Please type 'sc <help>' for a list of commands or $_ST_HELP_DETAIL"
 #
 # ARG_POSITIONAL_SINGLE([command],[Command to execute. Please type sc <help> for a list of commands!],[])
-# ARG_OPTIONAL_BOOLEAN([test],[T],[Sets the target stage to test. (default is dev)])
-# ARG_OPTIONAL_BOOLEAN([prod],[P],[Sets the target stage to prod. (default is dev)])
-# ARG_OPTIONAL_BOOLEAN([dryrun],[D],[Activates dryrun mode.])
-# ARG_OPTIONAL_BOOLEAN([verbose],[v],[Verbose flag.])
 # ARG_OPTIONAL_BOOLEAN([all],[a],[All...])
-# ARG_OPTIONAL_BOOLEAN([yes],[y],[Assumes yes on prompts.])
-# ARG_OPTIONAL_BOOLEAN([expose],[E],[Exposes database ports on local pods.])
-# ARG_OPTIONAL_BOOLEAN([open],[],[Open plots.])
-# ARG_OPTIONAL_BOOLEAN([watch],[w],[Watch supported commands.])
-# ARG_OPTIONAL_BOOLEAN([init],[],[Initialization flag.])
-# ARG_OPTIONAL_BOOLEAN([setup],[],[Setup flag.])
-# ARG_OPTIONAL_BOOLEAN([upgrade],[],[Upgrade flag.])
-# ARG_OPTIONAL_BOOLEAN([reset],[],[Reset flag.])
-# ARG_OPTIONAL_BOOLEAN([delete],[],[Deletion flag.])
-# ARG_OPTIONAL_SINGLE([resume],[],[Resume plots from the given ordinal.],[0])
-# ARG_OPTIONAL_SINGLE([issuer],[],[Set let's encrypt issuer to prod or staging.],[prod])
 # ARG_OPTIONAL_BOOLEAN([compose],[],[Run or build for podman-compose.])
+# ARG_OPTIONAL_BOOLEAN([dashboard],[],[Open dashboard.])
+# ARG_OPTIONAL_BOOLEAN([delete],[],[Deletion flag.])
+# ARG_OPTIONAL_BOOLEAN([dryrun],[D],[Activates dryrun mode.])
+# ARG_OPTIONAL_BOOLEAN([expose],[E],[Exposes database ports on local pods.])
+# ARG_OPTIONAL_BOOLEAN([help],[h],[Command help. Please type sc <help> for a list of commands!])
+# ARG_OPTIONAL_BOOLEAN([init],[],[Initialization flag.])
 # ARG_OPTIONAL_BOOLEAN([insert],[],[Inserts a new plot.])
 # ARG_OPTIONAL_BOOLEAN([integration],[],[Run for integration testing.])
 # ARG_OPTIONAL_BOOLEAN([kubernetes],[k],[Use vanilla kubernetes.])
-# ARG_OPTIONAL_BOOLEAN([openshift],[o],[Use openshift.])
 # ARG_OPTIONAL_BOOLEAN([local],[l],[Target local cluster.])
-# ARG_OPTIONAL_BOOLEAN([dashboard],[],[Open dashboard.])
-# ARG_OPTIONAL_BOOLEAN([help],[h],[Command help. Please type sc <help> for a list of commands!])
+# ARG_OPTIONAL_BOOLEAN([open],[],[Open plots.])
+# ARG_OPTIONAL_BOOLEAN([openshift],[o],[Use openshift.])
+# ARG_OPTIONAL_BOOLEAN([prod],[P],[Sets the target stage to prod. (default is dev)])
+# ARG_OPTIONAL_BOOLEAN([reset],[],[Reset flag.])
+# ARG_OPTIONAL_BOOLEAN([setup],[],[Setup flag.])
+# ARG_OPTIONAL_BOOLEAN([test],[T],[Sets the target stage to test. (default is dev)])
+# ARG_OPTIONAL_BOOLEAN([upgrade],[],[Upgrade flag.])
+# ARG_OPTIONAL_BOOLEAN([verbose],[v],[Verbose flag.])
+# ARG_OPTIONAL_BOOLEAN([watch],[w],[Watch supported commands.])
+# ARG_OPTIONAL_BOOLEAN([yes],[y],[Assumes yes on prompts.])
+# ARG_OPTIONAL_SINGLE([issuer],[],[Set let's encrypt issuer to prod or staging.],[prod])
+# ARG_OPTIONAL_SINGLE([resume],[],[Resume plots from the given ordinal.],[0])
 # ARG_LEFTOVERS([Other arguments passed to command.])
 # ARGBASH_SET_INDENT([    ])
 # ARG_POSITIONAL_DOUBLEDASH([])
@@ -54,7 +54,7 @@ die()
 
 begins_with_short_option()
 {
-    local first_option all_short_options='TPDvayEwkolh'
+    local first_option all_short_options='aDEhkloPTvwy'
     first_option="${1:0:1}"
     test "$all_short_options" = "${all_short_options/$first_option/}" && return 1 || return 0
 }
@@ -64,61 +64,61 @@ _positionals=()
 _arg_command=
 _arg_leftovers=()
 # THE DEFAULTS INITIALIZATION - OPTIONALS
-_arg_test="off"
-_arg_prod="off"
-_arg_dryrun="off"
-_arg_verbose="off"
 _arg_all="off"
-_arg_yes="off"
-_arg_expose="off"
-_arg_open="off"
-_arg_watch="off"
-_arg_init="off"
-_arg_setup="off"
-_arg_upgrade="off"
-_arg_reset="off"
-_arg_delete="off"
-_arg_resume="0"
-_arg_issuer="prod"
 _arg_compose="off"
+_arg_dashboard="off"
+_arg_delete="off"
+_arg_dryrun="off"
+_arg_expose="off"
+_arg_help="off"
+_arg_init="off"
 _arg_insert="off"
 _arg_integration="off"
 _arg_kubernetes="off"
-_arg_openshift="off"
 _arg_local="off"
-_arg_dashboard="off"
-_arg_help="off"
+_arg_open="off"
+_arg_openshift="off"
+_arg_prod="off"
+_arg_reset="off"
+_arg_setup="off"
+_arg_test="off"
+_arg_upgrade="off"
+_arg_verbose="off"
+_arg_watch="off"
+_arg_yes="off"
+_arg_issuer="prod"
+_arg_resume="0"
 
 
 print_help()
 {
-    printf 'Usage: %s [-T|--test] [-P|--prod] [-D|--dryrun] [-v|--verbose] [-a|--all] [-y|--yes] [-E|--expose] [--open] [-w|--watch] [--init] [--setup] [--upgrade] [--reset] [--delete] [--resume <arg>] [--issuer <arg>] [--compose] [--insert] [--integration] [-k|--kubernetes] [-o|--openshift] [-l|--local] [--dashboard] [-h|--help] [--] <command> ... \n' " sc" && echo
+    printf 'Usage: %s [-a|--all] [--compose] [--dashboard] [--delete] [-D|--dryrun] [-E|--expose] [-h|--help] [--init] [--insert] [--integration] [-k|--kubernetes] [-l|--local] [--open] [-o|--openshift] [-P|--prod] [--reset] [--setup] [-T|--test] [--upgrade] [-v|--verbose] [-w|--watch] [-y|--yes] [--issuer <arg>] [--resume <arg>] [--] <command> ... \n' " sc" && echo
     printf '\t%-20s%s\n' "<command>:" "Command to execute. Please type sc <help> for a list of commands!"
     printf '\t%-20s%s\n' "... :" "Other arguments passed to command."
-    printf '\t%-20s%s\n' "-T, --test:" "Sets the target stage to test. (default is dev)"
-    printf '\t%-20s%s\n' "-P, --prod:" "Sets the target stage to prod. (default is dev)"
-    printf '\t%-20s%s\n' "-D, --dryrun:" "Activates dryrun mode."
-    printf '\t%-20s%s\n' "-v, --verbose:" "Verbose flag."
     printf '\t%-20s%s\n' "-a, --all:" "All..."
-    printf '\t%-20s%s\n' "-y, --yes:" "Assumes yes on prompts."
-    printf '\t%-20s%s\n' "-E, --expose:" "Exposes database ports on local pods."
-    printf '\t%-20s%s\n' "--open:" "Open plots."
-    printf '\t%-20s%s\n' "-w, --watch:" "Watch supported commands."
-    printf '\t%-20s%s\n' "--init:" "Initialization flag."
-    printf '\t%-20s%s\n' "--setup:" "Setup flag."
-    printf '\t%-20s%s\n' "--upgrade:" "Upgrade flag."
-    printf '\t%-20s%s\n' "--reset:" "Reset flag."
-    printf '\t%-20s%s\n' "--delete:" "Deletion flag."
-    printf '\t%-20s%s\n' "--resume:" "Resume plots from the given ordinal. (default: '0')"
-    printf '\t%-20s%s\n' "--issuer:" "Set let's encrypt issuer to prod or staging. (default: 'prod')"
     printf '\t%-20s%s\n' "--compose:" "Run or build for podman-compose."
+    printf '\t%-20s%s\n' "--dashboard:" "Open dashboard."
+    printf '\t%-20s%s\n' "--delete:" "Deletion flag."
+    printf '\t%-20s%s\n' "-D, --dryrun:" "Activates dryrun mode."
+    printf '\t%-20s%s\n' "-E, --expose:" "Exposes database ports on local pods."
+    printf '\t%-20s%s\n' "-h, --help:" "Command help. Please type sc <help> for a list of commands!"
+    printf '\t%-20s%s\n' "--init:" "Initialization flag."
     printf '\t%-20s%s\n' "--insert:" "Inserts a new plot."
     printf '\t%-20s%s\n' "--integration:" "Run for integration testing."
     printf '\t%-20s%s\n' "-k, --kubernetes:" "Use vanilla kubernetes."
-    printf '\t%-20s%s\n' "-o, --openshift:" "Use openshift."
     printf '\t%-20s%s\n' "-l, --local:" "Target local cluster."
-    printf '\t%-20s%s\n' "--dashboard:" "Open dashboard."
-    printf '\t%-20s%s\n' "-h, --help:" "Command help. Please type sc <help> for a list of commands!"
+    printf '\t%-20s%s\n' "--open:" "Open plots."
+    printf '\t%-20s%s\n' "-o, --openshift:" "Use openshift."
+    printf '\t%-20s%s\n' "-P, --prod:" "Sets the target stage to prod. (default is dev)"
+    printf '\t%-20s%s\n' "--reset:" "Reset flag."
+    printf '\t%-20s%s\n' "--setup:" "Setup flag."
+    printf '\t%-20s%s\n' "-T, --test:" "Sets the target stage to test. (default is dev)"
+    printf '\t%-20s%s\n' "--upgrade:" "Upgrade flag."
+    printf '\t%-20s%s\n' "-v, --verbose:" "Verbose flag."
+    printf '\t%-20s%s\n' "-w, --watch:" "Watch supported commands."
+    printf '\t%-20s%s\n' "-y, --yes:" "Assumes yes on prompts."
+    printf '\t%-20s%s\n' "--issuer:" "Set let's encrypt issuer to prod or staging. (default: 'prod')"
+    printf '\t%-20s%s\n' "--resume:" "Resume plots from the given ordinal. (default: '0')"
 }
 
 
@@ -139,54 +139,6 @@ parse_commandline()
             break
         fi
         case "$_key" in
-            -T|--no-test|--test)
-                _arg_test="on"
-                test "${1:0:5}" = "--no-" && _arg_test="off"
-                ;;
-            -T*)
-                _arg_test="on"
-                _next="${_key##-T}"
-                if test -n "$_next" -a "$_next" != "$_key"
-                then
-                    { begins_with_short_option "$_next" && shift && set -- "-T" "-${_next}" "$@"; } || die "The short option '$_key' can't be decomposed to ${_key:0:2} and -${_key:2}, because ${_key:0:2} doesn't accept value and '-${_key:2:1}' doesn't correspond to a short option."
-                fi
-                ;;
-            -P|--no-prod|--prod)
-                _arg_prod="on"
-                test "${1:0:5}" = "--no-" && _arg_prod="off"
-                ;;
-            -P*)
-                _arg_prod="on"
-                _next="${_key##-P}"
-                if test -n "$_next" -a "$_next" != "$_key"
-                then
-                    { begins_with_short_option "$_next" && shift && set -- "-P" "-${_next}" "$@"; } || die "The short option '$_key' can't be decomposed to ${_key:0:2} and -${_key:2}, because ${_key:0:2} doesn't accept value and '-${_key:2:1}' doesn't correspond to a short option."
-                fi
-                ;;
-            -D|--no-dryrun|--dryrun)
-                _arg_dryrun="on"
-                test "${1:0:5}" = "--no-" && _arg_dryrun="off"
-                ;;
-            -D*)
-                _arg_dryrun="on"
-                _next="${_key##-D}"
-                if test -n "$_next" -a "$_next" != "$_key"
-                then
-                    { begins_with_short_option "$_next" && shift && set -- "-D" "-${_next}" "$@"; } || die "The short option '$_key' can't be decomposed to ${_key:0:2} and -${_key:2}, because ${_key:0:2} doesn't accept value and '-${_key:2:1}' doesn't correspond to a short option."
-                fi
-                ;;
-            -v|--no-verbose|--verbose)
-                _arg_verbose="on"
-                test "${1:0:5}" = "--no-" && _arg_verbose="off"
-                ;;
-            -v*)
-                _arg_verbose="on"
-                _next="${_key##-v}"
-                if test -n "$_next" -a "$_next" != "$_key"
-                then
-                    { begins_with_short_option "$_next" && shift && set -- "-v" "-${_next}" "$@"; } || die "The short option '$_key' can't be decomposed to ${_key:0:2} and -${_key:2}, because ${_key:0:2} doesn't accept value and '-${_key:2:1}' doesn't correspond to a short option."
-                fi
-                ;;
             -a|--no-all|--all)
                 _arg_all="on"
                 test "${1:0:5}" = "--no-" && _arg_all="off"
@@ -199,16 +151,28 @@ parse_commandline()
                     { begins_with_short_option "$_next" && shift && set -- "-a" "-${_next}" "$@"; } || die "The short option '$_key' can't be decomposed to ${_key:0:2} and -${_key:2}, because ${_key:0:2} doesn't accept value and '-${_key:2:1}' doesn't correspond to a short option."
                 fi
                 ;;
-            -y|--no-yes|--yes)
-                _arg_yes="on"
-                test "${1:0:5}" = "--no-" && _arg_yes="off"
+            --no-compose|--compose)
+                _arg_compose="on"
+                test "${1:0:5}" = "--no-" && _arg_compose="off"
                 ;;
-            -y*)
-                _arg_yes="on"
-                _next="${_key##-y}"
+            --no-dashboard|--dashboard)
+                _arg_dashboard="on"
+                test "${1:0:5}" = "--no-" && _arg_dashboard="off"
+                ;;
+            --no-delete|--delete)
+                _arg_delete="on"
+                test "${1:0:5}" = "--no-" && _arg_delete="off"
+                ;;
+            -D|--no-dryrun|--dryrun)
+                _arg_dryrun="on"
+                test "${1:0:5}" = "--no-" && _arg_dryrun="off"
+                ;;
+            -D*)
+                _arg_dryrun="on"
+                _next="${_key##-D}"
                 if test -n "$_next" -a "$_next" != "$_key"
                 then
-                    { begins_with_short_option "$_next" && shift && set -- "-y" "-${_next}" "$@"; } || die "The short option '$_key' can't be decomposed to ${_key:0:2} and -${_key:2}, because ${_key:0:2} doesn't accept value and '-${_key:2:1}' doesn't correspond to a short option."
+                    { begins_with_short_option "$_next" && shift && set -- "-D" "-${_next}" "$@"; } || die "The short option '$_key' can't be decomposed to ${_key:0:2} and -${_key:2}, because ${_key:0:2} doesn't accept value and '-${_key:2:1}' doesn't correspond to a short option."
                 fi
                 ;;
             -E|--no-expose|--expose)
@@ -223,61 +187,21 @@ parse_commandline()
                     { begins_with_short_option "$_next" && shift && set -- "-E" "-${_next}" "$@"; } || die "The short option '$_key' can't be decomposed to ${_key:0:2} and -${_key:2}, because ${_key:0:2} doesn't accept value and '-${_key:2:1}' doesn't correspond to a short option."
                 fi
                 ;;
-            --no-open|--open)
-                _arg_open="on"
-                test "${1:0:5}" = "--no-" && _arg_open="off"
+            -h|--no-help|--help)
+                _arg_help="on"
+                test "${1:0:5}" = "--no-" && _arg_help="off"
                 ;;
-            -w|--no-watch|--watch)
-                _arg_watch="on"
-                test "${1:0:5}" = "--no-" && _arg_watch="off"
-                ;;
-            -w*)
-                _arg_watch="on"
-                _next="${_key##-w}"
+            -h*)
+                _arg_help="on"
+                _next="${_key##-h}"
                 if test -n "$_next" -a "$_next" != "$_key"
                 then
-                    { begins_with_short_option "$_next" && shift && set -- "-w" "-${_next}" "$@"; } || die "The short option '$_key' can't be decomposed to ${_key:0:2} and -${_key:2}, because ${_key:0:2} doesn't accept value and '-${_key:2:1}' doesn't correspond to a short option."
+                    { begins_with_short_option "$_next" && shift && set -- "-h" "-${_next}" "$@"; } || die "The short option '$_key' can't be decomposed to ${_key:0:2} and -${_key:2}, because ${_key:0:2} doesn't accept value and '-${_key:2:1}' doesn't correspond to a short option."
                 fi
                 ;;
             --no-init|--init)
                 _arg_init="on"
                 test "${1:0:5}" = "--no-" && _arg_init="off"
-                ;;
-            --no-setup|--setup)
-                _arg_setup="on"
-                test "${1:0:5}" = "--no-" && _arg_setup="off"
-                ;;
-            --no-upgrade|--upgrade)
-                _arg_upgrade="on"
-                test "${1:0:5}" = "--no-" && _arg_upgrade="off"
-                ;;
-            --no-reset|--reset)
-                _arg_reset="on"
-                test "${1:0:5}" = "--no-" && _arg_reset="off"
-                ;;
-            --no-delete|--delete)
-                _arg_delete="on"
-                test "${1:0:5}" = "--no-" && _arg_delete="off"
-                ;;
-            --resume)
-                test $# -lt 2 && die "Missing value for the optional argument '$_key'." 1
-                _arg_resume="$2"
-                shift
-                ;;
-            --resume=*)
-                _arg_resume="${_key##--resume=}"
-                ;;
-            --issuer)
-                test $# -lt 2 && die "Missing value for the optional argument '$_key'." 1
-                _arg_issuer="$2"
-                shift
-                ;;
-            --issuer=*)
-                _arg_issuer="${_key##--issuer=}"
-                ;;
-            --no-compose|--compose)
-                _arg_compose="on"
-                test "${1:0:5}" = "--no-" && _arg_compose="off"
                 ;;
             --no-insert|--insert)
                 _arg_insert="on"
@@ -299,18 +223,6 @@ parse_commandline()
                     { begins_with_short_option "$_next" && shift && set -- "-k" "-${_next}" "$@"; } || die "The short option '$_key' can't be decomposed to ${_key:0:2} and -${_key:2}, because ${_key:0:2} doesn't accept value and '-${_key:2:1}' doesn't correspond to a short option."
                 fi
                 ;;
-            -o|--no-openshift|--openshift)
-                _arg_openshift="on"
-                test "${1:0:5}" = "--no-" && _arg_openshift="off"
-                ;;
-            -o*)
-                _arg_openshift="on"
-                _next="${_key##-o}"
-                if test -n "$_next" -a "$_next" != "$_key"
-                then
-                    { begins_with_short_option "$_next" && shift && set -- "-o" "-${_next}" "$@"; } || die "The short option '$_key' can't be decomposed to ${_key:0:2} and -${_key:2}, because ${_key:0:2} doesn't accept value and '-${_key:2:1}' doesn't correspond to a short option."
-                fi
-                ;;
             -l|--no-local|--local)
                 _arg_local="on"
                 test "${1:0:5}" = "--no-" && _arg_local="off"
@@ -323,21 +235,109 @@ parse_commandline()
                     { begins_with_short_option "$_next" && shift && set -- "-l" "-${_next}" "$@"; } || die "The short option '$_key' can't be decomposed to ${_key:0:2} and -${_key:2}, because ${_key:0:2} doesn't accept value and '-${_key:2:1}' doesn't correspond to a short option."
                 fi
                 ;;
-            --no-dashboard|--dashboard)
-                _arg_dashboard="on"
-                test "${1:0:5}" = "--no-" && _arg_dashboard="off"
+            --no-open|--open)
+                _arg_open="on"
+                test "${1:0:5}" = "--no-" && _arg_open="off"
                 ;;
-            -h|--no-help|--help)
-                _arg_help="on"
-                test "${1:0:5}" = "--no-" && _arg_help="off"
+            -o|--no-openshift|--openshift)
+                _arg_openshift="on"
+                test "${1:0:5}" = "--no-" && _arg_openshift="off"
                 ;;
-            -h*)
-                _arg_help="on"
-                _next="${_key##-h}"
+            -o*)
+                _arg_openshift="on"
+                _next="${_key##-o}"
                 if test -n "$_next" -a "$_next" != "$_key"
                 then
-                    { begins_with_short_option "$_next" && shift && set -- "-h" "-${_next}" "$@"; } || die "The short option '$_key' can't be decomposed to ${_key:0:2} and -${_key:2}, because ${_key:0:2} doesn't accept value and '-${_key:2:1}' doesn't correspond to a short option."
+                    { begins_with_short_option "$_next" && shift && set -- "-o" "-${_next}" "$@"; } || die "The short option '$_key' can't be decomposed to ${_key:0:2} and -${_key:2}, because ${_key:0:2} doesn't accept value and '-${_key:2:1}' doesn't correspond to a short option."
                 fi
+                ;;
+            -P|--no-prod|--prod)
+                _arg_prod="on"
+                test "${1:0:5}" = "--no-" && _arg_prod="off"
+                ;;
+            -P*)
+                _arg_prod="on"
+                _next="${_key##-P}"
+                if test -n "$_next" -a "$_next" != "$_key"
+                then
+                    { begins_with_short_option "$_next" && shift && set -- "-P" "-${_next}" "$@"; } || die "The short option '$_key' can't be decomposed to ${_key:0:2} and -${_key:2}, because ${_key:0:2} doesn't accept value and '-${_key:2:1}' doesn't correspond to a short option."
+                fi
+                ;;
+            --no-reset|--reset)
+                _arg_reset="on"
+                test "${1:0:5}" = "--no-" && _arg_reset="off"
+                ;;
+            --no-setup|--setup)
+                _arg_setup="on"
+                test "${1:0:5}" = "--no-" && _arg_setup="off"
+                ;;
+            -T|--no-test|--test)
+                _arg_test="on"
+                test "${1:0:5}" = "--no-" && _arg_test="off"
+                ;;
+            -T*)
+                _arg_test="on"
+                _next="${_key##-T}"
+                if test -n "$_next" -a "$_next" != "$_key"
+                then
+                    { begins_with_short_option "$_next" && shift && set -- "-T" "-${_next}" "$@"; } || die "The short option '$_key' can't be decomposed to ${_key:0:2} and -${_key:2}, because ${_key:0:2} doesn't accept value and '-${_key:2:1}' doesn't correspond to a short option."
+                fi
+                ;;
+            --no-upgrade|--upgrade)
+                _arg_upgrade="on"
+                test "${1:0:5}" = "--no-" && _arg_upgrade="off"
+                ;;
+            -v|--no-verbose|--verbose)
+                _arg_verbose="on"
+                test "${1:0:5}" = "--no-" && _arg_verbose="off"
+                ;;
+            -v*)
+                _arg_verbose="on"
+                _next="${_key##-v}"
+                if test -n "$_next" -a "$_next" != "$_key"
+                then
+                    { begins_with_short_option "$_next" && shift && set -- "-v" "-${_next}" "$@"; } || die "The short option '$_key' can't be decomposed to ${_key:0:2} and -${_key:2}, because ${_key:0:2} doesn't accept value and '-${_key:2:1}' doesn't correspond to a short option."
+                fi
+                ;;
+            -w|--no-watch|--watch)
+                _arg_watch="on"
+                test "${1:0:5}" = "--no-" && _arg_watch="off"
+                ;;
+            -w*)
+                _arg_watch="on"
+                _next="${_key##-w}"
+                if test -n "$_next" -a "$_next" != "$_key"
+                then
+                    { begins_with_short_option "$_next" && shift && set -- "-w" "-${_next}" "$@"; } || die "The short option '$_key' can't be decomposed to ${_key:0:2} and -${_key:2}, because ${_key:0:2} doesn't accept value and '-${_key:2:1}' doesn't correspond to a short option."
+                fi
+                ;;
+            -y|--no-yes|--yes)
+                _arg_yes="on"
+                test "${1:0:5}" = "--no-" && _arg_yes="off"
+                ;;
+            -y*)
+                _arg_yes="on"
+                _next="${_key##-y}"
+                if test -n "$_next" -a "$_next" != "$_key"
+                then
+                    { begins_with_short_option "$_next" && shift && set -- "-y" "-${_next}" "$@"; } || die "The short option '$_key' can't be decomposed to ${_key:0:2} and -${_key:2}, because ${_key:0:2} doesn't accept value and '-${_key:2:1}' doesn't correspond to a short option."
+                fi
+                ;;
+            --issuer)
+                test $# -lt 2 && die "Missing value for the optional argument '$_key'." 1
+                _arg_issuer="$2"
+                shift
+                ;;
+            --issuer=*)
+                _arg_issuer="${_key##--issuer=}"
+                ;;
+            --resume)
+                test $# -lt 2 && die "Missing value for the optional argument '$_key'." 1
+                _arg_resume="$2"
+                shift
+                ;;
+            --resume=*)
+                _arg_resume="${_key##--resume=}"
                 ;;
             *)
                 _last_positional="$1"
