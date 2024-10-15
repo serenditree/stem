@@ -131,7 +131,7 @@ function sc_help() {
     printf '\t%-20s%s\n' "deploy [svc]:" "Deploys all or individual services to the local stack."
     printf '\t%-20s%s\n' "env:" "Prints global environment variables based on context."
     printf '\t%-20s%s\n' "git [--] <cmd>:" "Execute arbitrary git commands."
-    printf '\t%-20s%s\n' "health|hc:" "Runs health-checks on services. [--watch]"
+    printf '\t%-20s%s\n' "health:" "Runs health-checks on services. [--watch]"
     printf '\t%-20s%s\n' "loc:" "Prints lines of code."
     printf '\t%-20s%s\n' "login <reg>:" "Login to configured registries."
     printf '\t%-20s%s\n' "logs|log [svc]:" "Prints logs of all or individual services on the local pod."
