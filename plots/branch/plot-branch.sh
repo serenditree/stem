@@ -121,6 +121,9 @@ elif [[ " $* " =~ " up " ]]; then
         podman cp ${_VOLUME_SRC_SRC}/. ${_CONTAINER}:${_VOLUME_DST_SRC}
         echo "Starting build..."
         podman exec ${_CONTAINER} touch ${_VOLUME_DST_SRC}/release
+########################################################################################################################
+# SETUP
+########################################################################################################################
     elif [[ -n "$_ARG_SETUP" ]]; then
         sc_heading 1 "Setting up branch"
 
