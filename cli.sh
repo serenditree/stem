@@ -679,26 +679,34 @@ cluster)
             printf '\n\t%-20s%s\n' "--init" "Initialize terraform and create assets for openshift-install."
             printf '\n\t%-20s%s\n' "--setup" "Setup of the cluster in the current context."
             printf '\n\t%-20s%s\n' "--upgrade" "Upgrades the cluster in the current context."
-            printf '\t%-20s%s\n' "--imperative" "Use imperative scripts for cloud setup."
         elif [[ -n "$_ST_CONTEXT"  ]]; then
-            time sc_plots_do "$(sc_args_to_pattern ${_ARG_LEFTOVERS[*]})" up
+            if [[ -n "$_ARG_SETUP" ]]; then
+                time sc_plots_do "$(sc_args_to_pattern ${_ARG_LEFTOVERS[*]})" up
+            elif [[ -z "$_ARG_LEFTOVERS" ]]; then
+                time sc_cluster_toggle start
+            fi
         else
             echo "Context not set. Canceling..."
         fi
         ;;
     down)
         if [[ -n "$_ARG_HELP" ]]; then
-            _help_message="sc cluster down"
-            _help_message+="[--reset|--delete] [--imperative]"
+            _help_message="sc cluster down [component]"
+            _help_message+="[--reset|--delete]"
             sc_heading 2 "$_help_message"
             echo "Stops, deletes or resets the cluster in context. "
             printf '\t%-20s%s\n' "--reset" "Resets the cluster in the current context."
             printf '\t%-20s%s\n' "--delete" "Deletes the cluster in the current context."
-            printf '\t%-20s%s\n' "--imperative" "Use imperative scripts for cloud deletion."
-        elif [[ -n "$_ARG_DELETE" ]]; then
-            time sc_plots_do "terra-base" down
-        else
-            time sc_plots_do "$(sc_args_to_pattern ${_ARG_LEFTOVERS[*]})" down
+        elif [[ -n "$_ST_CONTEXT"  ]]; then
+            if [[ -n "$_ARG_DELETE" ]]; then
+                time sc_plots_do "terra-base" down
+            elif [[ -z "$_ARG_LEFTOVERS" ]]; then
+                time sc_cluster_toggle stop
+            else
+                time sc_plots_do "$(sc_args_to_pattern ${_ARG_LEFTOVERS[*]})" down
+            fi
+         else
+            echo "Context not set. Canceling..."
         fi
         ;;
     clean)

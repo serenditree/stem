@@ -258,3 +258,12 @@ function sc_cluster_expose() {
     done
     [[ "$_used_ports" != "none" ]] && echo -e "\nCheck logs in ${_logs}!"
 }
+
+# Starts or stops the cluster.
+# $1: Start or stop
+function sc_cluster_toggle() {
+    local -r _toggle=$1
+    for _instance in $(exo compute instance list --zone "$_ST_ZONE" --output-template '{{.ID}}'); do
+        exo compute instance "$_toggle" "$_instance" --force --output-format json | jq
+    done
+}
