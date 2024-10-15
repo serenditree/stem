@@ -66,7 +66,7 @@ that processes command-line arguments and calls the functions of dedicated scrip
 ```
 > sc help
 Serenditree CLI
-Usage:  sc [-T|--test] [-P|--prod] [-D|--dryrun] [-v|--verbose] [-a|--all] [-y|--yes] [-E|--expose] [--open] [-w|--watch] [--init] [--setup] [--upgrade] [--reset] [--delete] [--imperative] [--resume <arg>] [--issuer <arg>] [--compose] [--insert] [--integration] [-k|--kubernetes] [-o|--openshift] [-l|--local] [--dashboard] [-h|--help] [--] <command> ... 
+Usage:  sc [-T|--test] [-P|--prod] [-D|--dryrun] [-v|--verbose] [-a|--all] [-y|--yes] [-E|--expose] [--open] [-w|--watch] [--init] [--setup] [--upgrade] [--reset] [--delete] [--resume <arg>] [--issuer <arg>] [--compose] [--insert] [--integration] [-k|--kubernetes] [-o|--openshift] [-l|--local] [--dashboard] [-h|--help] [--] <command> ... 
 
 	<command>:          Command to execute. Please type sc <help> for a list of commands!
 	... :               Other arguments passed to command.
@@ -84,7 +84,6 @@ Usage:  sc [-T|--test] [-P|--prod] [-D|--dryrun] [-v|--verbose] [-a|--all] [-y|-
 	--upgrade:          Upgrade flag.
 	--reset:            Reset flag.
 	--delete:           Deletion flag.
-	--imperative:       Imperative flag.
 	--resume:           Resume plots from the given ordinal. (default: '0')
 	--issuer:           Set let's encrypt issuer to prod or staging. (default: 'prod')
 	--compose:          Run or build for podman-compose.

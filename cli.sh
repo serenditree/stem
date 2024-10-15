@@ -22,7 +22,6 @@ _ST_HELP="Please type 'sc <help>' for a list of commands or $_ST_HELP_DETAIL"
 # ARG_OPTIONAL_BOOLEAN([upgrade],[],[Upgrade flag.])
 # ARG_OPTIONAL_BOOLEAN([reset],[],[Reset flag.])
 # ARG_OPTIONAL_BOOLEAN([delete],[],[Deletion flag.])
-# ARG_OPTIONAL_BOOLEAN([imperative],[],[Imperative flag.])
 # ARG_OPTIONAL_SINGLE([resume],[],[Resume plots from the given ordinal.],[0])
 # ARG_OPTIONAL_SINGLE([issuer],[],[Set let's encrypt issuer to prod or staging.],[prod])
 # ARG_OPTIONAL_BOOLEAN([compose],[],[Run or build for podman-compose.])
@@ -79,7 +78,6 @@ _arg_setup="off"
 _arg_upgrade="off"
 _arg_reset="off"
 _arg_delete="off"
-_arg_imperative="off"
 _arg_resume="0"
 _arg_issuer="prod"
 _arg_compose="off"
@@ -94,7 +92,7 @@ _arg_help="off"
 
 print_help()
 {
-    printf 'Usage: %s [-T|--test] [-P|--prod] [-D|--dryrun] [-v|--verbose] [-a|--all] [-y|--yes] [-E|--expose] [--open] [-w|--watch] [--init] [--setup] [--upgrade] [--reset] [--delete] [--imperative] [--resume <arg>] [--issuer <arg>] [--compose] [--insert] [--integration] [-k|--kubernetes] [-o|--openshift] [-l|--local] [--dashboard] [-h|--help] [--] <command> ... \n' " sc" && echo
+    printf 'Usage: %s [-T|--test] [-P|--prod] [-D|--dryrun] [-v|--verbose] [-a|--all] [-y|--yes] [-E|--expose] [--open] [-w|--watch] [--init] [--setup] [--upgrade] [--reset] [--delete] [--resume <arg>] [--issuer <arg>] [--compose] [--insert] [--integration] [-k|--kubernetes] [-o|--openshift] [-l|--local] [--dashboard] [-h|--help] [--] <command> ... \n' " sc" && echo
     printf '\t%-20s%s\n' "<command>:" "Command to execute. Please type sc <help> for a list of commands!"
     printf '\t%-20s%s\n' "... :" "Other arguments passed to command."
     printf '\t%-20s%s\n' "-T, --test:" "Sets the target stage to test. (default is dev)"
@@ -111,7 +109,6 @@ print_help()
     printf '\t%-20s%s\n' "--upgrade:" "Upgrade flag."
     printf '\t%-20s%s\n' "--reset:" "Reset flag."
     printf '\t%-20s%s\n' "--delete:" "Deletion flag."
-    printf '\t%-20s%s\n' "--imperative:" "Imperative flag."
     printf '\t%-20s%s\n' "--resume:" "Resume plots from the given ordinal. (default: '0')"
     printf '\t%-20s%s\n' "--issuer:" "Set let's encrypt issuer to prod or staging. (default: 'prod')"
     printf '\t%-20s%s\n' "--compose:" "Run or build for podman-compose."
@@ -261,10 +258,6 @@ parse_commandline()
             --no-delete|--delete)
                 _arg_delete="on"
                 test "${1:0:5}" = "--no-" && _arg_delete="off"
-                ;;
-            --no-imperative|--imperative)
-                _arg_imperative="on"
-                test "${1:0:5}" = "--no-" && _arg_imperative="off"
                 ;;
             --resume)
                 test $# -lt 2 && die "Missing value for the optional argument '$_key'." 1
@@ -421,7 +414,6 @@ export _ARG_SETUP=${_arg_setup/off/}
 export _ARG_UPGRADE=${_arg_upgrade/off/}
 export _ARG_RESET=${_arg_reset/off/}
 export _ARG_DELETE=${_arg_delete/off/}
-export _ARG_IMPERATIVE=${_arg_imperative/off/}
 export _ARG_WATCH=${_arg_watch/off/}
 export _ARG_RESUME=$_arg_resume
 export _ARG_ISSUER=$_arg_issuer
@@ -673,7 +665,7 @@ cluster)
     up)
         if [[ -n "$_ARG_HELP" ]]; then
             _help_message="sc cluster up [component] "
-            _help_message+="[--init|--setup|--upgrade] [--imperative]"
+            _help_message+="[--init|--setup|--upgrade]"
             sc_heading 2 "$_help_message"
             echo "Starts or installs all or defined components."
             printf '\n\t%-20s%s\n' "--init" "Initialize terraform and create assets for openshift-install."

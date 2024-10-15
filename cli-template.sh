@@ -37,7 +37,6 @@ echo "Done"
 # ARG_OPTIONAL_BOOLEAN([upgrade], [], [Upgrade flag.])
 # ARG_OPTIONAL_BOOLEAN([reset], [], [Reset flag.])
 # ARG_OPTIONAL_BOOLEAN([delete], [], [Deletion flag.])
-# ARG_OPTIONAL_BOOLEAN([imperative], [], [Imperative flag.])
 # ARG_OPTIONAL_SINGLE([resume], [], [Resume plots from the given ordinal.], [0])
 # ARG_OPTIONAL_SINGLE([issuer], [], [Set let's encrypt issuer to prod or staging.], [prod])
 # ARG_OPTIONAL_BOOLEAN([compose], [], [Run or build for podman-compose.])
@@ -81,7 +80,6 @@ export _ARG_SETUP=${_arg_setup/off/}
 export _ARG_UPGRADE=${_arg_upgrade/off/}
 export _ARG_RESET=${_arg_reset/off/}
 export _ARG_DELETE=${_arg_delete/off/}
-export _ARG_IMPERATIVE=${_arg_imperative/off/}
 export _ARG_WATCH=${_arg_watch/off/}
 export _ARG_RESUME=$_arg_resume
 export _ARG_ISSUER=$_arg_issuer
@@ -333,13 +331,12 @@ cluster)
     up)
         if [[ -n "$_ARG_HELP" ]]; then
             _help_message="sc cluster up [component] "
-            _help_message+="[--init|--setup|--upgrade] [--imperative]"
+            _help_message+="[--init|--setup|--upgrade]"
             sc_heading 2 "$_help_message"
             echo "Starts or installs all or defined components."
             printf '\n\t%-20s%s\n' "--init" "Initialize terraform and create assets for openshift-install."
             printf '\n\t%-20s%s\n' "--setup" "Setup of the cluster in the current context."
             printf '\n\t%-20s%s\n' "--upgrade" "Upgrades the cluster in the current context."
-            printf '\t%-20s%s\n' "--imperative" "Use imperative scripts for cloud setup."
         elif [[ -n "$_ST_CONTEXT"  ]]; then
             if [[ -n "$_ARG_SETUP" ]]; then
                 time sc_plots_do "$(sc_args_to_pattern ${_ARG_LEFTOVERS[*]})" up
