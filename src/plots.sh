@@ -100,41 +100,17 @@ function sc_plots_template() {
     local -r _name="$2"
     local -r _path="$3"
     local -r _plot="${_path}/plot.sh"
+    local _pipe="highlight -S shellscript -O xterm256 -s rdark"
 
-    echo "Creating plot '${_name}' with ordinal '${_ordinal}' at '${_plot}'..."
+    echo -e "\nCreating plot '${_name}' with ordinal '${_ordinal}' at '${_plot}'..."
     if [[ -z "$_ARG_DRYRUN" ]]; then
+        _pipe="tee ${_plot}"
         mkdir -p "$_path"
-        cat <<EOF >"${_plot}"
-#!/usr/bin/env bash
-########################################################################################################################
-# $(tr '[:lower:]' '[:upper:]' <<<$_name)
-########################################################################################################################
-_SERVICE=$_name
-_ORDINAL=$_ordinal
-
-_IMAGE=serenditree/\$_SERVICE
-_TAG=latest
-
-if [[ " \$* " =~ " info " ]] || [[ -n "\$_ARG_DRYRUN" ]]; then
-    echo "\${_ORDINAL} \${_SERVICE} \${_IMAGE} \${_TAG} \$(realpath \$0)"
-fi
-########################################################################################################################
-# BUILD
-########################################################################################################################
-if [[ " \$* " =~ " build " ]]; then
-    sc_heading 1 "Building \${_IMAGE}:\${_TAG}"
-########################################################################################################################
-# UP
-########################################################################################################################
-elif [[ " \$* " =~ " up " ]]; then
-    sc_heading 1 "Starting \${_SERVICE}:\${_TAG}"
-    sc_heading 1 "Setting up \${_SERVICE}"
-########################################################################################################################
-# DOWN
-########################################################################################################################
-elif [[ " \$* " =~ " down " ]]; then
-    sc_heading 1 "Deleting \${_SERVICE}"
-fi
-EOF
     fi
+
+    sed "${_ST_HOME_STEM}/rc/templates/plot.tpl" \
+        -e "s/<HEADER>/$(tr '[:lower:]' '[:upper:]' <<<$_name)/" \
+        -e "s/<NAME>/$_name/" \
+        -e "s/<ORDINAL>/$_ordinal/" |
+        $_pipe
 }
