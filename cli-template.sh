@@ -36,6 +36,7 @@ echo "Done"
 # ARG_OPTIONAL_BOOLEAN([local], [l], [Target local cluster.])
 # ARG_OPTIONAL_BOOLEAN([open], [], [Open plots.])
 # ARG_OPTIONAL_BOOLEAN([openshift], [o], [Use openshift.])
+# ARG_OPTIONAL_BOOLEAN([optional], [], [Include optional plots.])
 # ARG_OPTIONAL_BOOLEAN([prod], [P], [Sets the target stage to prod. (default is dev)])
 # ARG_OPTIONAL_BOOLEAN([reset], [], [Reset flag.])
 # ARG_OPTIONAL_BOOLEAN([setup], [], [Setup flag.])
@@ -77,6 +78,7 @@ export _ARG_OPENSHIFT=${_arg_openshift/off/}
 
 export _ARG_DELETE=${_arg_delete/off/}
 export _ARG_INIT=${_arg_init/off/}
+export _ARG_OPTIONAL=${_arg_optional/off/}
 export _ARG_RESET=${_arg_reset/off/}
 export _ARG_RESUME=$_arg_resume
 export _ARG_SETUP=${_arg_setup/off/}

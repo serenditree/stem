@@ -21,6 +21,7 @@ _ST_HELP="Please type 'sc <help>' for a list of commands or $_ST_HELP_DETAIL"
 # ARG_OPTIONAL_BOOLEAN([local],[l],[Target local cluster.])
 # ARG_OPTIONAL_BOOLEAN([open],[],[Open plots.])
 # ARG_OPTIONAL_BOOLEAN([openshift],[o],[Use openshift.])
+# ARG_OPTIONAL_BOOLEAN([optional],[],[Include optional plots.])
 # ARG_OPTIONAL_BOOLEAN([prod],[P],[Sets the target stage to prod. (default is dev)])
 # ARG_OPTIONAL_BOOLEAN([reset],[],[Reset flag.])
 # ARG_OPTIONAL_BOOLEAN([setup],[],[Setup flag.])
@@ -77,6 +78,7 @@ _arg_kubernetes="off"
 _arg_local="off"
 _arg_open="off"
 _arg_openshift="off"
+_arg_optional="off"
 _arg_prod="off"
 _arg_reset="off"
 _arg_setup="off"
@@ -91,7 +93,7 @@ _arg_resume="0"
 
 print_help()
 {
-    printf 'Usage: %s [-a|--all] [--compose] [--dashboard] [--delete] [-D|--dryrun] [-E|--expose] [-h|--help] [--init] [--insert] [--integration] [-k|--kubernetes] [-l|--local] [--open] [-o|--openshift] [-P|--prod] [--reset] [--setup] [-T|--test] [--upgrade] [-v|--verbose] [-w|--watch] [-y|--yes] [--issuer <arg>] [--resume <arg>] [--] <command> ... \n' " sc" && echo
+    printf 'Usage: %s [-a|--all] [--compose] [--dashboard] [--delete] [-D|--dryrun] [-E|--expose] [-h|--help] [--init] [--insert] [--integration] [-k|--kubernetes] [-l|--local] [--open] [-o|--openshift] [--optional] [-P|--prod] [--reset] [--setup] [-T|--test] [--upgrade] [-v|--verbose] [-w|--watch] [-y|--yes] [--issuer <arg>] [--resume <arg>] [--] <command> ... \n' " sc" && echo
     printf '\t%-20s%s\n' "<command>:" "Command to execute. Please type sc <help> for a list of commands!"
     printf '\t%-20s%s\n' "... :" "Other arguments passed to command."
     printf '\t%-20s%s\n' "-a, --all:" "All..."
@@ -108,6 +110,7 @@ print_help()
     printf '\t%-20s%s\n' "-l, --local:" "Target local cluster."
     printf '\t%-20s%s\n' "--open:" "Open plots."
     printf '\t%-20s%s\n' "-o, --openshift:" "Use openshift."
+    printf '\t%-20s%s\n' "--optional:" "Include optional plots."
     printf '\t%-20s%s\n' "-P, --prod:" "Sets the target stage to prod. (default is dev)"
     printf '\t%-20s%s\n' "--reset:" "Reset flag."
     printf '\t%-20s%s\n' "--setup:" "Setup flag."
@@ -249,6 +252,10 @@ parse_commandline()
                 then
                     { begins_with_short_option "$_next" && shift && set -- "-o" "-${_next}" "$@"; } || die "The short option '$_key' can't be decomposed to ${_key:0:2} and -${_key:2}, because ${_key:0:2} doesn't accept value and '-${_key:2:1}' doesn't correspond to a short option."
                 fi
+                ;;
+            --no-optional|--optional)
+                _arg_optional="on"
+                test "${1:0:5}" = "--no-" && _arg_optional="off"
                 ;;
             -P|--no-prod|--prod)
                 _arg_prod="on"
@@ -411,6 +418,7 @@ export _ARG_OPENSHIFT=${_arg_openshift/off/}
 
 export _ARG_DELETE=${_arg_delete/off/}
 export _ARG_INIT=${_arg_init/off/}
+export _ARG_OPTIONAL=${_arg_optional/off/}
 export _ARG_RESET=${_arg_reset/off/}
 export _ARG_RESUME=$_arg_resume
 export _ARG_SETUP=${_arg_setup/off/}
