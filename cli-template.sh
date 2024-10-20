@@ -48,9 +48,10 @@ echo "Done"
 # ARG_OPTIONAL_SINGLE([issuer], [], [Set let's encrypt issuer to prod or staging.], [prod])
 # ARG_OPTIONAL_SINGLE([resume], [], [Resume plots from the given ordinal.], [0])
 # ARG_LEFTOVERS([Other arguments passed to command.])
-# ARGBASH_SET_INDENT([    ])
-# ARG_POSITIONAL_DOUBLEDASH()
 # ARG_DEFAULTS_POS()
+# ARG_RESTRICT_VALUES([no-any-options])
+# ARG_POSITIONAL_DOUBLEDASH()
+# ARGBASH_SET_INDENT([    ])
 # ARGBASH_GO
 # [
 trap 'popd &>/dev/null || exit 1' EXIT
