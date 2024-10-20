@@ -55,40 +55,21 @@ export -f sc_context_init_kube
 
 # Adds noop cluster and user.
 function sc_context_init_noop() {
-    cat > /tmp/openssl.cnf <<EOF
-[req]
-default_bits       = 2048
-default_md         = sha256
-distinguished_name = req_distinguished_name
-x509_extensions    = v3_ca
-prompt             = no
+    local -r _tmp_key=/tmp/key.pem
+    local -r _tmp_cert=/tmp/cert.pem
 
-[req_distinguished_name]
-C  = AT
-ST = Vienna
-L  = Vienna
-O  = Serenditree
-OU = Serenditree
-CN = serenditree.io
-
-[v3_ca]
-subjectKeyIdentifier=hash
-authorityKeyIdentifier=keyid:always,issuer:always
-basicConstraints = critical, CA:true
-keyUsage = critical, digitalSignature, cRLSign, keyCertSign
-EOF
-    openssl req -x509 -newkey rsa:2048 -days 365 -noenc -config /tmp/openssl.cnf \
-        -keyout /tmp/key.pem \
-        -out /tmp/cert.pem &>/dev/null
+    openssl req -x509 -newkey rsa:2048 -days 365 -noenc -config "${_ST_HOME_STEM}/rc/templates/openssl.cnf" \
+        -keyout $_tmp_key \
+        -out $_tmp_cert &>/dev/null
 
     kubectl config set-cluster "$_ST_CONTEXTS_NOOP" \
         --server https://localhost \
         --embed-certs \
-        --certificate-authority /tmp/cert.pem
+        --certificate-authority $_tmp_cert
     kubectl config set-credentials "$_ST_CONTEXTS_NOOP" \
         --embed-certs \
-        --client-key /tmp/key.pem \
-        --client-certificate /tmp/cert.pem
+        --client-key $_tmp_key \
+        --client-certificate $_tmp_cert
 }
 
 # Initializes available contexts.
@@ -153,9 +134,9 @@ function sc_context() {
         sed -E 's/([* ]+\S+).*/\1/' |
         nl -w1 -s' '
 
-    local _authenticated=1
-    [[ -n "$_ST_CONTEXT" ]] && sc_cluster_status && _authenticated=0
+    local _ready=1
+    [[ -n "$_ST_CONTEXT" ]] && sc_cluster_status && _ready=0
 
-    return $_authenticated
+    return $_ready
 }
 export -f sc_context
