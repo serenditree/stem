@@ -75,16 +75,16 @@ function sc_status_env() {
 # Prints an overview of the development environment.
 function sc_status() {
     sc_heading 1 "Cluster Context"
-    sc_context && local -r _authenticated=on
+    sc_context && local -r _ready=on
     [[ -n "$_ST_CONTEXT" ]] && echo "Cluster domain: $(sc_context_cluster_domain)"
 
-    sc_heading 1 n "Cluster"
+    sc_heading 1 n "Local Cluster"
     if [[ -n "${_ST_CONTEXT_KUBERNETES}${_ST_CONTEXT_KUBERNETES_LOCAL}" ]]; then
         minikube config view
     else
         crc config view
     fi
-    if [[ -n "$_authenticated" ]];then
+    if [[ -n "$_ready" ]];then
         echo && sc_heading 2 Pods
         kubectl get pods --all-namespaces --output wide
         echo && sc_heading 2 Apps

@@ -40,17 +40,27 @@ function sc_cluster_status() {
         local -r _request_timeout='--request-timeout=800ms'
     fi
 
-    echo -en "\nChecking status..."
-    local -r _status="$(kubectl api-resources $_request_timeout 2>&1 | grep -Eom1 'true')"
+    echo -en "\nChecking control plane..."
+    local -r _status="$(kubectl --context $_ST_CONTEXT api-resources $_request_timeout 2>&1 | grep -Eom1 'true')"
     if [[ "$_status" == "true" ]]; then
         sc_heading 2 "up"
-        local -r _authenticated=0
+
+        echo -en "Checking nodes..."
+        local -r _nodes=$(kubectl get node --no-headers | wc -l)
+        local -r _ready=$(kubectl get node --no-headers | grep -c ' Ready ')
+        if [[ $_ready -eq $_nodes ]]; then
+            sc_heading 2 "ok"
+            local -r _cluster_ready=0
+        else
+            echo "${_BOLD}warning:${_NORMAL} ${_ready}/${_nodes} nodes ready"
+            local -r _cluster_ready=1
+        fi
     else
         sc_heading 2 "down"
-        local -r _authenticated=1
+        local -r _cluster_ready=1
     fi
 
-    return $_authenticated
+    return $_cluster_ready
 }
 export -f sc_cluster_status
 
@@ -266,4 +276,13 @@ function sc_cluster_toggle() {
     for _instance in $(exo compute instance list --zone "$_ST_ZONE" --output-template '{{.ID}}'); do
         exo compute instance "$_toggle" "$_instance" --force --output-format json | jq
     done
+    if [[ "$_toggle" == "start" ]] && [[ -n "$_ARG_WATCH" ]]; then
+        local -r _lines=$(kubectl get pod --all-namespaces | wc -l)
+        tput civis
+        trap "tput cnorm && tput cud $_lines" EXIT
+        while kubectl get pod --all-namespaces; do
+            sleep 2s
+            tput cuu $_lines
+        done
+    fi
 }
