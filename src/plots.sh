@@ -15,7 +15,7 @@ function sc_plots() {
             bash ./plot.sh info
         fi
         popd >/dev/null || exit 1
-    done; } | grep -E "$_pattern" | sort -n -k1 | tail -n +$((_ARG_RESUME + 1))
+    done; } | grep -E "$_pattern" | sort -n -k1 | sed -En "/\s${_ARG_RESUME}\s/,\$p"
 }
 
 # Prints or opens available plots.

@@ -46,7 +46,7 @@ echo "Done"
 # ARG_OPTIONAL_BOOLEAN([watch], [w], [Watch supported commands.])
 # ARG_OPTIONAL_BOOLEAN([yes], [y], [Assumes yes on prompts.])
 # ARG_OPTIONAL_SINGLE([issuer], [], [Set let's encrypt issuer to prod or staging.], [prod])
-# ARG_OPTIONAL_SINGLE([resume], [], [Resume plots from the given ordinal.], [0])
+# ARG_OPTIONAL_SINGLE([resume], [], [Resume plots from the given plot.], [.*])
 # ARG_LEFTOVERS([Other arguments passed to command.])
 # ARG_DEFAULTS_POS()
 # ARG_RESTRICT_VALUES([no-any-options])
@@ -149,7 +149,7 @@ function sc_help() {
     printf '\t%-20s%s\n' "update [comp]:" "Update components."
 
     printf '\n\t%s\n' "${_BOLD}Cluster commands:${_NORMAL}"
-    printf '\t%-20s%s\n' "up [comp]:" "Cluster start/setup. [--init|--setup|--upgrade] [--dashboard]"
+    printf '\t%-20s%s\n' "up [comp]:" "Cluster start/setup. [--init|--setup|--upgrade] [--resume] [--dashboard]"
     printf '\t%-20s%s\n\n' "down:" "Cluster stop/deletion. [--reset|--delete]"
 
     printf '\t%-20s%s\n' "certificate|cert:" "Prints certificate information."

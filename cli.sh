@@ -31,7 +31,7 @@ _ST_HELP="Please type 'sc <help>' for a list of commands or $_ST_HELP_DETAIL"
 # ARG_OPTIONAL_BOOLEAN([watch],[w],[Watch supported commands.])
 # ARG_OPTIONAL_BOOLEAN([yes],[y],[Assumes yes on prompts.])
 # ARG_OPTIONAL_SINGLE([issuer],[],[Set let's encrypt issuer to prod or staging.],[prod])
-# ARG_OPTIONAL_SINGLE([resume],[],[Resume plots from the given ordinal.],[0])
+# ARG_OPTIONAL_SINGLE([resume],[],[Resume plots from the given plot.],[.*])
 # ARG_LEFTOVERS([Other arguments passed to command.])
 # ARG_DEFAULTS_POS([])
 # ARG_RESTRICT_VALUES([no-any-options])
@@ -95,7 +95,7 @@ _arg_verbose="off"
 _arg_watch="off"
 _arg_yes="off"
 _arg_issuer="prod"
-_arg_resume="0"
+_arg_resume=".*"
 
 
 print_help()
@@ -127,7 +127,7 @@ print_help()
     printf '\t%-20s%s\n' "-w, --watch:" "Watch supported commands."
     printf '\t%-20s%s\n' "-y, --yes:" "Assumes yes on prompts."
     printf '\t%-20s%s\n' "--issuer:" "Set let's encrypt issuer to prod or staging. (default: 'prod')"
-    printf '\t%-20s%s\n' "--resume:" "Resume plots from the given ordinal. (default: '0')"
+    printf '\t%-20s%s\n' "--resume:" "Resume plots from the given plot. (default: '.*')"
 }
 
 
@@ -500,7 +500,7 @@ function sc_help() {
     printf '\t%-20s%s\n' "update [comp]:" "Update components."
 
     printf '\n\t%s\n' "${_BOLD}Cluster commands:${_NORMAL}"
-    printf '\t%-20s%s\n' "up [comp]:" "Cluster start/setup. [--init|--setup|--upgrade] [--dashboard]"
+    printf '\t%-20s%s\n' "up [comp]:" "Cluster start/setup. [--init|--setup|--upgrade] [--resume] [--dashboard]"
     printf '\t%-20s%s\n\n' "down:" "Cluster stop/deletion. [--reset|--delete]"
 
     printf '\t%-20s%s\n' "certificate|cert:" "Prints certificate information."
