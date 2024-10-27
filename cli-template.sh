@@ -333,7 +333,7 @@ cluster)
             if [[ -n "$_ARG_SETUP" ]]; then
                 time sc_plots_do "$(sc_args_to_pattern ${_ARG_LEFTOVERS[*]})" up
             elif [[ -z "$_ARG_LEFTOVERS" ]]; then
-                time sc_cluster_toggle start
+                time sc_cluster_up
             fi
         else
             echo "Context not set. Canceling..."
@@ -351,7 +351,7 @@ cluster)
             if [[ -n "$_ARG_DELETE" ]]; then
                 time sc_plots_do "terra-base" down
             elif [[ -z "$_ARG_LEFTOVERS" ]]; then
-                time sc_cluster_toggle stop
+                time sc_cluster_down
             else
                 time sc_plots_do "$(sc_args_to_pattern ${_ARG_LEFTOVERS[*]})" down
             fi
