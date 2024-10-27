@@ -6,13 +6,10 @@
 
 # Checks if the project is already set up and creates the namespace if necessary.
 function sc_setup_project() {
-    sc_heading 1 "Setting up project namespace"
+    sc_heading 1 "Setting up project"
 
-    echo -n "Checking cluster status..."
     if [[ -z "$_ARG_DRYRUN" ]]; then
-        if sc_cluster_status &>/dev/null; then
-            sc_heading 2 "up"
-
+        if sc_cluster_status; then
             echo -n "Checking namespace..."
             if ! kubectl get namespace serenditree &>/dev/null; then
                 kubectl create namespace serenditree ||
@@ -21,7 +18,6 @@ function sc_setup_project() {
                 sc_heading 2 "set"
             fi
         else
-            sc_heading 2 "down"
             echo "Aborting..." && exit 1
         fi
     else
