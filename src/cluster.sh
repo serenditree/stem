@@ -41,15 +41,16 @@ function sc_cluster_status() {
     fi
 
     echo -en "\nChecking control plane..."
-    local -r _status="$(kubectl --context $_ST_CONTEXT api-resources $_request_timeout 2>&1 | grep -Eom1 'true')"
-    if [[ "$_status" == "true" ]]; then
+    if kubectl --context $_ST_CONTEXT api-resources $_request_timeout 2>&1 | grep -qm1 'true'; then
         sc_heading 2 "up"
 
         echo -en "Checking nodes..."
         local -r _nodes=$(kubectl get node --no-headers | wc -l)
         local -r _ready=$(kubectl get node --no-headers | grep -c ' Ready ')
-        if [[ $_ready -eq $_nodes ]]; then
-            sc_heading 2 "ok"
+        if [[ -n "$_ARG_SETUP" ]] && [[ $_nodes -gt 0 ]]; then
+            sc_heading 2 "up"
+        elif [[ $_nodes -eq $_ready ]]; then
+            sc_heading 2 "up"
             local -r _cluster_ready=0
         else
             echo "${_BOLD}warning:${_NORMAL} ${_ready}/${_nodes} nodes ready"
