@@ -96,5 +96,12 @@ function sc_login_db() {
             mongosh --username=user --password=user --port=8086  serenditree
         fi
         ;;
+    cache | mem*)
+        if [[ "$_ctx" == "cluster" ]]; then
+            kubectl exec terra-cache-memcached-0 --namespace ingress-nginx -- \
+                sh -c 'echo stats | nc localhost 11211 -q0'
+        else
+            echo "Memcached is only available in cluster contexts."
+        fi
     esac
 }
