@@ -29,12 +29,8 @@ if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "$_ARG_SET
     helm $_ST_HELM_CMD $_ST_HELM_NAME . $_ST_HELM_ARGS | $_ST_HELM_PIPE
 
     if [[ -z "$_ARG_DRYRUN" ]]; then
+        kubectl wait --for condition=ready --all pod --namespace kube-system --timeout 5m
         sc_heading 2 "Setting up policies..."
         helm upgrade cilium . --namespace kube-system --reuse-values --set global.setupPolicies=true
-        sc_heading 2 "Restarting csi..."
-        kubectl --namespace kube-system rollout restart ds exoscale-csi-node
-        kubectl --namespace kube-system rollout status ds exoscale-csi-node --watch
-        sc_heading 2 "Waiting for all pods to become ready..."
-        kubectl wait --for condition=ready --all pod --namespace kube-system --timeout 5m
     fi
 fi
