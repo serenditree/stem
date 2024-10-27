@@ -4,6 +4,7 @@
 # Functions for the interaction with kubernetes clusters.
 ########################################################################################################################
 
+# Deploys the latest versions of branch and leaf.
 function sc_cluster_deploy() {
     local -r _args=$1
     local _apps
@@ -20,6 +21,7 @@ function sc_cluster_deploy() {
     [[ -n "$_apps" ]] && argocd app wait $_apps --health
 }
 
+# Opens kubernetes dashboard if installed.
 function sc_cluster_dashboard() {
     local -r _host=localhost:8001
     echo "Opening dashboard..."
@@ -33,6 +35,7 @@ function sc_cluster_dashboard() {
     fi
 }
 
+# Displays and returns status of control plane and worker nodes.
 function sc_cluster_status() {
     if [[ -n "${_ST_CONTEXT_OPENSHIFT_LOCAL}${_ST_CONTEXT_KUBERNETES_LOCAL}" ]]; then
         local -r _request_timeout='--request-timeout=400ms'
