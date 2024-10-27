@@ -274,16 +274,26 @@ function sc_cluster_expose() {
 # $1: Start or stop
 function sc_cluster_toggle() {
     local -r _toggle=$1
+    local -r _scaler=terra-scale-exoscale-cluster-autoscaler
+
+    if [[ "$_toggle" == "stop" ]] && kubectl get deployment $_scaler --namespace kube-system &>/dev/null; then
+        sc_heading 2 "Disabling autoscaler..."
+        kubectl scale deployment $_scaler --replicas 0 --namespace kube-system
+    fi
+
+    sc_heading 2 "Toggling instances (${_toggle})..."
     for _instance in $(exo compute instance list --zone "$_ST_ZONE" --output-template '{{.ID}}'); do
         exo compute instance "$_toggle" "$_instance" --force --output-format json | jq
     done
-    if [[ "$_toggle" == "start" ]] && [[ -n "$_ARG_WATCH" ]]; then
-        local -r _lines=$(kubectl get pod --all-namespaces | wc -l)
-        tput civis
-        trap "tput cnorm && tput cud $_lines" EXIT
-        while kubectl get pod --all-namespaces; do
-            sleep 2s
-            tput cuu $_lines
-        done
+
+    if [[ "$_toggle" == "start" ]]; then
+        sc_heading 2 "Waiting for all pods become ready..."
+        kubectl wait --for condition=ready --all pod \
+            --field-selector status.phase==Running \
+            --all-namespaces \
+            --timeout 10m
+        if kubectl get deployment $_scaler --namespace kube-system &>/dev/null; then
+            sc_prompt "Enable autoscaler?" kubectl scale deployment $_scaler --replicas 1 --namespace kube-system
+        fi
     fi
 }
