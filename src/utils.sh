@@ -53,7 +53,7 @@ export -f sc_prompt
 # Adds bash-completion script to /etc/bash_completion.d/.
 function sc_completion() {
     if [[ -n "$_ARG_ALL" ]]; then
-        for _app in kubectl oc crc helm tkn; do
+        for _app in oc crc; do
             sc_heading 1 $_app
             command -v $_app && $_app completion bash | sudo tee "/etc/bash_completion.d/${_app}"
         done
@@ -78,14 +78,21 @@ function sc_completion() {
     )
     local -r _long="$($_cli help | sed -En 's/.*(--\w+).*/\1/p' | sort -u | xargs echo)"
     local -r _short="$($_cli help | sed -En 's/.*\s(-\w).*/\1/p' | sort -u | xargs echo)"
-    local -r _services="$(sc_plots | cut -d' ' -f2 | sed -E 's/soil-(\S+)/\0\n\1/' | sort | xargs echo)"
+    local -r _services="$(
+        _ARG_ALL=on sc_plots |
+        cut -d' ' -f2 |
+        sed -E 's/soil-(\S+)/\0\n\1/' |
+        tr -d '*' |
+        sort |
+        xargs echo
+    )"
 
-    sed -e "s/{{LOCAL}}/${_local}/" \
-        -e "s/{{CLUSTER}}/${_cluster}/" \
-        -e "s/{{LONG}}/${_long}/" \
-        -e "s/{{SHORT}}/${_short}/" \
-        -e "s/{{SERVICES}}/${_services}/" \
-        ${_ST_HOME_STEM}/src/completion.sh |
+    sed -e "s/<LOCAL>/${_local}/" \
+        -e "s/<CLUSTER>/${_cluster}/" \
+        -e "s/<LONG>/${_long}/" \
+        -e "s/<SHORT>/${_short}/" \
+        -e "s/<SERVICES>/${_services}/" \
+        ${_ST_HOME_STEM}/rc/templates/completion.tpl |
         sudo tee /etc/bash_completion.d/sc
 }
 export -f sc_completion
