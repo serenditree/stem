@@ -36,7 +36,6 @@ echo "Done"
 # ARG_OPTIONAL_BOOLEAN([local], [l], [Target local cluster.])
 # ARG_OPTIONAL_BOOLEAN([open], [], [Open plots.])
 # ARG_OPTIONAL_BOOLEAN([openshift], [o], [Use openshift.])
-# ARG_OPTIONAL_BOOLEAN([optional], [], [Include optional plots.])
 # ARG_OPTIONAL_BOOLEAN([prod], [P], [Sets the target stage to prod. (default is dev)])
 # ARG_OPTIONAL_BOOLEAN([reset], [], [Reset flag.])
 # ARG_OPTIONAL_BOOLEAN([setup], [], [Setup flag.])
@@ -79,7 +78,6 @@ export _ARG_OPENSHIFT=${_arg_openshift/off/}
 
 export _ARG_DELETE=${_arg_delete/off/}
 export _ARG_INIT=${_arg_init/off/}
-export _ARG_OPTIONAL=${_arg_optional/off/}
 export _ARG_RESET=${_arg_reset/off/}
 export _ARG_RESUME=$_arg_resume
 export _ARG_SETUP=${_arg_setup/off/}
@@ -138,14 +136,14 @@ function sc_help() {
     printf '\t%-20s%s\n' "loc:" "Prints lines of code."
     printf '\t%-20s%s\n' "login <reg>:" "Login to configured registries."
     printf '\t%-20s%s\n' "logs|log [svc]:" "Prints logs of all or individual services on the local pod."
-    printf '\t%-20s%s\n' "plots:" "Prints or inserts/deletes plots. [--open] [{--insert|--delete} ordinal name path]"
+    printf '\t%-20s%s\n' "plots:" "Prints or inserts/deletes plots. [--all] [--open] [--insert|--delete]"
     printf '\t%-20s%s\n' "ps:" "Lists locally running serenditree containers."
     printf '\t%-20s%s\n' "push [svc]:" "Push all or individual images."
     printf '\t%-20s%s\n' "registry:" "Inspect images in remote registries. [--verbose]"
     printf '\t%-20s%s\n' "release:" "Updates the parent git repository and pushes new commits."
     printf '\t%-20s%s\n' "reset:" "Removes all local images created by this cli."
     printf '\t%-20s%s\n' "restore:" "Restores local databases from remote data."
-    printf '\t%-20s%s\n' "status:" "Prints status information and checks prerequisites."
+    printf '\t%-20s%s\n' "status:" "Prints status information and checks prerequisites. [--all]"
     printf '\t%-20s%s\n' "update [comp]:" "Update components."
 
     printf '\n\t%s\n' "${_BOLD}Cluster commands:${_NORMAL}"
@@ -243,8 +241,8 @@ logs | log)
     ;;
 plots)
     if [[ -n "$_ARG_HELP" ]]; then
-        sc_heading 2 "sc plots [ordinal name path]"
-        echo "Prints or inserts/deletes plots. [--open] [--insert|--delete]"
+        sc_heading 2 "sc plots [ordinal [name path]]"
+        echo "Prints or inserts/deletes plots. [--all] [--open] [--insert|--delete]"
         echo "Path needs to be absolute."
     elif [[ -n "$_ARG_INSERT" ]]; then
         sc_plots_insert "${_ARG_SUB_COMMAND}" "1" | sort -nk3
@@ -315,6 +313,10 @@ update)
 # CLUSTER
 ########################################################################################################################
 cluster)
+    if [[ -z "${_ST_CONTEXT}" ]]; then
+        echo "Aborting..." >&2
+        exit 1
+    fi
     export _ST_CONTEXT_CLUSTER=on
     # shift leftovers array
     # shellcheck disable=SC2206
@@ -329,14 +331,12 @@ cluster)
             printf '\n\t%-20s%s\n' "--init" "Initialize terraform and create assets for openshift-install."
             printf '\n\t%-20s%s\n' "--setup" "Setup of the cluster in the current context."
             printf '\n\t%-20s%s\n' "--upgrade" "Upgrades the cluster in the current context."
-        elif [[ -n "$_ST_CONTEXT"  ]]; then
+        else
             if [[ -n "$_ARG_SETUP" ]]; then
                 time sc_plots_do "$(sc_args_to_pattern ${_ARG_LEFTOVERS[*]})" up
             elif [[ -z "$_ARG_LEFTOVERS" ]]; then
                 time sc_cluster_up
             fi
-        else
-            echo "Context not set. Canceling..."
         fi
         ;;
     down)
@@ -347,7 +347,7 @@ cluster)
             echo "Stops, deletes or resets the cluster in context. "
             printf '\t%-20s%s\n' "--reset" "Resets the cluster in the current context."
             printf '\t%-20s%s\n' "--delete" "Deletes the cluster in the current context."
-        elif [[ -n "$_ST_CONTEXT"  ]]; then
+         else
             if [[ -n "$_ARG_DELETE" ]]; then
                 time sc_plots_do "terra-base" down
             elif [[ -z "$_ARG_LEFTOVERS" ]]; then
@@ -355,8 +355,6 @@ cluster)
             else
                 time sc_plots_do "$(sc_args_to_pattern ${_ARG_LEFTOVERS[*]})" down
             fi
-         else
-            echo "Context not set. Canceling..."
         fi
         ;;
     clean)
