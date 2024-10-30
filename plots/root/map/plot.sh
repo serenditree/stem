@@ -17,10 +17,10 @@ _VOLUME_DST=${_ST_CONTAINER_ROOT}/data
 _EXPOSE=8080/tcp
 _EXPOSE_LOCAL=8084/tcp
 
-_TILESERVER_VERSION=4.10.3
+_TILESERVER_VERSION="$_ST_VERSION_TILESERVER"
 _TILESERVER_PORT=${_EXPOSE%/*}
 # TODO check versions (compatibility with mbtiles)
-_STYLES_VERSION=v1.8
+_STYLES_VERSION=v1.9
 _FONTS_VERSION=v2.0
 
 _BASE_URL=https://github.com/openmaptiles
@@ -41,7 +41,7 @@ if [[ " $* " =~ " build " ]]; then
     _CONTAINER_REF=$(buildah from serenditree/node-base)
     _MOUNT_REF=$(buildah mount $_CONTAINER_REF)
 
-    _SERVER_DIR="./data/server"
+    _SERVER_DIR="./data/server-${_TILESERVER_VERSION}"
     if [[ ! -d $_SERVER_DIR  ]]; then
         mkdir -pv ${_SERVER_DIR}/styles/positron ${_SERVER_DIR}/fonts ${_SERVER_DIR}/data
         pushd $_SERVER_DIR >/dev/null || exit 1
