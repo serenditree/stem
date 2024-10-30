@@ -29,17 +29,11 @@ if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "$_ARG_SET
                 sc_openshift_local_up
             fi
         elif [[ -n "${_ST_CONTEXT_IS_REMOTE}" ]]; then
-            _EXOSCALE_PROFILE="$(exo config show --output-template '{{.Name}}')"
-            if [[ "$_EXOSCALE_PROFILE"  == "serenditree" ]]; then
-                source ./plot-terra.sh
-                sc_terra_up
-                if [[ -z "${_ARG_INIT}${_ARG_UPGRADE}" ]]; then
-                    sc_setup_project
-                    sc_setup_helm
-                fi
-            else
-                echo "Wrong Exoscale profile [${_EXOSCALE_PROFILE}]. Aborting..."
-                exit 1
+            source ./plot-terra.sh
+            sc_terra_up
+            if [[ -z "${_ARG_INIT}${_ARG_UPGRADE}" ]]; then
+                sc_setup_project
+                sc_setup_helm
             fi
         fi
     fi
