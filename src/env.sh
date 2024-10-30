@@ -46,10 +46,13 @@ export _ST_POD=serenditree
 # CONFIG
 ########################################################################################################################
 
+export _ST_ACCOUNT=serenditree
 export _ST_DOMAIN=${_ST_DOMAIN:-serenditree.io}
 export _ST_ZONE=${_ST_ZONE:-at-vie-1}
 export _ST_GIT=${_ST_GIT:-git@github.com:serenditree/stem.git}
 export _ST_GIT_SSH=${_ST_GIT_SSH:-${HOME}/.ssh/stem@serenditree.io}
+
+export EXOSCALE_ACCOUNT=$_ST_ACCOUNT
 
 ########################################################################################################################
 # VERSIONS
@@ -61,7 +64,8 @@ if [[ -f /etc/fedora-release ]] && [[ -z "$_ST_CONTEXT_TKN" ]]; then
 fi
 export _ST_VERSION_KUBERNETES=1.31.1
 export _ST_VERSION_JAVA=17
-export _ST_VERSION_NODE=22
+export _ST_VERSION_NODE=23.x
+export _ST_VERSION_TILESERVER=5.0.0
 export _ST_VERSION_ANGULAR=18
 export _ST_VERSION_FLUENTD=1.17.1
 export _ST_VERSION_MONGODB=8.0
@@ -82,7 +86,7 @@ export _ST_JAVA_PACKAGE=java-${_ST_VERSION_JAVA}-openjdk-headless
 export _ST_JAVA_PACKAGE_DEVEL=java-${_ST_VERSION_JAVA}-openjdk-devel
 
 export _ST_DNF_OPTS="--assumeyes --noplugins --nodocs --setopt install_weak_deps=0"
-export _ST_DNF_OPTS_HOST="--releasever $_ST_VERSION_FEDORA $_ST_DNF_OPTS"
+export _ST_DNF_OPTS_HOST="--use-host-config --releasever $_ST_VERSION_FEDORA $_ST_DNF_OPTS"
 
 ########################################################################################################################
 # BASE IMAGES
@@ -158,10 +162,10 @@ if [[ -n "$_ARG_DRYRUN" ]]; then
     _ST_HELM_CMD="template"
     _ST_HELM_PIPE="yq"
 else
-    if [[ -z "$_ARG_UPGRADE" ]]; then
-        _ST_HELM_CMD="install"
-    else
+    if [[ -n "$_ARG_UPGRADE" ]]; then
         _ST_HELM_CMD="upgrade"
+    else
+        _ST_HELM_CMD="install"
     fi
     _ST_HELM_PIPE="tee"
 fi
