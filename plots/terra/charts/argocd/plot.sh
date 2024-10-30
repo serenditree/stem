@@ -24,11 +24,9 @@ if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "${_ARG_SE
     _argocd_password="$(pass serenditree/argocd)"
     _argocd_password_bcrypt="$(htpasswd -nbBC 10 "" "$_argocd_password" | tr -d ':\n' | sed 's/$2y/$2a/')"
 
-    [[ -z "$_ARG_DRYRUN" ]]  && _ST_HELM_NAME=argocd
+    [[ -z "$_ARG_DRYRUN" ]]  && _ST_HELM_NAME=argocd && _ST_HELM_ARGS="--namespace argocd --create-namespace"
     [[ -n "$_ARG_SETUP" ]] && _setup_apps=false
-    helm $_ST_HELM_CMD $_ST_HELM_NAME . \
-        --namespace argocd \
-        --create-namespace \
+    helm $_ST_HELM_CMD $_ST_HELM_NAME . $_ST_HELM_ARGS \
         --set "global.setupApps=${_setup_apps}" \
         --set "argo-cd.configs.secret.argocdServerAdminPassword=${_argocd_password_bcrypt}" \
         --set "global.context=${_ST_CONTEXT}" \
