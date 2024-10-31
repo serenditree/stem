@@ -14,15 +14,19 @@ fi
 ########################################################################################################################
 # UP
 ########################################################################################################################
-if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "$_ARG_SETUP" ]]; then
+if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "${_ARG_SETUP}${_ARG_UPGRADE}" ]]; then
     sc_heading 1 "Setting up $_SERVICE"
-    if [[ -z "$_ARG_DRYRUN" ]]; then
-        kubectl create secret generic cilium-ipsec-key \
-            --from-literal key="3+ rfc4106(gcm(aes)) $(openssl rand -hex 20) 128" \
-            --namespace kube-system
-
+    if [[ -z "${_ARG_DRYRUN}" ]]; then
         _ST_HELM_NAME=cilium
         _ST_HELM_ARGS="--namespace kube-system --wait --wait-for-jobs"
+        if [[ -z "${_ARG_UPGRADE}" ]]; then
+            sc_heading 2 "Creating secret for IPsec..."
+            kubectl create secret generic cilium-ipsec-key \
+                --from-literal key="3+ rfc4106(gcm(aes)) $(openssl rand -hex 20) 128" \
+                --namespace kube-system
+        else
+            _ST_HELM_ARGS+=" --reuse-values"
+        fi
     fi
 
     sc_heading 2 "Waiting for 'helm $_ST_HELM_CMD cilium' to succeed..."
