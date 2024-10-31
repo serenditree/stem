@@ -32,21 +32,14 @@ function sc_setup_helm() {
 
     if [[ -z "$_ARG_DRYRUN" ]]; then
         echo "Adding repos..."
-        for _repo in \
-            argo:https://argoproj.github.io/argo-helm \
-            autoscaler:https://kubernetes.github.io/autoscaler \
-            bitnami:https://charts.bitnami.com/bitnami \
-            cert-manager:https://charts.jetstack.io \
-            cilium:https://helm.cilium.io \
-            prometheus:https://prometheus-community.github.io/helm-charts \
-            strimzi:https://strimzi.io/charts; do
+        while read -r _repo ; do
             echo -n "${_repo%%:*}..."
             if helm repo ls | grep -Eq "^${_repo%%:*}"; then
                 sc_heading 2 "set"
             else
                 helm repo add "${_repo%%:*}" "${_repo#*:}"
             fi
-        done
+        done <"${_ST_RC}/setup-helm"
         echo "Updating dependencies..."
         local _refresh
         while read -r _chart; do
@@ -65,16 +58,7 @@ function sc_setup_helm_update() {
     if [[ -z "$_ARG_YES" ]]; then
         helm repo update && echo
         {
-            for _repo in \
-                argo/argo-cd \
-                autoscaler/cluster-autoscaler \
-                bitnami/mariadb-galera \
-                bitnami/memcached \
-                bitnami/mongodb \
-                cert-manager/cert-manager \
-                cilium/cilium \
-                prometheus/kube-prometheus-stack \
-                strimzi/strimzi-kafka-operator; do
+            while read -r _repo; do
                 {
                     echo "id: $_repo"
                     # current version
@@ -86,7 +70,7 @@ function sc_setup_helm_update() {
                     echo -n 'latest: '
                     helm search repo $_repo --output json | jq -r '.[0] | .version';
                 } | column -t -s ':' -l 2 && echo
-            done
+            done <"${_ST_RC}/setup-helm-update"
         } | tee "$_log"
         echo "details: helm search repo ID --output json"
     elif [[ -f "$_log" ]]; then

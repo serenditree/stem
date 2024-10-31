@@ -1,0 +1,7 @@
+argo:https://argoproj.github.io/argo-helm
+autoscaler:https://kubernetes.github.io/autoscaler
+bitnami:https://charts.bitnami.com/bitnami
+cert-manager:https://charts.jetstack.io
+cilium:https://helm.cilium.io
+prometheus:https://prometheus-community.github.io/helm-charts
+strimzi:https://strimzi.io/charts

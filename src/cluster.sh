@@ -244,10 +244,7 @@ function sc_cluster_expose() {
     echo -e "kubectl listening on ports: $_used_ports\n" | tr '|' ' '
 
     local -r _logs=/tmp/nohup-port-fwd.log
-    for _svc in argocd/svc/argocd-server~9098:443 \
-        kube-system/svc/hubble-ui~9080:80 \
-        strimzi/svc/kafdrop~9000:9000 \
-        tekton-pipelines/svc/tekton-dashboard~9097:9097; do
+    { while read -r _svc; do
         if [[ $_svc =~ $_pattern ]]; then
             local _ports="${_svc#*~}"
             local _path="${_svc%~*}"
@@ -256,20 +253,20 @@ function sc_cluster_expose() {
             if [[ -n "$_ARG_DELETE" ]]; then
                 netstat --inet -tlnp 2>&1 |
                     sed -En "s/.*127.0.0.1:${_ports%:*}.* ([0-9]+)\/kubectl/\1/p" |
-                    xargs kill &>/dev/null && echo "${_svc} terminated"
+                    xargs kill &>/dev/null && echo "${_svc};${_BOLD}terminated${_NORMAL}"
             elif [[ ${_ports%:*} =~ $_used_ports ]]; then
-                echo "${_svc} ${_BOLD}up${_NORMAL}"
+                echo "${_svc};https://localhost:${_ports%:*}"
             else
                 if kubectl get --namespace $_namespace $_svc &>/dev/null; then
-                    echo "Port-forwarding ${_svc}..."
+                    echo "${_svc};https://localhost:${_ports%:*}"
                     nohup kubectl port-forward $_svc $_ports --namespace $_namespace &>$_logs &
                     _used_ports+="${_ports%:*}"
                 else
-                    echo "$_svc ${_BOLD}unavailable${_NORMAL}"
+                    echo "${_svc};${_BOLD}unavailable${_NORMAL}"
                 fi
             fi
         fi
-    done
+    done <"${_ST_RC}/cluster-expose"; } | column -ts';'
     [[ "$_used_ports" != "none" ]] && echo -e "\nCheck logs in ${_logs}!"
 }
 

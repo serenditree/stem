@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 ########################################################################################################################
-# ENVIRONMENT
+# CONFIG
 # Global settings and definitions.
 ########################################################################################################################
 
@@ -31,26 +31,27 @@ export _ST_STAGE
 if [[ -z "$_ST_CONTEXT_TKN" ]]; then
     _ST_HOME=$(realpath $0 | sed 's/\/stem.*//')
     export _ST_HOME
-    export _ST_HOME_STEM=$_ST_HOME/stem
-    export _ST_HOME_BRANCH=$_ST_HOME/branch
-    export _ST_HOME_LEAF=$_ST_HOME/leaf
+    export _ST_HOME_STEM=${_ST_HOME}/stem
+    export _ST_HOME_BRANCH=${_ST_HOME}/branch
+    export _ST_HOME_LEAF=${_ST_HOME}/leaf
 else
-    export _ST_HOME_STEM=$_ST_HOME/sc
-    export _ST_HOME_BRANCH=$_ST_HOME/src
-    export _ST_HOME_LEAF=$_ST_HOME/src
+    export _ST_HOME_STEM=${_ST_HOME}/sc
+    export _ST_HOME_BRANCH=${_ST_HOME}/src
+    export _ST_HOME_LEAF=${_ST_HOME}/src
 fi
-export _ST_LOG_LEVEL=${_ST_LOG_LEVEL:-info}
-export _ST_POD=serenditree
 
 ########################################################################################################################
 # CONFIG
 ########################################################################################################################
 
-export _ST_ACCOUNT=serenditree
+export _ST_ACCOUNT=${_ST_ACCOUNT:-serenditree}
 export _ST_DOMAIN=${_ST_DOMAIN:-serenditree.io}
-export _ST_ZONE=${_ST_ZONE:-at-vie-1}
 export _ST_GIT=${_ST_GIT:-git@github.com:serenditree/stem.git}
 export _ST_GIT_SSH=${_ST_GIT_SSH:-${HOME}/.ssh/stem@serenditree.io}
+export _ST_LOG_LEVEL=${_ST_LOG_LEVEL:-info}
+export _ST_POD=${_ST_POD:-serenditree}
+export _ST_RC=${_ST_RC:-${_ST_HOME_STEM}/rc/plain}
+export _ST_ZONE=${_ST_ZONE:-at-vie-1}
 
 export EXOSCALE_ACCOUNT=$_ST_ACCOUNT
 

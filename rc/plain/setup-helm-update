@@ -1,0 +1,9 @@
+argo/argo-cd
+autoscaler/cluster-autoscaler
+bitnami/mariadb-galera
+bitnami/memcached
+bitnami/mongodb
+cert-manager/cert-manager
+cilium/cilium
+prometheus/kube-prometheus-stack
+strimzi/strimzi-kafka-operator
