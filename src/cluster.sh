@@ -255,10 +255,10 @@ function sc_cluster_expose() {
                     sed -En "s/.*127.0.0.1:${_ports%:*}.* ([0-9]+)\/kubectl/\1/p" |
                     xargs kill &>/dev/null && echo "${_svc};${_BOLD}terminated${_NORMAL}"
             elif [[ ${_ports%:*} =~ $_used_ports ]]; then
-                echo "${_svc};https://localhost:${_ports%:*}"
+                echo "${_svc};http://localhost:${_ports%:*}"
             else
                 if kubectl get --namespace $_namespace $_svc &>/dev/null; then
-                    echo "${_svc};https://localhost:${_ports%:*}"
+                    echo "${_svc};http://localhost:${_ports%:*}"
                     nohup kubectl port-forward $_svc $_ports --namespace $_namespace &>$_logs &
                     _used_ports+="${_ports%:*}"
                 else
