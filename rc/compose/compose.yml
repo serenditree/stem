@@ -21,9 +21,6 @@ services:
     environment:
       - SERENDITREE_STAGE=compose
       - SERENDITREE_LOG_LEVEL=DEBUG
-      - quarkus.log.handler.gelf.enabled=true
-      - quarkus.log.handler.gelf.host=root-breeze
-      - quarkus.log.handler.gelf.port=24224
     healthcheck:
       test: curl localhost:8080/q/health/ready
     depends_on:
@@ -41,9 +38,6 @@ services:
     environment:
       - SERENDITREE_STAGE=compose
       - SERENDITREE_LOG_LEVEL=DEBUG
-      - quarkus.log.handler.gelf.enabled=true
-      - quarkus.log.handler.gelf.host=root-breeze
-      - quarkus.log.handler.gelf.port=24224
     healthcheck:
       test: curl localhost:8080/q/health/ready
     depends_on:
@@ -61,9 +55,6 @@ services:
     environment:
       - SERENDITREE_STAGE=compose
       - SERENDITREE_LOG_LEVEL=DEBUG
-      - quarkus.log.handler.gelf.enabled=true
-      - quarkus.log.handler.gelf.host=root-breeze
-      - quarkus.log.handler.gelf.port=24224
     healthcheck:
       test: curl localhost:8080/q/health/ready
     depends_on:
@@ -120,54 +111,6 @@ services:
       - KAFKA_HOST=root-wind
     healthcheck:
       test: bash health.sh
-
-  root-search:
-    image: docker.io/opensearchproject/opensearch:2
-    hostname: root-search
-    restart: unless-stopped
-    pull_policy: missing
-    environment:
-      - cluster.name=root-search
-      - node.name=root-search
-      - bootstrap.memory_lock=true
-      - discovery.type=single-node
-      - 'OPENSEARCH_JAVA_OPTS=-Xms2048m -Xmx2048m'
-      - 'DISABLE_INSTALL_DEMO_CONFIG=true'
-      - 'DISABLE_SECURITY_PLUGIN=true'
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-      nofile:
-        soft: 65536
-        hard: 65536
-    volumes:
-      - root-search:/usr/share/opensearch/data
-    ports:
-      - '127.0.0.1:9200:9200'
-      - '127.0.0.1:9600:9600'
-
-  root-dashboard:
-    image: docker.io/opensearchproject/opensearch-dashboards:2
-    hostname: root-dashboard
-    restart: unless-stopped
-    pull_policy: missing
-    depends_on:
-      - root-search
-    environment:
-      - 'OPENSEARCH_HOSTS=["http://root-search:9200"]'
-      - 'DISABLE_SECURITY_DASHBOARDS_PLUGIN=true'
-    ports:
-      - '127.0.0.1:5601:5601'
-
-  root-breeze:
-    image: localhost/serenditree/root-breeze:latest
-    hostname: root-breeze
-    restart: unless-stopped
-    ports:
-      - "24224:24224/udp"
-    depends_on:
-      - root-search
 
   kafdrop:
     image: docker.io/obsidiandynamics/kafdrop:latest
