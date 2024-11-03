@@ -314,7 +314,8 @@ update)
 ########################################################################################################################
 cluster)
     if [[ -z "${_ST_CONTEXT}" ]]; then
-        echo "Aborting..." >&2
+        tput cuu1
+        sc_heading 2 "Aborting..." >&2
         exit 1
     fi
     export _ST_CONTEXT_CLUSTER=on
