@@ -5,7 +5,7 @@ resource "exoscale_security_group" "serenditree" {
   name = "serenditree"
 }
 
-resource "exoscale_security_group_rule" "sks_nodes_ccm" {
+resource "exoscale_security_group_rule" "node_port_services" {
   security_group_id = exoscale_security_group.serenditree.id
   type              = "INGRESS"
   protocol          = "TCP"
@@ -14,7 +14,7 @@ resource "exoscale_security_group_rule" "sks_nodes_ccm" {
   end_port          = 32767
 }
 
-resource "exoscale_security_group_rule" "sks_nodes_logs" {
+resource "exoscale_security_group_rule" "kubelets" {
   security_group_id      = exoscale_security_group.serenditree.id
   user_security_group_id = exoscale_security_group.serenditree.id
   type                   = "INGRESS"
@@ -43,7 +43,7 @@ resource "exoscale_security_group_rule" "cilium_healthcheck_tcp" {
   end_port               = 4240
 }
 
-resource "exoscale_security_group_rule" "cilium_healthcheck_ping" {
+resource "exoscale_security_group_rule" "cilium_healthcheck_icmp" {
   count                  = var.cni == "cilium" || var.cni == "" ? 1 : 0
   security_group_id      = exoscale_security_group.serenditree.id
   user_security_group_id = exoscale_security_group.serenditree.id
