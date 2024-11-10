@@ -3,6 +3,9 @@ global:
 cilium:
   cluster:
     name: serenditree
+  kubeProxyReplacement: true
+  k8sServiceHost: ~
+  k8sServicePort: 443
   routingMode: tunnel
   tunnelProtocol: vxlan
   envoy:
