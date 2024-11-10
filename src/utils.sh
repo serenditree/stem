@@ -2,6 +2,7 @@
 # UTILS
 # Collection of utility functions.
 ########################################################################################################################
+# shellcheck disable=SC2155
 
 # Prints the given message prominently to stdout.
 # $1: Heading ID.
@@ -62,23 +63,24 @@ function sc_completion() {
     sc_heading 1 sc
     local -r _cli="${_ST_HOME_STEM}/cli.sh"
     local -r _cmd_pattern='s/[[:space:]]+([^[:space:]|]+).*:[[:space:]]+[^[:space:]]+.*/\1/p'
-    local -r _local=$(
+
+    export _LOCAL=$(
         $_cli help |
             sed -n '/Local commands/,/Cluster commands/p' |
             sed -En "$_cmd_pattern" |
             sort -u |
             xargs echo
     )
-    local -r _cluster=$(
+    export _CLUSTER=$(
         $_cli help |
             sed '0,/Cluster commands/d' |
             sed -En "$_cmd_pattern" |
             sort -u |
             xargs echo
     )
-    local -r _long="$($_cli help | sed -En 's/.*(--\w+).*/\1/p' | sort -u | xargs echo)"
-    local -r _short="$($_cli help | sed -En 's/.*\s(-\w).*/\1/p' | sort -u | xargs echo)"
-    local -r _services="$(
+    export _LONG="$($_cli help | sed -En 's/.*(--\w+).*/\1/p' | sort -u | xargs echo)"
+    export _SHORT="$($_cli help | sed -En 's/.*\s(-\w).*/\1/p' | sort -u | xargs echo)"
+    export _SERVICES="$(
         _ARG_ALL=on sc_plots |
         cut -d' ' -f2 |
         sed -E 's/soil-(\S+)/\0\n\1/' |
@@ -87,12 +89,7 @@ function sc_completion() {
         xargs echo
     )"
 
-    sed -e "s/<LOCAL>/${_local}/" \
-        -e "s/<CLUSTER>/${_cluster}/" \
-        -e "s/<LONG>/${_long}/" \
-        -e "s/<SHORT>/${_short}/" \
-        -e "s/<SERVICES>/${_services}/" \
-        ${_ST_HOME_STEM}/rc/templates/completion.tpl |
+    envsubst '$_LOCAL $_CLUSTER $_LONG $_SHORT $_SERVICES' <"${_ST_HOME_STEM}/rc/templates/completion.tpl" |
         sudo tee /etc/bash_completion.d/sc
 }
 export -f sc_completion

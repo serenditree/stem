@@ -111,10 +111,8 @@ function sc_plots_template() {
         _pipe="tee ${_plot}"
         mkdir -p "$_path"
     fi
-
-    sed "${_ST_HOME_STEM}/rc/templates/plot.tpl" \
-        -e "s/<HEADER>/$(tr '[:lower:]' '[:upper:]' <<<$_name)/" \
-        -e "s/<NAME>/$_name/" \
-        -e "s/<ORDINAL>/$_ordinal/" |
-        $_pipe
+    export _HEADER_SUBST=$(tr '[:lower:]' '[:upper:]' <<<$_name)
+    export _NAME_SUBST=$_name
+    export _ORDINAL_SUBST=$_ordinal
+    envsubst '$_HEADER_SUBST $_NAME_SUBST $_ORDINAL_SUBST' <"${_ST_HOME_STEM}/rc/templates/plot.tpl" | $_pipe
 }

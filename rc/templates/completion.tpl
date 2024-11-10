@@ -8,17 +8,17 @@
 function _sc_completion() {
     local -r _current="${COMP_WORDS[COMP_CWORD]}"
     local -r _previous="${COMP_WORDS[COMP_CWORD - 1]}"
-    local -r _local='<LOCAL>'
-    local -r _cluster='<CLUSTER>'
-    local _services='<SERVICES>'
+    local -r _local="${_LOCAL}"
+    local -r _cluster="${_CLUSTER}"
+    local _services="${_SERVICES}"
 
     # Options are not yet context aware.
     case "$_current" in
     --*)
-        local -r _long='<LONG>'
+        local -r _long="${_LONG}"
         ;;
     -)
-        local -r _short='<SHORT>'
+        local -r _short="${_SHORT}"
         ;;
     esac
 

@@ -3,6 +3,7 @@
 # CLUSTER FUNCTIONS
 # Functions for the interaction with kubernetes clusters.
 ########################################################################################################################
+# shellcheck disable=SC2155
 
 # Deploys the latest versions of branch and leaf.
 function sc_cluster_deploy() {
@@ -73,11 +74,9 @@ function sc_cluster_backup_restore_secret() {
     trap 'rm -f /tmp/exoscale.toml' EXIT
     local -r _secret="/tmp/exoscale.toml"
     if ! kubectl get secret exoscale-backup --namespace serenditree &>/dev/null; then
-        sed -E \
-            -e "s/<KEY>/$(pass serenditree/backup@exoscale.com.access)/" \
-            -e "s/<SECRET>/$(pass serenditree/backup@exoscale.com.secret)/" \
-            -e "s/<ZONE>/${_ST_ZONE}/" \
-            "${_ST_HOME_STEM}/rc/templates/exoscale.toml" >"$_secret"
+        export _KEY_SUBST="$(pass serenditree/backup@exoscale.com.access)"
+        export _SECRET_SUBST="$(pass serenditree/backup@exoscale.com.secret)"
+        envsubst '$_KEY_SUBST $_SECRET_SUBST $_ST_ZONE' <"${_ST_HOME_STEM}/rc/templates/exoscale.toml" >"$_secret"
         kubectl create secret generic exoscale-backup --namespace serenditree --from-file="$_secret"
     fi
 }

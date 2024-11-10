@@ -2,6 +2,6 @@ defaultaccount = 'serenditree'
 
 [[accounts]]
 name = 'serenditree'
-defaultZone = '<ZONE>'
-key = '<KEY>'
-secret = '<SECRET>'
+defaultZone = '$_ST_ZONE'
+key = '$_KEY_SUBST'
+secret = '$_SECRET_SUBST'
