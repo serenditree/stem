@@ -66,13 +66,3 @@ resource "exoscale_sks_nodepool" "serenditree" {
   anti_affinity_group_ids = [exoscale_anti_affinity_group.serenditree[each.key].id]
   security_group_ids      = [exoscale_security_group.serenditree.id]
 }
-########################################################################################################################
-# Wait for cluster
-########################################################################################################################
-resource "null_resource" "wait_for_cluster" {
-  depends_on = [exoscale_sks_nodepool.serenditree]
-
-  provisioner "local-exec" {
-    command = "until curl -ks ${exoscale_sks_cluster.serenditree.endpoint}/healthz; do sleep 2s; done"
-  }
-}
