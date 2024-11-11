@@ -92,7 +92,6 @@ export _ST_DNF_OPTS_HOST="--use-host-config --releasever $_ST_VERSION_FEDORA $_S
 # BASE IMAGES
 ########################################################################################################################
 
-export _ST_FROM_ROOT_BREEZE=docker.io/bitnami/fluentd:${_ST_VERSION_FLUENTD}
 export _ST_FROM_ROOT_SEED=docker.io/bitnami/mongodb:${_ST_VERSION_MONGODB}
 export _ST_FROM_ROOT_USER=docker.io/bitnami/mariadb:${_ST_VERSION_MARIADB}
 export _ST_FROM_LEAF=docker.io/bitnami/nginx:${_ST_VERSION_NGINX}
