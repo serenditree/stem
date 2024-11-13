@@ -495,6 +495,7 @@ function sc_help() {
     printf '\t%-20s%s\n' "up [comp]:" "Cluster start/setup. [--init|--setup|--upgrade] [--resume] [--dashboard]"
     printf '\t%-20s%s\n\n' "down:" "Cluster stop/deletion. [--reset|--delete]"
 
+    printf '\t%-20s%s\n' "backup:" "Setup backup cronjobs or run backups from cronjobs. [--setup]"
     printf '\t%-20s%s\n' "certificate|cert:" "Prints certificate information."
     printf '\t%-20s%s\n' "clean:" "Deletes dispensable resources."
     printf '\t%-20s%s\n' "dashboard:" "Launches the clusters dashboard."
