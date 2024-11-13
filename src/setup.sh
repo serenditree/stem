@@ -63,7 +63,7 @@ function sc_setup_helm_update() {
                     echo "id: $_repo"
                     # current version
                     find . -name Chart.yaml \
-                        -exec sh -c 'grep -hA2 "name: $2" $1 && echo path: $1' _ {} ${_repo#*/} \; |
+                        -exec sh -c 'grep -hA2 "\- name: $2" $1 && echo path: $1' _ {} ${_repo#*/} \; |
                             sed -r 's/(^[- ]+)|(.\/)//' |
                             sort
                     # latest version
