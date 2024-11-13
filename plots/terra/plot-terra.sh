@@ -158,7 +158,8 @@ function sc_terra_down_volumes() {
 
 function sc_terra_down() {
     if [[ -z "$_ARG_DRYRUN" ]]; then
-        terraform -chdir="$_ST_TERRA_DIR" destroy \
+        [[ -n "$_ARG_YES" ]] && local -r _auto_approve=-auto-approve
+        terraform -chdir="$_ST_TERRA_DIR" destroy $_auto_approve \
             -var="api_key=$(pass serenditree/serenditree@exoscale.com.access)" \
             -var="api_secret=$(pass serenditree/serenditree@exoscale.com.secret)"
 
