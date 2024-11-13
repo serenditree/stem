@@ -35,7 +35,12 @@ export -f sc_args_to_pattern
 # $*: Optional function parameters.
 function sc_prompt() {
     echo -n $_BOLD
-    read -rp "$1 [y/N]: " _proceed
+    if [[ -z "$_ARG_YES" ]]; then
+        read -rp "$1 [y/N]: " _proceed
+    else
+        _proceed=y
+        echo "$1 [y/N]: ${_proceed}"
+    fi
     echo -n $_NORMAL
     local _exit=1
     if [[ "$_proceed" == "y" ]]; then
