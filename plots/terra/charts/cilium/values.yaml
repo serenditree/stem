@@ -2,7 +2,7 @@ global:
   setupPolicies: false
 cilium:
   cluster:
-    name: serenditree
+    name: ~
   kubeProxyReplacement: true
   k8sServiceHost: ~
   k8sServicePort: 443

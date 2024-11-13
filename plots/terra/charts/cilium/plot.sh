@@ -33,9 +33,12 @@ if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "${_ARG_SE
 
     _ST_CLUSTER=$(kubectl config view -o jsonpath="{.contexts[?(@.name == \"$_ST_CONTEXT\")].context.cluster}")
     _ST_ENDPOINT="$(kubectl config view -o jsonpath="{.clusters[?(@.name == \"$_ST_CLUSTER\")].cluster.server}")"
+    _ST_ENDPOINT="${_ST_ENDPOINT//https:\/\//}"
 
     sc_heading 2 "Waiting for 'helm $_ST_HELM_CMD cilium' to succeed..."
-    helm $_ST_HELM_CMD $_ST_HELM_NAME . $_ST_HELM_ARGS --set "cilium.k8sServiceHost=${_ST_ENDPOINT%:*}" | $_ST_HELM_PIPE
+    helm $_ST_HELM_CMD $_ST_HELM_NAME . $_ST_HELM_ARGS \
+        --set "cilium.cluster.name=${_ST_CLUSTER}" \
+        --set "cilium.k8sServiceHost=${_ST_ENDPOINT%:*}" | $_ST_HELM_PIPE
 
     if [[ -z "$_ARG_DRYRUN" ]]; then
         kubectl wait --for condition=ready --all pod --namespace kube-system --timeout 5m
