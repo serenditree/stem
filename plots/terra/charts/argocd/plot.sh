@@ -16,7 +16,11 @@ fi
 ########################################################################################################################
 if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "${_ARG_SETUP}${_ARG_UPGRADE}" ]]; then
     sc_heading 1 "Setting up $_SERVICE"
-    _setup_apps=true
+    if [[ -z "$_ARG_SETUP" ]]; then
+        _setup_apps=true
+    else
+        _setup_apps=false
+    fi
     _cluster_domain=$(sc_context_cluster_domain)
     _github_token=$(pass serenditree/github.com)
     _quay_token=$(pass serenditree/quay.io)
@@ -25,7 +29,6 @@ if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "${_ARG_SE
     _argocd_password_bcrypt="$(htpasswd -nbBC 10 "" "$_argocd_password" | tr -d ':\n' | sed 's/$2y/$2a/')"
 
     [[ -z "$_ARG_DRYRUN" ]]  && _ST_HELM_NAME=argocd && _ST_HELM_ARGS="--namespace argocd --create-namespace"
-    [[ -n "$_ARG_SETUP" ]] && _setup_apps=false
     helm $_ST_HELM_CMD $_ST_HELM_NAME . $_ST_HELM_ARGS \
         --set "global.setupApps=${_setup_apps}" \
         --set "argo-cd.configs.secret.argocdServerAdminPassword=${_argocd_password_bcrypt}" \
@@ -45,7 +48,7 @@ if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "${_ARG_SE
         kubectl wait --for condition=available --all deployment --namespace argocd
         kubectl rollout status sts argocd-application-controller --watch --namespace argocd
         sc_heading 2 "Starting port-forwarding..."
-        kubectl port-forward --namespace argocd svc/argocd-server 9098:443 &>/tmp/nohup-port-fwd.log &
+        sc_cluster_expose argocd
         sleep 3s
         sc_heading 2 "ArgoCD login..."
         argocd login localhost:9098 \

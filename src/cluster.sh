@@ -242,7 +242,7 @@ function sc_cluster_expose() {
     [[ -n "$_used_ports" ]] || _used_ports='none'
     echo -e "kubectl listening on ports: $_used_ports\n" | tr '|' ' '
 
-    local -r _logs=/tmp/nohup-port-fwd.log
+    local -r _logs=/tmp/nohup-expose.log
     { while read -r _svc; do
         if [[ $_svc =~ $_pattern ]]; then
             local _ports="${_svc#*~}"
@@ -268,6 +268,7 @@ function sc_cluster_expose() {
     done <"${_ST_RC}/cluster-expose"; } | column -ts';'
     [[ "$_used_ports" != "none" ]] && echo -e "\nCheck logs in ${_logs}!"
 }
+export -f sc_cluster_expose
 
 # Starts or stops all nodes of the cluster.
 # $1: start or stop
