@@ -37,7 +37,6 @@ if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "${_ARG_SE
 
     sc_heading 2 "Waiting for 'helm $_ST_HELM_CMD cilium' to succeed..."
     helm $_ST_HELM_CMD $_ST_HELM_NAME . $_ST_HELM_ARGS \
-        --set "cilium.cluster.name=${_ST_CLUSTER}" \
         --set "cilium.k8sServiceHost=${_ST_ENDPOINT%:*}" | $_ST_HELM_PIPE
 
     if [[ -z "$_ARG_DRYRUN" ]]; then
