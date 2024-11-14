@@ -94,7 +94,7 @@ function sc_cluster_backup() {
     sc_cluster_backup_restore_secret
     for _comp in user seed; do
         if [[ -n "$_ARG_SETUP" ]]; then
-            kubectl create --filename "${_ST_HOME_STEM}/rc/jobs/${_comp}-backup.yml" --namespace serenditree
+            kubectl apply --filename "${_ST_HOME_STEM}/rc/jobs/${_comp}-backup.yml" --namespace serenditree
         else
             kubectl create job "${_comp}-backup-$(date +%Y%m%d-%H%M%S)" \
                 --from=cronjob/${_comp}-backup \

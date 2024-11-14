@@ -24,9 +24,11 @@ spec:
               args:
                - >-
                  mariadb-dump 
-                 -h root-user 
-                 -u root 
-                 -p$(ROOT_PASSWORD) 
+                 --host=root-user 
+                 --port=3306 
+                 --protocol=TCP 
+                 --user=root 
+                 --password=$(ROOT_PASSWORD) 
                  serenditree | gzip > /user-backup/user-backup.gz
               env:
                 - name: ROOT_PASSWORD

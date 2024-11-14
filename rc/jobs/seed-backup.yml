@@ -25,11 +25,11 @@ spec:
                 - >-
                   mongodump
                   mongodb://root-seed-0.root-seed-headless:27017,root-seed-1.root-seed-headless:27017,root-seed-2.root-seed-headless:27017
-                  --username root 
-                  --password $(ROOT_PASSWORD)
-                  --authenticationMechanism SCRAM-SHA-256 
-                  --authenticationDatabase admin 
-                  --db serenditree
+                  --username=root 
+                  --password=$(ROOT_PASSWORD)
+                  --authenticationMechanism=SCRAM-SHA-256 
+                  --authenticationDatabase=admin 
+                  --db=serenditree
                   --archive=/seed-backup/seed-backup.gz
                   --gzip
               env:
