@@ -171,4 +171,4 @@ else
     _ST_HELM_PIPE="tee"
 fi
 _ST_HELM_FIXED="strimzi-kafka-operator"
-export _ST_HELM_CMD _ST_HELM_PIPE
+export _ST_HELM_CMD _ST_HELM_PIPE _ST_HELM_FIXED
