@@ -75,12 +75,17 @@ function sc_setup_helm_update() {
         echo "details: helm search repo ID --output json"
     elif [[ -f "$_log" ]]; then
         echo "Upgrading helm dependencies..."
-        grep -E '^(path|version|latest)' "$_log" | awk '{print $2}' | xargs -n3 bash -c 'sed -i "s/$1/$2/" $0'
+        sed -E "/${_ST_HELM_FIXED:-st-none}/,/latest/d" "$_log" |
+            grep -E '^(path|version|latest)' |
+            awk '{print $2}' |
+            xargs -n3 bash -c 'sed -i "s/$1/$2/" $0'
         git diff |
             grep -EB 2 "version: [0-9.v]+" |
             sed -E -e '/repository/d' -e 's/^(\W+|.*:)//' |
             xargs -n3 |
             column -t
+        [[ -n "$_ST_HELM_FIXED" ]] &&
+            echo -e "\n${_BOLD}Warning:${_NORMAL} Skipped ${_ST_HELM_FIXED};" | sed -E 's/\|/, /g'
     else
         echo -e "File $_log does not exits.\nPlease run 'sc update helm' first!"
         exit 1
