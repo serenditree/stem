@@ -701,7 +701,7 @@ cluster)
             if [[ -n "$_ARG_DELETE" ]]; then
                 time sc_plots_do "terra-base" down
             elif [[ -z "$_ARG_LEFTOVERS" ]]; then
-                time sc_cluster_down
+                sc_prompt "Stop worker nodes?" time sc_cluster_down
             else
                 time sc_plots_do "$(sc_args_to_pattern ${_ARG_LEFTOVERS[*]})" down
             fi
