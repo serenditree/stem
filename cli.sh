@@ -488,7 +488,7 @@ function sc_help() {
     printf '\t%-20s%s\n' "release:" "Updates the parent git repository and pushes new commits."
     printf '\t%-20s%s\n' "reset:" "Removes all local images created by this cli."
     printf '\t%-20s%s\n' "restore:" "Restores local databases from remote data."
-    printf '\t%-20s%s\n' "status:" "Prints status information and checks prerequisites. [--all]"
+    printf '\t%-20s%s\n' "status:" "Prints status information and checks prerequisites."
     printf '\t%-20s%s\n' "update [comp]:" "Update components."
 
     printf '\n\t%s\n' "${_BOLD}Cluster commands:${_NORMAL}"

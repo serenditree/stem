@@ -78,34 +78,40 @@ function sc_status() {
     sc_context && local -r _ready=on
     [[ -n "$_ST_CONTEXT" ]] && echo "Cluster domain: $(sc_context_cluster_domain)"
 
+    if [[ -n "$_ready" ]];then
+        sc_heading 1 "Cluster"
+        echo && sc_heading 2 Pods
+        kubectl get pods --all-namespaces --output wide
+        echo && sc_heading 2 Apps
+        echo -n "ArgoCD login..."
+        if argocd version --request-timeout 1s &>/dev/null || sc_login argocd; then
+            sc_heading 2 "ok"
+            argocd app list
+        else
+            sc_heading 2 "error"
+        fi
+    fi
+
+    sc_heading 1 n "System"
+    sc_status_os
+    sc_status_required_applications
+    sc_status_required_files
+
+    sc_heading 1 n "Registry Authentications"
+    sc_status_registries
+
+    sc_heading 1 n "Environment"
+    sc_status_env
+
+    sc_heading 1 n "Plots"
+    _ARG_ALL=on sc_plots_inspect
+
     sc_heading 1 n "Local Cluster"
     if [[ -n "${_ST_CONTEXT_KUBERNETES}${_ST_CONTEXT_KUBERNETES_LOCAL}" ]]; then
         minikube config view
     else
         crc config view
     fi
-    if [[ -n "$_ready" ]];then
-        echo && sc_heading 2 Pods
-        kubectl get pods --all-namespaces --output wide
-        echo && sc_heading 2 Apps
-        argocd app list 2>/dev/null || echo "not logged in"
-    fi
-
-    if [[ -n "$_ARG_ALL" ]]; then
-        sc_heading 1 n "System"
-        sc_status_os
-        sc_status_required_applications
-        sc_status_required_files
-
-        sc_heading 1 n "Registry Authentications"
-        sc_status_registries
-
-        sc_heading 1 n "Environment"
-        sc_status_env
-    fi
-
-    sc_heading 1 n "Plots"
-    sc_plots_inspect
 
     sc_heading 1 n "Local Pod"
     if podman pod exists $_ST_POD; then
