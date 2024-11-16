@@ -58,6 +58,7 @@ spec:
         - name: root-map
           image: "quay.io/serenditree/root-map:latest"
           imagePullPolicy: Always
+
           ports:
             - containerPort: 8080
               protocol: TCP
@@ -89,11 +90,11 @@ spec:
             periodSeconds: 30
           resources:
             requests:
-              cpu: 500m
-              memory: 256Mi
+              cpu: 200m
+              memory: 200Mi
             limits:
-              cpu: 500m
-              memory: 256Mi
+              cpu: 400m
+              memory: 200Mi
           securityContext:
             runAsGroup: 1001
             runAsUser: 1001
