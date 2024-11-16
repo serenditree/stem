@@ -76,11 +76,11 @@ function sc_status_env() {
 function sc_status() {
     sc_heading 1 "Cluster Context"
     sc_context && local -r _ready=on
-    [[ -n "$_ST_CONTEXT" ]] && echo "Cluster domain: $(sc_context_cluster_domain)"
+    [[ -n "$_ST_CONTEXT" ]] && echo -e "Cluster domain: $(sc_context_cluster_domain)\n"
 
     if [[ -n "$_ready" ]];then
         sc_heading 1 "Cluster"
-        echo && sc_heading 2 Pods
+        sc_heading 2 Pods
         kubectl get pods --all-namespaces --output wide
         echo && sc_heading 2 Apps
         echo -n "ArgoCD login..."
