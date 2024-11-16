@@ -4,6 +4,7 @@ argo-cd:
       argocdServerAdminPassword: ~
 global:
   setupApps: ~
+  setupScale: false
   setupTekton: false
   setupProm: false
   context: ~

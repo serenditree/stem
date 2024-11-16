@@ -1,5 +1,4 @@
-{{- if .Values.global.setupTekton }}
-{{- if .Values.global.setupApps }}
+{{- if and .Values.global.setupTekton .Values.global.setupApps }}
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
@@ -41,5 +40,4 @@ spec:
       jqPathExpressions:
         - '.spec.steps[].workingdir'
         - '.spec.steps[].resources'
-{{- end }}
 {{- end }}

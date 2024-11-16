@@ -1,5 +1,4 @@
-{{- if .Values.global.setupApps }}
-{{- if not (hasSuffix "-local" .Values.global.context) }}
+{{- if and .Values.global.setupScale .Values.global.setupApps (not (hasSuffix "-local" .Values.global.context)) }}
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
@@ -20,5 +19,4 @@ spec:
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: kube-system
-{{- end }}
 {{- end }}
