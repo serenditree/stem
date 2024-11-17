@@ -33,7 +33,7 @@ spec:
           value: {{ .Values.tekton.basic.redhat }}
   destination:
     server: 'https://kubernetes.default.svc'
-    namespace: tekton-pipelines
+    namespace: terra-tekton
   ignoreDifferences:
     - group: tekton.dev
       kind: ClusterTask
