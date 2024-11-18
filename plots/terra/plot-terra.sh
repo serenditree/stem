@@ -31,10 +31,6 @@ function sc_terra_up_init() {
         done
 }
 
-function sc_terra_up_validate() {
-    terraform -chdir="$_ST_TERRA_DIR" validate
-}
-
 function sc_terra_up_assets() {
     sc_terra_down_assets
     sc_terra_down_bucket
