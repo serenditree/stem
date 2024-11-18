@@ -5,7 +5,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: terra-cache
-  namespace: argocd
+  namespace: terra-cargo
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
@@ -22,7 +22,7 @@ spec:
           value: {{ .Values.global.clusterDomain }}
   destination:
     server: 'https://kubernetes.default.svc'
-    namespace: ingress-nginx
+    namespace: terra-ingress
   syncPolicy:
     syncOptions:
       - CreateNamespace=true

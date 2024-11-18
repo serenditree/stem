@@ -1,22 +1,26 @@
-{{- if and .Values.global.setupScale .Values.global.setupApps (not (hasSuffix "-local" .Values.global.context)) }}
+{{- if and .Values.global.setupScope .Values.global.setupApps }}
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: terra-scale
-  namespace: argocd
+  name: terra-scope
+  namespace: terra-cargo
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
   source:
     repoURL: 'git@github.com:serenditree/stem.git'
-    path: plots/terra/charts/scale
+    path: plots/terra/charts/scope
     targetRevision: dev
     helm:
       valueFiles:
         - values.yaml
   destination:
     server: 'https://kubernetes.default.svc'
-    namespace: kube-system
+    namespace: terra-scope
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
 {{- end }}

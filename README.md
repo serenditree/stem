@@ -13,14 +13,14 @@ image.
 ORDINAL  SERVICE            IMAGE                     TAG     PATH
 0        terra-base         -                         -       /home/tanwald/Development/Serenditree/stem/plots/terra/plot.sh
 1        terra-cilium       -                         -       /home/tanwald/Development/Serenditree/stem/plots/terra/charts/cilium/plot.sh
-2        terra-argocd       -                         -       /home/tanwald/Development/Serenditree/stem/plots/terra/charts/argocd/plot.sh
+2        terra-cargo        -                         -       /home/tanwald/Development/Serenditree/stem/plots/terra/charts/cargo/plot.sh
 3        terra-cache        -                         -       /home/tanwald/Development/Serenditree/stem/plots/terra/charts/cache/plot.sh
 4        terra-ingress      -                         -       /home/tanwald/Development/Serenditree/stem/plots/terra/charts/ingress/plot.sh
-5        terra-scale        -                         -       /home/tanwald/Development/Serenditree/stem/plots/terra/charts/scale/plot.sh
-6        terra-tekton       -                         -       /home/tanwald/Development/Serenditree/stem/plots/terra/charts/tekton/plot.sh
-7        terra-prometheus   -                         -       /home/tanwald/Development/Serenditree/stem/plots/terra/charts/prometheus/plot.sh
-8        terra-certs        -                         -       /home/tanwald/Development/Serenditree/stem/plots/terra/charts/certs/plot.sh
-9        terra-strimzi      -                         -       /home/tanwald/Development/Serenditree/stem/plots/terra/charts/strimzi/plot.sh
+5        terra-certs        -                         -       /home/tanwald/Development/Serenditree/stem/plots/terra/charts/certs/plot.sh
+6        terra-streams      -                         -       /home/tanwald/Development/Serenditree/stem/plots/terra/charts/streams/plot.sh
+7*       terra-tekton       -                         -       /home/tanwald/Development/Serenditree/stem/plots/terra/charts/tekton/plot.sh
+8*       terra-scope        -                         -       /home/tanwald/Development/Serenditree/stem/plots/terra/charts/scope/plot.sh
+9*       terra-scale        -                         -       /home/tanwald/Development/Serenditree/stem/plots/terra/charts/scale/plot.sh
 10       soil-java-base     serenditree/java-base     latest  /home/tanwald/Development/Serenditree/stem/plots/soil/java/plot-java.sh:base:0
 11       soil-java-builder  serenditree/java-builder  latest  /home/tanwald/Development/Serenditree/stem/plots/soil/java/plot-java.sh:builder:1
 12       soil-node-base     serenditree/node-base     latest  /home/tanwald/Development/Serenditree/stem/plots/soil/node/plot-node.sh:base:0
@@ -30,11 +30,10 @@ ORDINAL  SERVICE            IMAGE                     TAG     PATH
 16       root-seed          serenditree/root-seed     latest  /home/tanwald/Development/Serenditree/stem/plots/root/seed/plot.sh
 17       root-map           serenditree/root-map      latest  /home/tanwald/Development/Serenditree/stem/plots/root/map/plot.sh
 18       root-wind          serenditree/root-wind     latest  /home/tanwald/Development/Serenditree/stem/plots/root/wind/plot.sh
-19       root-breeze        serenditree/root-breeze   latest  /home/tanwald/Development/Serenditree/stem/plots/root/breeze/plot.sh
-20       branch-user        serenditree/branch-user   latest  /home/tanwald/Development/Serenditree/stem/plots/branch/plot-branch.sh:user:user:0
-21       branch-seed        serenditree/branch-seed   latest  /home/tanwald/Development/Serenditree/stem/plots/branch/plot-branch.sh:seed:seed:1
-22       branch-poll        serenditree/branch-poll   latest  /home/tanwald/Development/Serenditree/stem/plots/branch/plot-branch.sh:poll:user:2
-23       leaf               serenditree/leaf          latest  /home/tanwald/Development/Serenditree/stem/plots/leaf/plot.sh
+19       branch-user        serenditree/branch-user   latest  /home/tanwald/Development/Serenditree/stem/plots/branch/plot-branch.sh:user:user:0
+20       branch-seed        serenditree/branch-seed   latest  /home/tanwald/Development/Serenditree/stem/plots/branch/plot-branch.sh:seed:seed:1
+21       branch-poll        serenditree/branch-poll   latest  /home/tanwald/Development/Serenditree/stem/plots/branch/plot-branch.sh:poll:user:2
+22       leaf               serenditree/leaf          latest  /home/tanwald/Development/Serenditree/stem/plots/leaf/plot.sh
 ```
 
 ## Structure

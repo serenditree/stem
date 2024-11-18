@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 ########################################################################################################################
-# TERRA ARGOCD
+# TERRA CARGO
 ########################################################################################################################
-_SERVICE=terra-argocd
+_SERVICE=terra-cargo
 _ORDINAL=2
 
 _IMAGE=-
@@ -28,7 +28,7 @@ if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "${_ARG_SE
     _argocd_password="$(pass serenditree/argocd)"
     _argocd_password_bcrypt="$(htpasswd -nbBC 10 "" "$_argocd_password" | tr -d ':\n' | sed 's/$2y/$2a/')"
 
-    [[ -z "$_ARG_DRYRUN" ]]  && _ST_HELM_NAME=argocd && _ST_HELM_ARGS="--namespace argocd --create-namespace"
+    [[ -z "$_ARG_DRYRUN" ]]  && _ST_HELM_NAME=argocd && _ST_HELM_ARGS="--namespace $_SERVICE --create-namespace"
     helm $_ST_HELM_CMD $_ST_HELM_NAME . $_ST_HELM_ARGS \
         --set "global.setupApps=${_setup_apps}" \
         --set "argo-cd.configs.secret.argocdServerAdminPassword=${_argocd_password_bcrypt}" \
@@ -43,10 +43,10 @@ if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "${_ARG_SE
 
     if [[ -z "${_ARG_DRYRUN}${_ARG_UPGRADE}" ]]; then
         sc_heading 2 "Waiting for custom resources to become established..."
-        kubectl wait --for condition=established --all crd --namespace argocd
+        kubectl wait --for condition=established --all crd --namespace $_SERVICE
         sc_heading 2 "Waiting for pods to become ready..."
-        kubectl wait --for condition=available --all deployment --namespace argocd
-        kubectl rollout status sts argocd-application-controller --watch --namespace argocd
+        kubectl wait --for condition=available --all deployment --namespace $_SERVICE
+        kubectl rollout status sts argocd-application-controller --watch --namespace $_SERVICE
         sc_heading 2 "Starting port-forwarding..."
         sc_cluster_expose argocd
         sleep 3s
@@ -65,7 +65,7 @@ if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "${_ARG_SE
 
         sc_heading 2 "Installing apps..."
         helm upgrade $_ST_HELM_NAME . \
-            --namespace argocd \
+            --namespace $_SERVICE \
             --reuse-values \
             --set "global.setupApps=true"
 

@@ -5,8 +5,8 @@ argo-cd:
 global:
   setupApps: ~
   setupScale: false
+  setupScope: false
   setupTekton: false
-  setupProm: false
   context: ~
   clusterDomain: ~
 certs:

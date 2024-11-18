@@ -110,7 +110,7 @@ function sc_cluster_patch() {
     argocd-cm)
         kubectl patch cm argocd-cm \
             --patch-file="${_ST_HOME_STEM}/rc/patches/argocd-cm.yaml" \
-            --namespace argocd
+            --namespace terra-cargo
         ;;
     recreate)
         # Patch deployment strategy for low performance environments.
@@ -213,9 +213,9 @@ function sc_cluster_clean() {
         --namespace serenditree \
         --output=jsonpath='{.items[?(@.spec.replicas==0)].metadata.name}' |
         xargs --no-run-if-empty kubectl --namespace serenditree delete rs
-    if kubectl get ns tekton-pipelines &>/dev/null; then
+    if kubectl get ns terra-tekton &>/dev/null; then
         # Pipeline runs except the two most recent ones.
-        tkn pipelinerun delete --keep 2 --namespace tekton-pipelines
+        tkn pipelinerun delete --keep 2 --namespace terra-tekton
     fi
 }
 

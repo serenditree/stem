@@ -98,7 +98,7 @@ function sc_login_db() {
         ;;
     cache | mem*)
         if [[ "$_ctx" == "cluster" ]]; then
-            kubectl exec terra-cache-memcached-0 --namespace ingress-nginx -- \
+            kubectl exec terra-cache-memcached-0 --namespace terra-ingress -- \
                 sh -c 'echo stats | nc localhost 11211 -q0'
         else
             echo "Memcached is only available in cluster contexts."

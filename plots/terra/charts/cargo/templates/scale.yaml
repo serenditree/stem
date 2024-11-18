@@ -1,26 +1,22 @@
-{{- if and .Values.global.setupProm .Values.global.setupApps }}
+{{- if and .Values.global.setupScale .Values.global.setupApps (not (hasSuffix "-local" .Values.global.context)) }}
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: terra-prometheus
-  namespace: argocd
+  name: terra-scale
+  namespace: terra-cargo
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
   source:
     repoURL: 'git@github.com:serenditree/stem.git'
-    path: plots/terra/charts/prometheus
+    path: plots/terra/charts/scale
     targetRevision: dev
     helm:
       valueFiles:
         - values.yaml
   destination:
     server: 'https://kubernetes.default.svc'
-    namespace: monitoring
-  syncPolicy:
-    syncOptions:
-      - CreateNamespace=true
-      - ServerSideApply=true
+    namespace: kube-system
 {{- end }}

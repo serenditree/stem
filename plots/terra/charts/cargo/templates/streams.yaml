@@ -3,15 +3,15 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: terra-strimzi
-  namespace: argocd
+  name: terra-streams
+  namespace: terra-cargo
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
   source:
     repoURL: 'git@github.com:serenditree/stem.git'
-    path: plots/terra/charts/strimzi
+    path: plots/terra/charts/streams
     targetRevision: dev
     helm:
       valueFiles:
@@ -27,7 +27,7 @@ spec:
           value: {{ .Values.strimzi.kafdrop.enabled | squote }}
   destination:
     server: 'https://kubernetes.default.svc'
-    namespace: strimzi
+    namespace: terra-streams
   syncPolicy:
     syncOptions:
       - CreateNamespace=true

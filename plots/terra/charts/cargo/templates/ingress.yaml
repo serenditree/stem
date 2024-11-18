@@ -4,27 +4,27 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: terra-certs
-  namespace: argocd
+  name: terra-ingress
+  namespace: terra-cargo
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
   source:
     repoURL: 'git@github.com:serenditree/stem.git'
-    path: plots/terra/charts/certs
     targetRevision: dev
     helm:
       valueFiles:
         - values.yaml
       parameters:
-        - name: letsencrypt.issuer
-          value: {{ .Values.certs.letsencrypt.issuer }}
-        - name: letsencrypt.email
-          value: {{ .Values.certs.letsencrypt.email }}
+        - name: ingress-nginx.controller.config.global-rate-limit-memcached-host
+          value: 'terra-cache-memcached.terra-ingress.svc.{{ .Values.global.clusterDomain }}'
+{{/*        - name: ingress-nginx.controller.config.otlp-collector-host*/}}
+{{/*          value: 'otel-daemon-collector.terra-scope.svc.{{ .Values.global.clusterDomain }}'*/}}
+    path: plots/terra/charts/ingress
   destination:
     server: 'https://kubernetes.default.svc'
-    namespace: cert-manager
+    namespace: terra-ingress
   syncPolicy:
     syncOptions:
       - CreateNamespace=true
