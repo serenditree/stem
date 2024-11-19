@@ -17,22 +17,15 @@ fi
 if [[ " $* " =~ " up " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]] && [[ -n "$_ARG_SETUP" ]]; then
     sc_heading 1 "Setting up $_SERVICE"
     if [[ -z "$_ARG_DRYRUN" ]]; then
-        echo "Checking preconditions for ingress setup..."
-        if [[ $(exo compute nlb list | wc -l) -gt 0 ]]; then
-            echo "Found existing load-balancer. Aborting..."
-            exit 1
-        fi
         argocd app sync $_SERVICE
         argocd app wait $_SERVICE --health
 
         echo "Waiting for load-balancer..."
-        until [[ $(exo compute nlb list | wc -l) -gt 0 ]]; do
+        until [[ $(exo compute nlb list --output-template '{{.Name}}' | grep -c 'serenditree') -gt 0 ]]; do
             sleep 1s
         done
-        _nlb_id="$(exo compute nlb list --output-template '{{.ID}}')"
-        echo "Load-balancer ID: ${_nlb_id}"
         until [[ -n "$_nlb_ip" ]] && [[ "$_nlb_ip" != "<nil>" ]]; do
-            _nlb_ip=$(exo compute nlb show "$_nlb_id" --output-format json | jq -r '.ip_address')
+            _nlb_ip=$(exo compute nlb show 'serenditree' --output-format json | jq -r '.ip_address')
             sleep 1s
         done
         echo "Load-balancer IP: ${_nlb_ip}"
