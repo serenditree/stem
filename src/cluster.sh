@@ -204,7 +204,7 @@ function sc_cluster_clean() {
         --namespace serenditree \
         --field-selector='status.phase==Succeeded' \
         --sort-by '{.metadata.creationTimestamp}' \
-        --output=custom-columns='Name:.metadata.name' \
+        --output=custom-columns='name:.metadata.name' \
         --no-headers |
         head -n -2 |
         xargs --no-run-if-empty kubectl --namespace serenditree delete pod

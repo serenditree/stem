@@ -121,9 +121,22 @@ function sc_terra_up() {
     fi
 }
 
-function sc_terra_down_assets() {
-    sc_heading 2 "Removing assets..."
-    rm -rfv "${_ST_TERRA_ASSETS_DIR}"
+function sc_terra_down_dns() {
+    echo "Removing A record..."
+    exo dns show "$_ST_DOMAIN" A --output-template '{{.ID}}' |
+        xargs exo dns remove "$_ST_DOMAIN" --force
+    echo "Removing CNAME record \"www\"..."
+    exo dns remove "$_ST_DOMAIN" www --force
+}
+
+function sc_terra_down_loadbalancer() {
+    echo "Deleting loadbalancer..."
+    exo compute nlb rm --force "serenditree"
+}
+
+function sc_terra_down_volumes() {
+    echo "Deleting volumes..."
+    xargs -n1 exo compute block-storage delete --force </tmp/serenditree-pv
 }
 
 function sc_terra_down_bucket() {
@@ -135,25 +148,15 @@ function sc_terra_down_bucket() {
     fi
 }
 
-function sc_terra_down_loadbalancer() {
-    exo compute nlb list --output-template '{{.ID}}' | xargs exo compute nlb rm --force
-}
-
-function sc_terra_down_dns() {
-    echo "Removing A record..."
-    exo dns show "$_ST_DOMAIN" A --output-template '{{.ID}}' |
-        xargs exo dns remove "$_ST_DOMAIN" --force
-    echo "Removing CNAME record \"www\"..."
-    exo dns remove "$_ST_DOMAIN" www --force
-}
-
-function sc_terra_down_volumes() {
-    exo compute block-storage list --output-template '{{.ID}}' |
-        xargs -n1 exo compute block-storage delete --force
+function sc_terra_down_assets() {
+    sc_heading 2 "Removing assets..."
+    rm -rfv "${_ST_TERRA_ASSETS_DIR}"
 }
 
 function sc_terra_down() {
     if [[ -z "$_ARG_DRYRUN" ]]; then
+        kubectl get pv --output=custom-columns='name:.metadata.name' --no-headers >/tmp/serenditree-pv
+
         [[ -n "$_ARG_YES" ]] && local -r _auto_approve=-auto-approve
         terraform -chdir="$_ST_TERRA_DIR" destroy $_auto_approve \
             -var="api_key=$(pass serenditree/serenditree@exoscale.com.access)" \
