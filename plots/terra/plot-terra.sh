@@ -155,7 +155,8 @@ function sc_terra_down_assets() {
 
 function sc_terra_down() {
     if [[ -z "$_ARG_DRYRUN" ]]; then
-        kubectl get pv --output=custom-columns='name:.metadata.name' --no-headers >/tmp/serenditree-pv
+        echo "Cluster volumes:"
+        kubectl get pv --output=custom-columns='name:.metadata.name' --no-headers | tee /tmp/serenditree-pv
 
         [[ -n "$_ARG_YES" ]] && local -r _auto_approve=-auto-approve
         terraform -chdir="$_ST_TERRA_DIR" destroy $_auto_approve \
