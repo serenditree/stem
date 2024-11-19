@@ -140,7 +140,7 @@ function sc_terra_down_volumes() {
 }
 
 function sc_terra_down_bucket() {
-    sc_heading 2 "Removing bucket..."
+    echo "Removing bucket..."
     if exo storage show sos://okd 2>/dev/null; then
         exo storage rb sos://okd --recursive --force
     else
@@ -149,13 +149,13 @@ function sc_terra_down_bucket() {
 }
 
 function sc_terra_down_assets() {
-    sc_heading 2 "Removing assets..."
+    echo "Removing assets..."
     rm -rfv "${_ST_TERRA_ASSETS_DIR}"
 }
 
 function sc_terra_down() {
     if [[ -z "$_ARG_DRYRUN" ]]; then
-        echo "Cluster volumes:"
+        sc_heading 2 "Cluster volumes:"
         kubectl get pv --output=custom-columns='name:.metadata.name' --no-headers | tee /tmp/serenditree-pv
 
         [[ -n "$_ARG_YES" ]] && local -r _auto_approve=-auto-approve
