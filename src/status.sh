@@ -76,10 +76,13 @@ function sc_status_env() {
 function sc_status() {
     sc_heading 1 "Cluster Context"
     sc_context && local -r _ready=on
-    [[ -n "$_ST_CONTEXT" ]] && echo -e "Cluster domain: $(sc_context_cluster_domain)\n"
+    [[ -n "$_ST_CONTEXT" ]] && echo &&
+        { kubectl version | sed -e '/Kustomize/d' &&
+        echo "Defined Version: v${_ST_VERSION_KUBERNETES}" &&
+        echo "Cluster Domain: $(sc_context_cluster_domain)"; } | column -ts':'
 
     if [[ -n "$_ready" ]];then
-        sc_heading 1 "Cluster"
+        sc_heading n 1 "Cluster"
         sc_heading 2 Pods
         kubectl get pods --all-namespaces --output wide
         echo && sc_heading 2 Apps
