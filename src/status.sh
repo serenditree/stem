@@ -77,7 +77,7 @@ function sc_status() {
     sc_heading 1 "Cluster Context"
     sc_context && local -r _ready=on
     [[ -n "$_ST_CONTEXT" ]] && echo &&
-        { kubectl version | sed -e '/Kustomize/d' &&
+        { kubectl version 2>/dev/null | sed -e '/Kustomize/d' &&
         echo "Defined Version: v${_ST_VERSION_KUBERNETES}" &&
         echo "Cluster Domain: $(sc_context_cluster_domain)"; } | column -ts':'
 
