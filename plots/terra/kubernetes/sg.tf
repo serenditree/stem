@@ -5,7 +5,7 @@ resource "exoscale_security_group" "serenditree" {
   name = "serenditree"
 }
 
-resource "exoscale_security_group_rule" "node_port_services" {
+resource "exoscale_security_group_rule" "node_port_service" {
   security_group_id = exoscale_security_group.serenditree.id
   type              = "INGRESS"
   protocol          = "TCP"
@@ -14,7 +14,7 @@ resource "exoscale_security_group_rule" "node_port_services" {
   end_port          = 32767
 }
 
-resource "exoscale_security_group_rule" "kubelets" {
+resource "exoscale_security_group_rule" "kubelet" {
   security_group_id      = exoscale_security_group.serenditree.id
   user_security_group_id = exoscale_security_group.serenditree.id
   type                   = "INGRESS"
