@@ -15,7 +15,7 @@ function sc_status_required_applications() {
             uniq -u
     )
     if [[ -n "$_missing" ]]; then
-        echo "${_BOLD}warning:${_NORMAL} $_missing not found" | xargs echo
+        echo "${_BOLD}warning:${_NORMAL} $_missing not found" | xargs
     else
         echo "${_BOLD}ok${_NORMAL}"
     fi

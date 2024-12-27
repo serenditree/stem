@@ -239,8 +239,7 @@ function sc_cluster_expose() {
 
     _used_ports="$(netstat --inet -tlnp 2>&1 |
         sed -En 's/.*127.0.0.1:([0-9]+).*kubectl/\1/p' |
-        xargs echo |
-        tr ' ' '|')"
+        xargs tr ' ' '|')"
     [[ -n "$_used_ports" ]] || _used_ports='none'
     echo -e "kubectl listening on ports: $_used_ports\n" | tr '|' ' '
 

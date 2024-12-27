@@ -74,24 +74,24 @@ function sc_completion() {
             sed -n '/Local commands/,/Cluster commands/p' |
             sed -En "$_cmd_pattern" |
             sort -u |
-            xargs echo
+            xargs
     )
     export _CLUSTER=$(
         $_cli help |
             sed '0,/Cluster commands/d' |
             sed -En "$_cmd_pattern" |
             sort -u |
-            xargs echo
+            xargs
     )
-    export _LONG="$($_cli help | sed -En 's/.*(--\w+).*/\1/p' | sort -u | xargs echo)"
-    export _SHORT="$($_cli help | sed -En 's/.*\s(-\w).*/\1/p' | sort -u | xargs echo)"
+    export _LONG="$($_cli help | sed -En 's/.*(--\w+).*/\1/p' | sort -u | xargs)"
+    export _SHORT="$($_cli help | sed -En 's/.*\s(-\w).*/\1/p' | sort -u | xargs)"
     export _SERVICES="$(
         _ARG_ALL=on sc_plots |
         cut -d' ' -f2 |
         sed -E 's/soil-(\S+)/\0\n\1/' |
         tr -d '*' |
         sort |
-        xargs echo
+        xargs
     )"
 
     envsubst '$_LOCAL $_CLUSTER $_LONG $_SHORT $_SERVICES' <"${_ST_HOME_STEM}/rc/templates/completion.tpl" |
