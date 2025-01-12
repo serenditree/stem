@@ -6,6 +6,8 @@ bitnami/mongodb
 cert-manager/cert-manager
 cilium/cilium
 ingress-nginx/ingress-nginx
+open-telemetry/opentelemetry-collector
 prometheus/kube-prometheus-stack
+quickwit/quickwit
 strimzi/strimzi-kafka-operator
 tekton/tekton-pipeline
