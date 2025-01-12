@@ -69,7 +69,7 @@ function sc_terra_versions() {
 function sc_terra_up_init() {
     sc_heading 1 "Initializing terraform"
     if [[ -n "$_ARG_INIT" ]]; then
-        rm -rf "${_ST_CONTEXT_HOME}/"{.terraform,modules/bootstrap/assets}
+        rm -rf "${_ST_CONTEXT_HOME}/"{terraform*,.terraform,modules/bootstrap/assets}
     fi
     terraform -chdir="$_ST_CONTEXT_HOME" init -upgrade=true
     sc_terra_versions
