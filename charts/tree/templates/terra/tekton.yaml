@@ -44,4 +44,6 @@ spec:
         - ".spec.steps[].resources"
     - group: ""
       kind: Namespace
+      jsonPointers:
+        - "/*"
 {{- end }}
