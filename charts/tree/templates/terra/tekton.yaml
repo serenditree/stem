@@ -34,10 +34,14 @@ spec:
     automated:
       prune: true
       selfHeal: true
+    syncOptions:
+      - RespectIgnoreDifferences=true
   ignoreDifferences:
     - group: tekton.dev
       kind: ClusterTask
       jqPathExpressions:
-        - '.spec.steps[].workingdir'
-        - '.spec.steps[].resources'
+        - ".spec.steps[].workingdir"
+        - ".spec.steps[].resources"
+    - group: ""
+      kind: Namespace
 {{- end }}
