@@ -106,6 +106,7 @@ terraScale:
     maxSize: 5
     apikey: ~
     secret: ~
+    autoscalingGroupNames: []
     autoscalingGroups: []
 ########################################################################################################################
 # Root

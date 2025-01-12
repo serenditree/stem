@@ -55,16 +55,8 @@ spec:
         - name: terraCilium.parameters.k8sServiceHost
           value: {{ .Values.terraCilium.parameters.k8sServiceHost }}
 
-          {{- $indexScale := 0 }}
-          {{- range .Values.terraScale.parameters.autoscalingGroups }}
-        - name: terraScale.parameters.autoscalingGroups[{{ $indexScale }}].name
-          value: {{ . | quote }}
-        - name: terraScale.parameters.autoscalingGroups[{{ $indexScale }}].minSize
-          value: {{ $.Values.terraScale.parameters.minSize | quote }}
-        - name: terraScale.parameters.autoscalingGroups[{{ $indexScale }}].maxSize
-          value: {{ $.Values.terraScale.parameters.maxSize | quote }}
-          {{- $indexScale = add1 $indexScale }}
-          {{- end }}
+        - name: terraScale.parameters.autoscalingGroupNames
+        - value: {{ .Values.terraScale.parameters.autoscalingGroupNames }}
 
         - name: rootMap.parameters.data.apikey
           value: {{ .Values.rootMap.parameters.data.apikey | quote }}

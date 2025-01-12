@@ -113,7 +113,7 @@ resource "helm_release" "serenditree" {
     for_each = { for index, name in keys(var.compute_nodes) : index => name }
     iterator = node
     content {
-      name  = "terraScale.parameters.autoscalingGroups[${node.key}]"
+      name  = "terraScale.parameters.autoscalingGroupNames[${node.key}]"
       value = exoscale_sks_nodepool.serenditree[node.value].id
     }
   }

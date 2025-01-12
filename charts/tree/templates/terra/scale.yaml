@@ -24,7 +24,7 @@ spec:
         - name: terraScale.parameters.secret
           value: {{ .Values.terraScale.parameters.secret | quote }}
           {{- $index := 0 }}
-          {{- range .Values.terraScale.parameters.autoscalingGroups }}
+          {{- range .Values.terraScale.parameters.autoscalingGroupNames }}
         - name: cluster-autoscaler.autoscalingGroups[{{ $index }}].name
           value: {{ . | quote }}
         - name: cluster-autoscaler.autoscalingGroups[{{ $index }}].minSize
