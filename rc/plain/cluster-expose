@@ -1,3 +1,6 @@
-terra-argocd/svc/terra-argocd-server~9098:443
-kube-system/svc/hubble-ui~9080:80
 terra-streams/svc/kafdrop~9000:9000
+kube-system/svc/hubble-ui~9096:80
+terra-scope/svc/terra-scope-grafana~9097:80
+terra-argocd/svc/terra-argocd-server~9098:443
+terra-scope/svc/terra-scope-kube-prometheu-prometheus~9099:9090
+terra-traces/svc/terra-traces-quickwit-searcher~9100:7280
