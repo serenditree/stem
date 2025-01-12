@@ -85,17 +85,6 @@ terraIngress:
   wave: 9
   name: terra-ingress
   namespace: terra-ingress
-terraScale:
-  enabled: false
-  wave: 100
-  name: terra-scale
-  namespace: kube-system
-  parameters:
-    minSize: 3
-    maxSize: 5
-    apikey: ~
-    secret: ~
-    autoscalingGroups: []
 terraTekton:
   enabled: true
   wave: 10
@@ -107,6 +96,17 @@ terraTekton:
       github: ~
       quay: ~
       redhat: ~
+terraScale:
+  enabled: false
+  wave: 100
+  name: terra-scale
+  namespace: kube-system
+  parameters:
+    minSize: 3
+    maxSize: 5
+    apikey: ~
+    secret: ~
+    autoscalingGroups: []
 ########################################################################################################################
 # Root
 ########################################################################################################################
