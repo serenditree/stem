@@ -185,6 +185,13 @@ function sc_cluster_certificate() {
 
 # Deletes dispensable resources.
 function sc_cluster_clean() {
+    # Failed pods
+    kubectl get pod \
+        --all-namespaces \
+        --field-selector="status.phase==Failed" \
+        --output=custom-columns='namespace:metadata.namespace,name:metadata.name' \
+        --no-headers |
+        xargs --no-run-if-empty -n2 bash -c 'kubectl --namespace $0 delete pod $1'
     # Completed pods except the two most recent ones.
     kubectl get pod \
         --namespace serenditree \
