@@ -19,9 +19,10 @@ spec:
     server: {{ .Values.global.destinationServer }}
     namespace: {{ .Values.terraScope.namespace }}
   syncPolicy:
-    syncOptions:
-      - ServerSideApply=true
     automated:
       prune: true
       selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
 {{- end }}

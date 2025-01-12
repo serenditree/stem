@@ -14,6 +14,12 @@ configs:
           - CiliumIdentity
         clusters:
           - "*"
+      - apiGroups:
+          - ""
+        kinds:
+          - Namespace
+        clusters:
+          - "*"
     resource.customizations: |
       argoproj.io/Application:
         health.lua: |
@@ -29,4 +35,3 @@ configs:
             end
           end
           return hs
-

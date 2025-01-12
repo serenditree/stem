@@ -42,8 +42,4 @@ spec:
       jqPathExpressions:
         - ".spec.steps[].workingdir"
         - ".spec.steps[].resources"
-    - group: ""
-      kind: Namespace
-      jsonPointers:
-        - "/*"
 {{- end }}
