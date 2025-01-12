@@ -24,7 +24,6 @@ function sc_context_init_generic() {
     kubectl config get-contexts "$_to" &>/dev/null && kubectl config delete-context "$_to"
     kubectl config rename-context "$_from" "$_to"
     kubectl config set-context "$_to"
-    kubectl create namespace serenditree
     kubectl config set-context --current --namespace=serenditree
 }
 export -f sc_context_init_generic
