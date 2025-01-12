@@ -198,6 +198,7 @@ function sc_terra_down() {
             jq -r ".configuration.root_module.resources[] | select(.type == \"helm_release\") | .address" |
             xargs terraform -chdir="$_ST_CONTEXT_HOME" state rm
 
+        sc_heading 2 "Starting deletion..."
         terraform -chdir="$_ST_CONTEXT_HOME" destroy -auto-approve \
             -var=api_key="$(pass serenditree/iam/serenditree@exoscale.com.access)" \
             -var=api_secret="$(pass serenditree/iam/serenditree@exoscale.com.secret)" \
