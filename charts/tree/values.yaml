@@ -8,7 +8,7 @@ global:
   issuer: ~
   stage: ~
   zone: ~
-  revision: "app-of-apps"
+  revision: "dev"
   cdNamespace: "terra-argocd"
   destinationServer: "https://kubernetes.default.svc"
   repository: "git@github.com:serenditree/stem.git"
