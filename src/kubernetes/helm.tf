@@ -29,7 +29,7 @@ resource "helm_release" "terra_cilium" {
   repository    = "https://helm.cilium.io"
   chart         = "cilium"
   namespace     = "kube-system"
-  version       = "1.16.3"
+  version       = "1.16.5"
   wait          = true
   wait_for_jobs = true
 
@@ -57,7 +57,7 @@ resource "helm_release" "terra_argocd" {
   repository       = "https://argoproj.github.io/argo-helm"
   chart            = "argo-cd"
   namespace        = "terra-argocd"
-  version          = "7.7.5"
+  version          = "7.7.15"
   wait             = true
   wait_for_jobs    = true
   create_namespace = true
