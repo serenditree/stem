@@ -33,8 +33,43 @@ kube-prometheus-stack:
               requests:
                 storage: 10Gi
   grafana:
+    replicas: 1
     persistence:
       enabled: true
       accessModes:
         - ReadWriteOnce
       size: 10Gi
+    env:
+      GF_AUTH_ANONYMOUS_ENABLED: true
+      GF_AUTH_ANONYMOUS_ORG_ROLE: 'Admin'
+      GF_AUTH_DISABLE_LOGIN_FORM: true
+    plugins:
+      - quickwit-quickwit-datasource
+    datasources:
+      datasources.yaml:
+        apiVersion: 1
+        datasources:
+          - name: "Quickwit Logs"
+            uid: "QuickwitLogs"
+            editable: false
+            isDefault: false
+            type: quickwit-quickwit-datasource
+            jsonData:
+              index: "otel-logs-v0_7"
+              logMessageField: "body.message"
+              logLevelField: "severity_number"
+            url: http://terra-traces-quickwit-searcherr.terra-traces.svc.cluster.local:7280/api/v1
+          - name: "Quickwit Traces"
+            uid: "QuickwitTraces"
+            editable: false
+            isDefault: false
+            type: quickwit-quickwit-datasource
+            jsonData:
+              index: "otel-traces-v0_7"
+            url: http://terra-traces-quickwit-searcher.terra-traces.svc.cluster.local:7280/api/v1
+          - name: "Jaeger Traces"
+            uid: "JaegerTraces"
+            editable: false
+            isDefault: false
+            type: jaeger
+            url: http://terra-traces-quickwit-searcher.terra-traces.svc.cluster.local:7280/api/v1/otel-traces-v0_7/jaeger
