@@ -62,6 +62,8 @@ export _ST_VERSION_MARIADB=11.5
 export _ST_VERSION_KAFKA=3.7.1
 export _ST_VERSION_KAFKA_SCALA=2.13
 export _ST_VERSION_NGINX=1.27
+
+export _ST_VERSION_FIXED_HELM="strimzi-kafka-operator"
 ########################################################################################################################
 # BUILD
 ########################################################################################################################
@@ -142,19 +144,3 @@ if [[ -n "$_ST_CONTEXT_IS_KUBERNETES" ]]; then
 else
     export _ST_CONTEXT_HOME="${_ST_HOME_STEM}/src/openshift"
 fi
-########################################################################################################################
-# HELM
-########################################################################################################################
-if [[ -n "$_ARG_DRYRUN" ]]; then
-    _ST_HELM_CMD="template"
-    _ST_HELM_PIPE="yq"
-else
-    if [[ -n "$_ARG_UPGRADE" ]]; then
-        _ST_HELM_CMD="upgrade"
-    else
-        _ST_HELM_CMD="install"
-    fi
-    _ST_HELM_PIPE="tee"
-fi
-_ST_HELM_FIXED=""
-export _ST_HELM_CMD _ST_HELM_PIPE _ST_HELM_FIXED
