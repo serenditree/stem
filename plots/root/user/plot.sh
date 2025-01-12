@@ -3,7 +3,7 @@
 # ROOT-USER
 ########################################################################################################################
 _SERVICE=root-user
-_ORDINAL=15
+_ORDINAL=6
 
 _IMAGE=serenditree/root-user
 _VERSION=latest
@@ -38,46 +38,20 @@ if [[ " $* " =~ " build " ]]; then
 ########################################################################################################################
 # UP
 ########################################################################################################################
-elif [[ " $* " =~ " up " ]]; then
-    if [[ -z "$_ST_CONTEXT_CLUSTER" ]]; then
-        sc_heading 1 "Starting ${_SERVICE}:${_TAG}"
-        sc_container_rm $_CONTAINER
+elif [[ " $* " =~ " up " ]] && [[ -z "$_ST_CONTEXT_CLUSTER" ]]; then
+    sc_heading 1 "Starting ${_SERVICE}:${_TAG}"
+    sc_container_rm $_CONTAINER
 
-        # shellcheck disable=SC2046
-        podman run \
-            --log-level $_ST_LOG_LEVEL \
-            --pod $_ST_POD \
-            --name $_CONTAINER \
-            --env-file ./plot.env \
-            $([[ -z "$_ARG_INTEGRATION" ]] && echo --volume ${_VOLUME_SRC}:${_VOLUME_DST}:Z) \
-            --health-cmd 'mysqladmin status -uroot -p"${MARIADB_ROOT_PASSWORD}"' \
-            --health-interval 3s \
-            --health-retries 1 \
-            --detach \
-            ${_IMAGE}:${_TAG}
-########################################################################################################################
-# SETUP
-########################################################################################################################
-    elif [[ -n "$_ARG_SETUP" ]]; then
-        sc_heading 1 "Setting up ${_SERVICE}"
-
-        _cluster_domain=$(sc_context_cluster_domain)
-        _credentials=$(pass serenditree/root.user)
-        _credentials_root="$(pass serenditree/root.user.root)"
-
-        [[ -z "$_ARG_DRYRUN" ]] && _ST_HELM_NAME=root-user
-        helm $_ST_HELM_CMD $_ST_HELM_NAME ./charts/cd \
-            --set "global.context=$_ST_CONTEXT" \
-            --set "clusterDomain=$_cluster_domain" \
-            --set "db.user=${_credentials%%:*}" \
-            --set "db.password=${_credentials#*:}" \
-            --set "rootUser.password=$_credentials_root" | $_ST_HELM_PIPE
-
-        if [[ -z "$_ARG_DRYRUN" ]]; then
-            argocd app sync root-user
-            argocd app set root-user --parameter rootUser.mariadb=true
-            argocd app sync root-user
-            argocd app wait root-user --health
-        fi
-    fi
+    # shellcheck disable=SC2046
+    podman run \
+        --log-level $_ST_LOG_LEVEL \
+        --pod $_ST_POD \
+        --name $_CONTAINER \
+        --env-file ./plot.env \
+        $([[ -z "$_ARG_INTEGRATION" ]] && echo --volume ${_VOLUME_SRC}:${_VOLUME_DST}:Z) \
+        --health-cmd 'mysqladmin status -uroot -p"${MARIADB_ROOT_PASSWORD}"' \
+        --health-interval 3s \
+        --health-retries 1 \
+        --detach \
+        ${_IMAGE}:${_TAG}
 fi

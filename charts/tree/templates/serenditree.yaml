@@ -1,0 +1,106 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Values.serenditree.name }}
+  namespace: {{ .Values.global.cdNamespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: {{ .Values.serenditree.wave | quote }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: {{ .Values.global.repository | quote }}
+    path: "{{ .Values.global.path }}/tree"
+    targetRevision: {{ .Values.serenditree.revision | default .Values.global.revision | quote }}
+    helm:
+      parameters:
+        - name: global.context
+          value: {{ .Values.global.context }}
+        - name: global.clusterDomain
+          value: {{ .Values.global.clusterDomain }}
+        - name: global.host
+          value: {{ .Values.global.host }}
+        - name: global.issuer
+          value: {{ .Values.global.issuer }}
+        - name: global.stage
+          value: {{ .Values.global.stage }}
+        - name: global.zone
+          value: {{ .Values.global.zone }}
+
+        - name: terraCerts.parameters.email
+          value: {{ .Values.terraCerts.parameters.email }}
+
+        - name: terraTekton.parameters.webhook
+          value: {{ .Values.terraTekton.parameters.webhook }}
+        - name: terraTekton.parameters.basic.github
+          value: {{ .Values.terraTekton.parameters.basic.github }}
+        - name: terraTekton.parameters.basic.quay
+          value: {{ .Values.terraTekton.parameters.basic.quay }}
+        - name: terraTekton.parameters.basic.redhat
+          value: {{ .Values.terraTekton.parameters.basic.redhat }}
+
+        - name: terraTraces.parameters.config.storage.s3.access_key_id
+          value: {{ .Values.terraTraces.parameters.config.storage.s3.access_key_id }}
+        - name: terraTraces.parameters.config.storage.s3.secret_access_key
+          value: {{ .Values.terraTraces.parameters.config.storage.s3.secret_access_key }}
+        - name: terraTraces.parameters.config.metastore_uri
+          value: {{ .Values.terraTraces.parameters.config.metastore_uri }}
+        - name: terraTraces.parameters.config.default_index_root_uri
+          value: {{ .Values.terraTraces.parameters.config.default_index_root_uri }}
+
+        - name: terraCilium.parameters.cluster.name
+          value: {{ .Values.terraCilium.parameters.cluster.name }}
+        - name: terraCilium.parameters.k8sServiceHost
+          value: {{ .Values.terraCilium.parameters.k8sServiceHost }}
+
+          {{- $indexScale := 0 }}
+          {{- range .Values.terraScale.parameters.autoscalingGroups }}
+        - name: terraScale.parameters.autoscalingGroups[{{ $indexScale }}].name
+          value: {{ . | quote }}
+        - name: terraScale.parameters.autoscalingGroups[{{ $indexScale }}].minSize
+          value: {{ $.Values.terraScale.parameters.minSize | quote }}
+        - name: terraScale.parameters.autoscalingGroups[{{ $indexScale }}].maxSize
+          value: {{ $.Values.terraScale.parameters.maxSize | quote }}
+          {{- $indexScale = add1 $indexScale }}
+          {{- end }}
+
+        - name: rootMap.parameters.data.apikey
+          value: {{ .Values.rootMap.parameters.data.apikey | quote }}
+        - name: rootMap.parameters.data.secret
+          value: {{ .Values.rootMap.parameters.data.secret | quote }}
+
+        - name: rootSeed.parameters.auth.usernames
+          value: {{ .Values.rootSeed.parameters.auth.usernames | quote }}
+        - name: rootSeed.parameters.auth.passwords
+          value: {{ .Values.rootSeed.parameters.auth.passwords | quote }}
+        - name: rootSeed.parameters.auth.rootPassword
+          value: {{ .Values.rootSeed.parameters.auth.rootPassword | quote }}
+
+        - name: rootUser.parameters.db.user
+          value: {{ .Values.rootUser.parameters.db.user }}
+        - name: rootUser.parameters.db.user
+          value: {{ .Values.rootUser.parameters.db.user }}
+        - name: rootUser.parameters.db.password
+          value: {{ .Values.rootUser.parameters.db.password }}
+        - name: rootUser.parameters.rootUser.password
+          value: {{ .Values.rootUser.parameters.rootUser.password }}
+
+        - name: branch.parameters.jsonWebKey
+          value: {{ .Values.branch.parameters.jsonWebKey }}
+          {{- $indexOidc := 0 }}
+          {{- range .Values.branch.parameters.oidc }}
+            {{- range $key, $value := . }}
+        - name: branch.parameters.oidc[{{ $indexOidc }}].{{ $key }}
+          value: {{ $value }}
+            {{- end }}
+            {{- $indexOidc = add1 $indexOidc }}
+          {{- end }}
+  destination:
+    server: {{ .Values.global.destinationServer }}
+    namespace: {{ .Values.global.cdNamespace }}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

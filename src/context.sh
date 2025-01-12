@@ -29,27 +29,34 @@ function sc_context_init_generic() {
 }
 export -f sc_context_init_generic
 
-# Fetches and sets the context of the remote kubernetes cluster.
+# Sets the context for the remote kubernetes cluster.
+# $1: Location of the kubeconfig file to merge.
+# $2: Fetch before merge if set to "--fetch".
 function sc_context_init_kube() {
-    echo "Fetching kubeconfig..."
-    local -r _config=${KUBECONFIG}.sks
-    local -r _ttl="$((60 * 60 * 24 * 90))"
-    local -r _group="system:masters"
-    until exo compute sks kubeconfig serenditree kubeadmin/serenditree \
-        --ttl $_ttl \
-        --group $_group  \
-        --zone "${_ST_ZONE}" >"$_config"
-    do
-        sleep 1s
-    done
-    cp -v "$KUBECONFIG" "${KUBECONFIG}.bak"
-    local -r _context_sks="$(sed -En 's/.*current-context: (.*)/\1/p' "$_config")"
-    sed -i '/current-context/d' "$_config"
-    KUBECONFIG="${KUBECONFIG}:${_config}" kubectl config view --flatten >"${KUBECONFIG}.merged"
+    local -r _kubeconfig="$1"
+    if [[ "$2" == "--fetch" ]]; then
+        echo "Fetching kubeconfig..."
+        local -r _ttl="$((60 * 60 * 24 * 90))"
+        local -r _group="system:masters"
+        until exo compute sks kubeconfig serenditree kubeadmin/serenditree \
+            --ttl $_ttl \
+            --group $_group  \
+            --group "$_ST_ACCOUNT"  \
+            --zone "$_ST_ZONE" >"$_kubeconfig"
+        do
+            sleep 1s
+        done
+    fi
+    echo "Creating backup of ${KUBECONFIG}..."
+    cp -v "$KUBECONFIG" "${KUBECONFIG}.$(date +%Y%m%d-%H%M%S).bak"
+    local -r _context_serenditree="$(sed -En 's/.*current-context: (.*)/\1/p' "$_kubeconfig")"
+    sed -i '/current-context/d' "$KUBECONFIG"
+    echo "Merging contexts..."
+    KUBECONFIG="${KUBECONFIG}:${_kubeconfig}" kubectl config view --flatten >"${KUBECONFIG}.merged"
     mv "${KUBECONFIG}.merged" "${KUBECONFIG}"
     chmod 600 "$KUBECONFIG"
-    kubectl config use-context "$_context_sks"
-    sc_context_init_generic "$_context_sks" "$_ST_CONTEXT_KUBERNETES"
+    kubectl config use-context "$_context_serenditree"
+    sc_context_init_generic "$_context_serenditree" "$_ST_CONTEXT_KUBERNETES"
 }
 export -f sc_context_init_kube
 
@@ -72,6 +79,20 @@ function sc_context_init_noop() {
         --client-certificate $_tmp_cert
 }
 
+# Cleans context from orphaned serenditree contexts.
+function sc_context_clean() {
+    if kubectl config get-contexts "$_ST_CONTEXT" &>/dev/null; then
+        local -r _cluster=$(kubectl config get-contexts "$_ST_CONTEXT" --no-headers |
+            tr -d '*' | awk '{print $2}')
+        local -r _user=$(kubectl config get-contexts "$_ST_CONTEXT" --no-headers |
+            tr -d '*' | awk '{print $3}')
+        kubectl config delete-context "$_ST_CONTEXT"
+        [[ "$_cluster" != "$_ST_CONTEXTS_NOOP" ]] && kubectl config delete-cluster "$_cluster"
+        [[ "$_user" != "$_ST_CONTEXTS_NOOP" ]] && kubectl config delete-user "$_user"
+    fi
+}
+export -f sc_context_clean
+
 # Initializes available contexts.
 function sc_context_init() {
     if ! kubectl config view | grep -q "name: $_ST_CONTEXTS_NOOP"; then
@@ -88,7 +109,7 @@ function sc_context_init() {
 
     if [[ -n "$_ARG_SETUP" ]]; then
         if [[ -n "$_ST_CONTEXT_KUBERNETES" ]]; then
-            sc_context_init_kube
+            sc_context_init_kube /tmp/serenditree-kubeconfig --fetch
         elif [[ -n "$_ST_CONTEXT_KUBERNETES_LOCAL" ]]; then
             sc_context_init_generic minikube "$_ST_CONTEXT_KUBERNETES_LOCAL"
         elif [[ -n "$_ST_CONTEXT_OPENSHIFT_LOCAL" ]]; then

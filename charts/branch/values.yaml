@@ -1,0 +1,22 @@
+global:
+  context: ~
+  host: ~
+  issuer: ~
+  stage: ~
+branch:
+  branches:
+    - user
+    - seed
+    - garden
+    - poll
+  minReplicas: 1
+  maxReplicas: 3
+  jsonWebKey:
+  oidc:
+    - country: ~
+      id: ~
+      idRef: ~
+      secret: ~
+      secretRef: ~
+      url: ~
+      urlRef: ~

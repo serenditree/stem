@@ -1,0 +1,20 @@
+quickwit:
+  searcher:
+    replicaCount: 1
+  indexer:
+    replicaCount: 2
+  metastore:
+    replicaCount: 1
+  janitor:
+    enabled: true
+  control_plane:
+    enabled: true
+  environment:
+    NO_COLOR: 1
+  config:
+    storage:
+      s3:
+        region: at-vie-1
+        endpoint: https://sos-at-vie-1.exo.io
+    indexer:
+      enable_otlp_endpoint: true

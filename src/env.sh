@@ -3,19 +3,14 @@
 # CONFIG
 # Global settings and definitions.
 ########################################################################################################################
-
-########################################################################################################################
 # UTILITY
 ########################################################################################################################
-
 _NORMAL=$(tput sgr0 2>/dev/null)
 _BOLD=$(tput bold 2>/dev/null)
 export _NORMAL _BOLD
-
 ########################################################################################################################
 # STAGE
 ########################################################################################################################
-
 _ST_STAGE="dev"
 if [[ -n "$_ARG_TEST" ]]; then
     _ST_STAGE="test"
@@ -23,11 +18,9 @@ elif [[ -n "$_ARG_PROD" ]]; then
     _ST_STAGE="prod"
 fi
 export _ST_STAGE
-
 ########################################################################################################################
 # PROJECT
 ########################################################################################################################
-
 if [[ -z "$_ST_CONTEXT_TKN" ]]; then
     _ST_HOME=$(realpath $0 | sed 's/\/stem.*//')
     export _ST_HOME
@@ -39,11 +32,9 @@ else
     export _ST_HOME_BRANCH=${_ST_HOME}/src
     export _ST_HOME_LEAF=${_ST_HOME}/src
 fi
-
 ########################################################################################################################
 # CONFIG
 ########################################################################################################################
-
 export _ST_ACCOUNT=${_ST_ACCOUNT:-serenditree}
 export _ST_DOMAIN=${_ST_DOMAIN:-serenditree.io}
 export _ST_GIT=${_ST_GIT:-git@github.com:serenditree/stem.git}
@@ -54,16 +45,14 @@ export _ST_RC=${_ST_RC:-${_ST_HOME_STEM}/rc/plain}
 export _ST_ZONE=${_ST_ZONE:-at-vie-1}
 
 export EXOSCALE_ACCOUNT=$_ST_ACCOUNT
-
 ########################################################################################################################
 # VERSIONS
 ########################################################################################################################
-
 if [[ -f /etc/fedora-release ]] && [[ -z "$_ST_CONTEXT_TKN" ]]; then
     _ST_VERSION_FEDORA=$(cut -d' ' -f3 /etc/fedora-release)
     export _ST_VERSION_FEDORA
 fi
-export _ST_VERSION_KUBERNETES=1.31.1
+export _ST_VERSION_KUBERNETES=1.31.3
 export _ST_VERSION_JAVA=17
 export _ST_VERSION_NODE=23.x
 export _ST_VERSION_TILESERVER=5.0.0
@@ -73,11 +62,9 @@ export _ST_VERSION_MARIADB=11.5
 export _ST_VERSION_KAFKA=3.7.1
 export _ST_VERSION_KAFKA_SCALA=2.13
 export _ST_VERSION_NGINX=1.27
-
 ########################################################################################################################
 # BUILD
 ########################################################################################################################
-
 export _ST_CONTAINER_ROOT=/serenditree
 
 export _ST_JAVA_JRE_HOME=/usr/lib/jvm/jre-${_ST_VERSION_JAVA}-openjdk
@@ -87,19 +74,15 @@ export _ST_JAVA_PACKAGE_DEVEL=java-${_ST_VERSION_JAVA}-openjdk-devel
 
 export _ST_DNF_OPTS="--assumeyes --noplugins --nodocs --setopt install_weak_deps=0"
 export _ST_DNF_OPTS_HOST="--use-host-config --releasever $_ST_VERSION_FEDORA $_ST_DNF_OPTS"
-
 ########################################################################################################################
 # BASE IMAGES
 ########################################################################################################################
-
 export _ST_FROM_ROOT_SEED=docker.io/bitnami/mongodb:${_ST_VERSION_MONGODB}
 export _ST_FROM_ROOT_USER=docker.io/bitnami/mariadb:${_ST_VERSION_MARIADB}
 export _ST_FROM_LEAF=docker.io/bitnami/nginx:${_ST_VERSION_NGINX}
-
 ########################################################################################################################
 # CONTEXT
 ########################################################################################################################
-
 _kubernetes="serenditree-kubernetes"
 _kubernetes_local="serenditree-kubernetes-local"
 _openshift="serenditree-openshift"
@@ -154,11 +137,14 @@ else
         echo -e "${_BOLD}Warning:${_NORMAL} Serenditree context is not set\n" >&2
     export _ST_CONTEXT=
 fi
-
+if [[ -n "$_ST_CONTEXT_IS_KUBERNETES" ]]; then
+    export _ST_CONTEXT_HOME="${_ST_HOME_STEM}/src/kubernetes"
+else
+    export _ST_CONTEXT_HOME="${_ST_HOME_STEM}/src/openshift"
+fi
 ########################################################################################################################
 # HELM
 ########################################################################################################################
-
 if [[ -n "$_ARG_DRYRUN" ]]; then
     _ST_HELM_CMD="template"
     _ST_HELM_PIPE="yq"

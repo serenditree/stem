@@ -1,0 +1,11 @@
+apiVersion: v2
+type: application
+name: root-user
+description: Mariadb resources
+version: 0.0.1
+appVersion: "v0.0.1"
+
+dependencies:
+  - name: mariadb-galera
+    repository: https://charts.bitnami.com/bitnami
+    version: 14.0.12

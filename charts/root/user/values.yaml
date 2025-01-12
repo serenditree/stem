@@ -1,0 +1,35 @@
+global:
+  context: ~
+rootUser:
+  clusterDomain: ~
+  db:
+    name: serenditree
+    user: ~
+    password: ~
+  rootUser:
+    password: ~
+mariadb-galera:
+  clusterDomain: cluster.local
+  fullnameOverride: root-user
+  namespaceOverride: serenditree
+  replicaCount: 3
+  resourcesPreset: none
+  persistence:
+    size: 10Gi
+  initdbScriptsConfigMap: root-user-init
+  existingSecret: root-user
+  galera:
+    name: serenditree
+    bootstrap:
+      forceBootstrap: true
+      bootstrapFromNode: 0
+      forceSafeToBootstrap: true
+    mariabackup:
+      forcePassword: false
+  db:
+    name: serenditree
+    user: ~
+    forcePassword: true
+  rootUser:
+    forcePassword: true
+

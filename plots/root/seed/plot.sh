@@ -3,7 +3,7 @@
 # ROOT-SEED
 ########################################################################################################################
 _SERVICE=root-seed
-_ORDINAL=16
+_ORDINAL=7
 
 _IMAGE=serenditree/root-seed
 _VERSION=latest
@@ -38,58 +38,22 @@ if [[ " $* " =~ " build " ]]; then
 ########################################################################################################################
 # UP
 ########################################################################################################################
-elif [[ " $* " =~ " up " ]]; then
-    if [[ -z "$_ST_CONTEXT_CLUSTER" ]]; then
-        sc_heading 1 "Starting ${_SERVICE}:${_TAG}"
-        sc_container_rm $_CONTAINER
+elif [[ " $* " =~ " up " ]] && [[ -z "$_ST_CONTEXT_CLUSTER" ]]; then
+    sc_heading 1 "Starting ${_SERVICE}:${_TAG}"
+    sc_container_rm $_CONTAINER
 
-        # shellcheck disable=SC2046
-        podman run \
-            --log-level $_ST_LOG_LEVEL \
-            --pod $_ST_POD \
-            --name $_CONTAINER \
-            --env-file ./plot.env \
-            $([[ -z "$_ARG_INTEGRATION" ]] && echo --volume ${_VOLUME_SRC}:${_VOLUME_DST}:Z) \
-            --health-cmd "mongosh --port 27017 --eval \"db.adminCommand('ping')\"" \
-            --health-interval 3s \
-            --health-retries 1 \
-            --ulimit nproc=64000 \
-            --ulimit nofile=64000 \
-            --detach \
-            ${_IMAGE}:${_TAG}
-########################################################################################################################
-# SETUP
-########################################################################################################################
-    elif [[ -n "$_ARG_SETUP" ]]; then
-        sc_heading 1 "Setting up ${_SERVICE}"
-        #helm dependency update rc
-
-        _cluster_domain=$(sc_context_cluster_domain)
-        _credentials=$(pass serenditree/root.seed)
-        _credentials_root=$(pass serenditree/root.seed.root)
-
-        [[ -z "$_ARG_DRYRUN" ]] && _ST_HELM_NAME=root-seed
-        helm $_ST_HELM_CMD $_ST_HELM_NAME ./charts/cd \
-            --set "global.context=$_ST_CONTEXT" \
-            --set "clusterDomain=$_cluster_domain" \
-            --set "auth.usernames=${_credentials%%:*}" \
-            --set "auth.passwords=${_credentials#*:}" \
-            --set "auth.rootPassword=$_credentials_root" | $_ST_HELM_PIPE
-
-        if [[ -z "$_ARG_DRYRUN" ]]; then
-            argocd app sync root-seed
-            argocd app set root-seed --parameter rootSeed.mongodb=true
-            argocd app sync root-seed
-            argocd app wait root-seed --health
-        fi
-    fi
-########################################################################################################################
-# DOWN
-########################################################################################################################
-elif [[ " $* " =~ " down " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]]; then
-    if [[ -n "$_ARG_DELETE" ]]; then
-        sc_heading 1 "Deleting ${_SERVICE}"
-        argocd app delete --yes $_SERVICE && echo "App deleted."
-        helm uninstall $_SERVICE && echo "Release uninstalled."
-    fi
+    # shellcheck disable=SC2046
+    podman run \
+        --log-level $_ST_LOG_LEVEL \
+        --pod $_ST_POD \
+        --name $_CONTAINER \
+        --env-file ./plot.env \
+        $([[ -z "$_ARG_INTEGRATION" ]] && echo --volume ${_VOLUME_SRC}:${_VOLUME_DST}:Z) \
+        --health-cmd "mongosh --port 27017 --eval \"db.adminCommand('ping')\"" \
+        --health-interval 3s \
+        --health-retries 1 \
+        --ulimit nproc=64000 \
+        --ulimit nofile=64000 \
+        --detach \
+        ${_IMAGE}:${_TAG}
 fi

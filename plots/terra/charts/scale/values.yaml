@@ -1,4 +1,0 @@
-cluster-autoscaler:
-  cloudProvider: exoscale
-  autoDiscovery:
-    clusterName: cluster.local

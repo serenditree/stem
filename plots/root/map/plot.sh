@@ -3,7 +3,7 @@
 # ROOT-MAP
 ########################################################################################################################
 _SERVICE=root-map
-_ORDINAL=17
+_ORDINAL=8
 
 _IMAGE=serenditree/root-map
 _VERSION=latest
@@ -88,66 +88,24 @@ if [[ " $* " =~ " build " ]]; then
 ########################################################################################################################
 # UP
 ########################################################################################################################
-elif [[ " $* " =~ " up " ]]; then
-    if  [[ -z "$_ST_CONTEXT_CLUSTER" ]]; then
-        sc_heading 1 "Starting ${_SERVICE}:${_TAG}"
-        sc_container_rm $_CONTAINER
+elif [[ " $* " =~ " up " ]] && [[ -z "$_ST_CONTEXT_CLUSTER" ]]; then
+    sc_heading 1 "Starting ${_SERVICE}:${_TAG}"
+    sc_container_rm $_CONTAINER
 
-        if [[ ! -f ${_VOLUME_SRC}/osm.mbtiles ]]; then
-            echo "Database osm.mbtiles does not exist. Aborting..."
-            exit 1
-        fi
-
-        podman run \
-            --log-level $_ST_LOG_LEVEL \
-            --pod $_ST_POD \
-            --name $_CONTAINER \
-            --env TILESERVER_PORT=${_EXPOSE_LOCAL%/*} \
-            --volume ${_VOLUME_SRC}:${_VOLUME_DST}:Z \
-            --health-cmd "curl --silent localhost:${_EXPOSE_LOCAL%/*}/index.json" \
-            --health-interval 3s \
-            --health-retries 1 \
-            --detach \
-            ${_IMAGE}:${_TAG}
-########################################################################################################################
-# SETUP
-########################################################################################################################
-    elif [[ -n "$_ARG_SETUP" ]]; then
-        sc_heading 1 "Setting up ${_SERVICE}"
-
-        if [[ -z "$_ARG_DRYRUN" ]]; then
-            _ST_HELM_NAME=root-map
-            kubectl create secret generic exoscale-data \
-                --from-literal="apikey=$(pass serenditree/data@exoscale.com.access)" \
-                --from-literal="secret=$(pass serenditree/data@exoscale.com.secret)" \
-                --namespace serenditree
-        fi
-        helm $_ST_HELM_CMD $_ST_HELM_NAME ./charts/cd \
-            --set "global.context=$_ST_CONTEXT" \
-            --set "ingress.letsencrypt.issuer=$_ARG_ISSUER" \
-            --set "rootMap.host=$_ST_DOMAIN" \
-            --set "rootMap.dataMountPath=$_VOLUME_DST" \
-            --set "rootMap.stage=$_ST_STAGE" | $_ST_HELM_PIPE
-
-        if [[ -z "$_ARG_DRYRUN" ]]; then
-            argocd app sync root-map
-            argocd app wait root-map --health
-        else
-            helm $_ST_HELM_CMD $_ST_HELM_NAME ./charts/app \
-                --set "global.context=$_ST_CONTEXT" \
-                --set "ingress.letsencrypt.issuer=$_ARG_ISSUER" \
-                --set "rootMap.host=$_ST_DOMAIN" \
-                --set "rootMap.dataMountPath=$_VOLUME_DST" \
-                --set "rootMap.stage=$_ST_STAGE" | $_ST_HELM_PIPE
-        fi
+    if [[ ! -f ${_VOLUME_SRC}/osm.mbtiles ]]; then
+        echo "Database osm.mbtiles does not exist. Aborting..."
+        exit 1
     fi
-########################################################################################################################
-# DOWN
-########################################################################################################################
-elif [[ " $* " =~ " down " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]]; then
-    if [[ -n "$_ARG_DELETE" ]]; then
-        sc_heading 1 "Deleting ${_SERVICE}"
-        argocd app delete --yes $_SERVICE && echo "App deleted."
-        helm uninstall $_SERVICE && echo "Release uninstalled."
-    fi
+
+    podman run \
+        --log-level $_ST_LOG_LEVEL \
+        --pod $_ST_POD \
+        --name $_CONTAINER \
+        --env TILESERVER_PORT=${_EXPOSE_LOCAL%/*} \
+        --volume ${_VOLUME_SRC}:${_VOLUME_DST}:Z \
+        --health-cmd "curl --silent localhost:${_EXPOSE_LOCAL%/*}/index.json" \
+        --health-interval 3s \
+        --health-retries 1 \
+        --detach \
+        ${_IMAGE}:${_TAG}
 fi

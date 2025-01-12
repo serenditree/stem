@@ -3,7 +3,7 @@
 # ROOT-WIND
 ########################################################################################################################
 _SERVICE=root-wind
-_ORDINAL=18
+_ORDINAL=9
 
 _IMAGE=serenditree/$_SERVICE
 _VERSION=latest
@@ -60,52 +60,17 @@ if [[ " $* " =~ " build " ]]; then
 ########################################################################################################################
 # UP
 ########################################################################################################################
-elif [[ " $* " =~ " up " ]]; then
-    if [[ -z "$_ST_CONTEXT_CLUSTER" ]]; then
-        sc_heading 1 "Starting ${_SERVICE}:${_TAG}"
-        sc_container_rm $_CONTAINER
+elif [[ " $* " =~ " up " ]] && [[ -z "$_ST_CONTEXT_CLUSTER" ]]; then
+    sc_heading 1 "Starting ${_SERVICE}:${_TAG}"
+    sc_container_rm $_CONTAINER
 
-        podman run \
-            --log-level $_ST_LOG_LEVEL \
-            --pod $_ST_POD \
-            --name $_CONTAINER \
-            --health-cmd "bash health.sh" \
-            --health-interval 3s \
-            --health-retries 1 \
-            --detach \
-            ${_IMAGE}:${_TAG}
-########################################################################################################################
-# SETUP
-########################################################################################################################
-    elif [[ -n "$_ARG_SETUP" ]]; then
-        sc_heading 1 "Setting up ${_SERVICE}"
-
-        [[ -z "$_ARG_DRYRUN" ]] && _ST_HELM_NAME="$_SERVICE"
-        helm $_ST_HELM_CMD $_ST_HELM_NAME ./charts/cd \
-            --set "global.context=$_ST_CONTEXT" | $_ST_HELM_PIPE
-
-        if [[ -n "$_ARG_DRYRUN" ]]; then
-            helm template ./charts/app --set "global.context=$_ST_CONTEXT" | yq eval
-        else
-            argocd app sync "$_SERVICE"
-            argocd app wait "$_SERVICE" --health
-        fi
-
-        echo "Adding root wind service alias..."
-        if [[ -z "$_ARG_DRYRUN" ]]; then
-            kubectl get svc/root-wind-kafka-bootstrap -o json |
-                jq 'del(.metadata, .spec.clusterIP, .spec.clusterIPs)' |
-                jq '.metadata.name = "root-wind"' |
-                kubectl apply -f -
-        fi
-    fi
-########################################################################################################################
-# DOWN
-########################################################################################################################
-elif [[ " $* " =~ " down " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]]; then
-    if [[ -z "$_ARG_DRYRUN" ]] && [[ -n "$_ARG_DELETE" ]]; then
-        sc_heading 1 "Deleting ${_SERVICE}"
-        argocd app delete "$_SERVICE"
-        helm uninstall "$_SERVICE"
-    fi
+    podman run \
+        --log-level $_ST_LOG_LEVEL \
+        --pod $_ST_POD \
+        --name $_CONTAINER \
+        --health-cmd "bash health.sh" \
+        --health-interval 3s \
+        --health-retries 1 \
+        --detach \
+        ${_IMAGE}:${_TAG}
 fi

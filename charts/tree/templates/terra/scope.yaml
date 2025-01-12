@@ -1,0 +1,27 @@
+{{- if .Values.terraScope.enabled }}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Values.terraScope.name }}
+  namespace: {{ .Values.global.cdNamespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: {{ .Values.terraScope.wave | quote }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: {{ .Values.global.repository | quote }}
+    path: "{{ .Values.global.terraPath }}/{{ trimPrefix .Values.global.terraPrefix .Values.terraScope.name }}"
+    targetRevision: {{ .Values.terraScope.revision | default .Values.global.revision | quote }}
+  destination:
+    server: {{ .Values.global.destinationServer }}
+    namespace: {{ .Values.terraScope.namespace }}
+  syncPolicy:
+    syncOptions:
+      - ServerSideApply=true
+    automated:
+      prune: true
+      selfHeal: true
+{{- end }}

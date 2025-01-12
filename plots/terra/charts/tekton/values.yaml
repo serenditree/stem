@@ -1,9 +1,0 @@
-global:
-  context: ~
-leaf: true
-branch: true
-webhook: ~
-basic:
-  github: ~
-  quay: ~
-  redhat: ~

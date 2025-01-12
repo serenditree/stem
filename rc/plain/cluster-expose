@@ -1,3 +1,3 @@
-terra-cargo/svc/argocd-server~9098:443
+terra-argocd/svc/terra-argocd-server~9098:443
 kube-system/svc/hubble-ui~9080:80
 terra-streams/svc/kafdrop~9000:9000

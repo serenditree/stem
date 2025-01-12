@@ -1,0 +1,35 @@
+{{- if .Values.terraTraces.enabled }}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Values.terraTraces.name }}
+  namespace: {{ .Values.global.cdNamespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: {{ .Values.terraTraces.wave | quote }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: {{ .Values.global.repository | quote }}
+    path: "{{ .Values.global.terraPath }}/{{ trimPrefix .Values.global.terraPrefix .Values.terraTraces.name }}"
+    targetRevision: {{ .Values.terraTraces.revision | default .Values.global.revision | quote }}
+    helm:
+      parameters:
+        - name: quickwit.config.storage.s3.access_key_id
+          value: {{ .Values.terraTraces.parameters.config.storage.s3.access_key_id }}
+        - name: quickwit.config.storage.s3.secret_access_key
+          value: {{ .Values.terraTraces.parameters.config.storage.s3.secret_access_key }}
+        - name: quickwit.config.metastore_uri
+          value: {{ .Values.terraTraces.parameters.config.metastore_uri }}
+        - name: quickwit.config.default_index_root_uri
+          value: {{ .Values.terraTraces.parameters.config.default_index_root_uri }}
+  destination:
+    server: {{ .Values.global.destinationServer }}
+    namespace: {{ .Values.terraTraces.namespace }}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+{{- end }}

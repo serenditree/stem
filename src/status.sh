@@ -107,7 +107,7 @@ function sc_status() {
     sc_status_env
 
     sc_heading 1 n "Plots"
-    _ARG_ALL=on sc_plots_inspect
+    sc_plots_inspect
 
     sc_heading 1 n "Local Cluster"
     if [[ -n "${_ST_CONTEXT_KUBERNETES}${_ST_CONTEXT_KUBERNETES_LOCAL}" ]]; then

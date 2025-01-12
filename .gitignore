@@ -41,3 +41,7 @@ terraform.rc
 
 ### Helm ###
 Chart.lock
+
+### Custom ###
+kubeconfig
+*.iam

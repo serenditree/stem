@@ -8,3 +8,4 @@ cilium/cilium
 ingress-nginx/ingress-nginx
 prometheus/kube-prometheus-stack
 strimzi/strimzi-kafka-operator
+tekton/tekton-pipeline

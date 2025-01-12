@@ -4,28 +4,6 @@
 # Global setup tasks.
 ########################################################################################################################
 
-# Checks if the project is already set up and creates the namespace if necessary.
-function sc_setup_project() {
-    sc_heading 1 "Setting up project"
-
-    if [[ -z "$_ARG_DRYRUN" ]]; then
-        if sc_cluster_status; then
-            echo -n "Checking namespace..."
-            if ! kubectl get namespace serenditree &>/dev/null; then
-                kubectl create namespace serenditree ||
-                    { echo "Could not create project. Please login first." && exit 1; }
-            else
-                sc_heading 2 "set"
-            fi
-        else
-            echo "Aborting..." && exit 1
-        fi
-    else
-        sc_heading 2 "skipped"
-    fi
-}
-export -f sc_setup_project
-
 # Helm dependency init and repo setup.
 function sc_setup_helm() {
     sc_heading 1 "Setting up helm"
@@ -62,7 +40,7 @@ function sc_setup_helm_update() {
                 {
                     echo "id: $_repo"
                     # current version
-                    find . -name Chart.yaml \
+                    find ./charts -name Chart.yaml \
                         -exec sh -c 'grep -hA2 "\- name: $2" $1 && echo path: $1' _ {} ${_repo#*/} \; |
                             sed -r 's/(^[- ]+)|(.\/)//' |
                             sort

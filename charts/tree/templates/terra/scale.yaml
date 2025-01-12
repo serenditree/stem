@@ -1,0 +1,43 @@
+{{- if and .Values.terraScale.enabled (not (hasSuffix "-local" .Values.global.context)) }}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Values.terraScale.name }}
+  namespace: {{ .Values.global.cdNamespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: {{ .Values.terraScale.wave | quote }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: {{ .Values.global.repository | quote }}
+    path: "{{ .Values.global.terraPath }}/{{ trimPrefix .Values.global.terraPrefix .Values.terraScale.name }}"
+    targetRevision: {{ .Values.terraScale.revision | default .Values.global.revision | quote }}
+    helm:
+      parameters:
+        - name: global.zone
+          value: {{ .Values.global.zone }}
+        - name: terraScale.parameters.apikey
+          value: {{ .Values.terraScale.parameters.apikey | quote }}
+        - name: terraScale.parameters.secret
+          value: {{ .Values.terraScale.parameters.secret | quote }}
+          {{- $index := 0 }}
+          {{- range .Values.terraScale.parameters.autoscalingGroups }}
+        - name: cluster-autoscaler.autoscalingGroups[{{ $index }}].name
+          value: {{ . | quote }}
+        - name: cluster-autoscaler.autoscalingGroups[{{ $index }}].minSize
+          value: {{ $.Values.terraScale.parameters.minSize | quote }}
+        - name: cluster-autoscaler.autoscalingGroups[{{ $index }}].maxSize
+          value: {{ $.Values.terraScale.parameters.maxSize | quote }}
+          {{- $index = add1 $index }}
+          {{- end }}
+  destination:
+    server: {{ .Values.global.destinationServer }}
+    namespace: {{ .Values.terraScale.namespace }}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+{{- end }}

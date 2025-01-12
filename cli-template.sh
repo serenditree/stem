@@ -24,7 +24,6 @@ echo "Done"
 # ARG_POSITIONAL_SINGLE([command], [Command to execute. Please type sc <help> for a list of commands!], [])
 # ARG_OPTIONAL_BOOLEAN([all], [a], [All...])
 # ARG_OPTIONAL_BOOLEAN([compose], [], [Run or build for podman-compose.])
-# ARG_OPTIONAL_BOOLEAN([dashboard], [], [Open dashboard.])
 # ARG_OPTIONAL_BOOLEAN([delete], [], [Deletion flag.])
 # ARG_OPTIONAL_BOOLEAN([dryrun], [D], [Activates dryrun mode.])
 # ARG_OPTIONAL_BOOLEAN([expose], [E], [Exposes database ports on local pods.])
@@ -88,7 +87,6 @@ export _ARG_INSERT=${_arg_insert/off/}
 export _ARG_OPEN=${_arg_open/off/}
 export _ARG_WATCH=${_arg_watch/off/}
 
-export _ARG_DASHBOARD=${_arg_dashboard/off/}
 export _ARG_ISSUER=$_arg_issuer
 
 export _ARG_INTEGRATION=${_arg_integration/off/}
@@ -110,6 +108,7 @@ source ./src/pods.sh
 source ./src/setup.sh
 source ./src/status.sh
 source ./src/utils.sh
+source ./src/terra.sh
 ########################################################################################################################
 # HELP
 ########################################################################################################################
@@ -329,44 +328,39 @@ cluster)
     case ${_ARG_SUB_COMMAND} in
     up)
         if [[ -n "$_ARG_HELP" ]]; then
-            _help_message="sc cluster up [component] "
+            _help_message="sc cluster up"
             _help_message+="[--init|--setup|--upgrade]"
             sc_heading 2 "$_help_message"
-            echo "Starts or installs all or defined components."
+            echo "Start or install the cluster of the current context."
             printf '\n\t%-20s%s\n' "--init" "Initialize terraform and create assets for openshift-install."
-            printf '\n\t%-20s%s\n' "--setup" "Setup of the cluster in the current context."
-            printf '\n\t%-20s%s\n' "--upgrade" "Upgrades the cluster in the current context."
+            printf '\n\t%-20s%s\n' "--setup" "Setup the cluster of the current context."
+            printf '\n\t%-20s%s\n' "--upgrade" "Upgrade the cluster of the current context."
         else
             if [[ -n "$_ARG_SETUP" ]]; then
-                time sc_plots_do "$(sc_args_to_pattern ${_ARG_LEFTOVERS[*]})" up
-            elif [[ -z "$_ARG_LEFTOVERS" ]]; then
+                time sc_terra_up
+            else
                 time sc_cluster_up
             fi
         fi
         ;;
     down)
         if [[ -n "$_ARG_HELP" ]]; then
-            _help_message="sc cluster down [component]"
+            _help_message="sc cluster down"
             _help_message+="[--reset|--delete]"
             sc_heading 2 "$_help_message"
-            echo "Stops, deletes or resets the cluster in context. "
-            printf '\t%-20s%s\n' "--reset" "Resets the cluster in the current context."
-            printf '\t%-20s%s\n' "--delete" "Deletes the cluster in the current context."
+            echo "Stop, delete or reset the cluster of the current context. "
+            printf '\t%-20s%s\n' "--reset" "Reset the cluster of the current context."
+            printf '\t%-20s%s\n' "--delete" "Delete the cluster of the current context."
          else
             if [[ -n "$_ARG_DELETE" ]]; then
-                time sc_plots_do "terra-base" down
-            elif [[ -z "$_ARG_LEFTOVERS" ]]; then
-                time sc_prompt "Stop worker nodes?" sc_cluster_down
+                time sc_prompt "Delete cluster?" sc_terra_down
             else
-                time sc_plots_do "$(sc_args_to_pattern ${_ARG_LEFTOVERS[*]})" down
+                time sc_prompt "Stop worker nodes?" sc_cluster_down
             fi
         fi
         ;;
     clean)
         time sc_cluster_clean
-        ;;
-    dashboard)
-        sc_cluster_dashboard
         ;;
     database | db)
         sc_login_db cluster ${_ARG_LEFTOVERS[*]}

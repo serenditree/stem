@@ -1,0 +1,10 @@
+apiVersion: v2
+type: application
+name: collect
+version: 0.0.1
+appVersion: "0.0.1"
+
+dependencies:
+  - name: opentelemetry-collector
+    repository: https://open-telemetry.github.io/opentelemetry-helm-charts
+    version: 0.110.3

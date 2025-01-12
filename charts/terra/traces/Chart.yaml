@@ -1,0 +1,10 @@
+apiVersion: v2
+type: application
+name: traces
+version: 0.0.1
+appVersion: "0.0.1"
+
+dependencies:
+  - name: quickwit
+    repository: https://helm.quickwit.io
+    version: 0.7.7

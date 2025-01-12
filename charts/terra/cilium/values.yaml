@@ -1,0 +1,51 @@
+cilium:
+  cluster:
+    name: ~
+  k8sServiceHost: ~
+  kubeProxyReplacement: true
+  k8sServicePort: 443
+  routingMode: tunnel
+  tunnelProtocol: vxlan
+  envoy:
+    enabled: true
+  encryption:
+    enabled: true
+    type: ipsec
+    ipsec:
+      secretName: cilium-ipsec-key
+      keyFile: key
+
+  prometheus:
+    enabled: true
+    serviceMonitor:
+      trustCRDsExist: true
+      enabled: true
+  dashboards:
+    enabled: true
+
+  hubble:
+    enabled: true
+    relay:
+      enabled: true
+    ui:
+      enabled: true
+    metrics:
+      enableOpenMetrics: true
+      serviceMonitor:
+        enabled: true
+      enabled:
+        - dns
+        - drop
+        - tcp
+        - flow
+        - port-distribution
+        - icmp
+        - httpV2:exemplars=true;labelsContext=source_namespace,source_app,source_ip,destination_namespace,destination_app,destination_ip,traffic_direction
+      dashboards:
+        enabled: true
+
+  operator:
+    prometheus:
+      enabled: true
+      serviceMonitor:
+        enabled: true

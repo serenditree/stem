@@ -11,9 +11,7 @@ function sc_plots() {
     # shellcheck disable=SC2044
     { for _plot in $(find . -type d -path '*/\.*' -prune -o -name 'plot.sh' -print); do
         pushd ${_plot%/*} >/dev/null || exit 1
-        if [[ -n "$_ARG_ALL" ]] || ! grep -q '{_ORDINAL}\*' ./plot.sh; then
-            bash ./plot.sh info
-        fi
+        bash ./plot.sh info
         popd >/dev/null || exit 1
     done; } | grep -E "$_pattern" | sort -n -k1 | sed -En "/\s${_ARG_RESUME}\s/,\$p"
 }
@@ -29,7 +27,6 @@ function sc_plots_inspect() {
             xargs -I{} bash -c "echo 'Opening {}...' && idea {} >/dev/null"
     else
         cat <(echo 'ORDINAL SERVICE IMAGE TAG PATH') <(sc_plots $_pattern) | column -ts' '
-        [[ -z "$_ARG_ALL" ]] && echo -e '\nAdd the --all flag to include optional plots!'
     fi
 }
 

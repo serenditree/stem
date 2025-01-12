@@ -3,7 +3,7 @@
 # LEAF
 ########################################################################################################################
 _SERVICE=leaf
-_ORDINAL=22
+_ORDINAL=13
 
 _IMAGE=serenditree/leaf
 _VERSION=latest
@@ -76,62 +76,29 @@ if [[ " $* " =~ " build " ]]; then
 ########################################################################################################################
 # UP
 ########################################################################################################################
-elif [[ " $* " =~ " up " ]]; then
-    if [[ -z "$_ST_CONTEXT_CLUSTER" ]]; then
-        sc_heading 1 "Starting ${_SERVICE}:${_TAG}"
-        sc_container_rm $_CONTAINER
+elif [[ " $* " =~ " up " ]] && [[ -z "$_ST_CONTEXT_CLUSTER" ]]; then
+    sc_heading 1 "Starting ${_SERVICE}:${_TAG}"
+    sc_container_rm $_CONTAINER
 
-        podman run \
-            --user 0:0 \
-            --log-level $_ST_LOG_LEVEL \
-            --pod $_ST_POD \
-            --name $_CONTAINER \
-            --label serenditree.io/service=${_SERVICE} \
-            --volume ${_VOLUME_SRC}:${_VOLUME_DST}:Z \
-            --health-cmd "curl localhost:8080" \
-            --health-interval 3s \
-            --health-retries 1 \
-            --detach \
-            serenditree/node-builder:latest \
-            yarn run host
-########################################################################################################################
-# SETUP
-########################################################################################################################
-    elif [[ -n "$_ARG_SETUP" ]]; then
-        sc_heading 1 "Setting up ${_SERVICE}"
-
-        [[ -z "$_ARG_DRYRUN" ]] && _ST_HELM_NAME=leaf
-        helm $_ST_HELM_CMD $_ST_HELM_NAME ./charts/cd \
-            --set "global.context=$_ST_CONTEXT" \
-            --set "leaf.host=$_ST_DOMAIN" \
-            --set "ingress.letsencrypt.issuer=$_ARG_ISSUER" | $_ST_HELM_PIPE
-
-
-        if [[ -z "$_ARG_DRYRUN" ]]; then
-            argocd app sync leaf
-            argocd app wait leaf --health
-        else
-            helm $_ST_HELM_CMD $_ST_HELM_NAME ./charts/app \
-                --set "global.context=$_ST_CONTEXT" \
-                --set "leaf.host=$_ST_DOMAIN" \
-                --set "ingress.letsencrypt.issuer=$_ARG_ISSUER" | $_ST_HELM_PIPE
-        fi
-    fi
-########################################################################################################################
-# DOWN
-########################################################################################################################
-elif [[ " $* " =~ " down " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]]; then
-    if [[ -n "$_ARG_DELETE" ]]; then
-        sc_heading 1 "Deleting ${_SERVICE}"
-        argocd app delete --yes $_SERVICE && echo "App deleted."
-        helm uninstall $_SERVICE && echo "Release uninstalled."
-    fi
+    podman run \
+        --user 0:0 \
+        --log-level $_ST_LOG_LEVEL \
+        --pod $_ST_POD \
+        --name $_CONTAINER \
+        --label serenditree.io/service=${_SERVICE} \
+        --volume ${_VOLUME_SRC}:${_VOLUME_DST}:Z \
+        --health-cmd "curl localhost:8080" \
+        --health-interval 3s \
+        --health-retries 1 \
+        --detach \
+        serenditree/node-builder:latest \
+        yarn run host
 ########################################################################################################################
 # TEKTON
 ########################################################################################################################
 elif [[ " $* " =~ ( (tkn|tekton) ) ]]; then
     sc_heading 1 "Running tekton..."
-    kubectl create --namespace terra-tekton -f ./charts/tkn/resources/run.yml &&
+    kubectl create --namespace terra-tekton -f ./rc/run.yml &&
         sleep 1s &&
         tkn pipeline logs --namespace terra-tekton --last --follow leaf
 fi

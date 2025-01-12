@@ -22,20 +22,6 @@ function sc_cluster_deploy() {
     [[ -n "$_apps" ]] && argocd app wait $_apps --health
 }
 
-# Opens kubernetes dashboard if installed.
-function sc_cluster_dashboard() {
-    local -r _host=localhost:8001
-    echo "Opening dashboard..."
-    if curl $_host &>/dev/null; then
-        xdg-open \
-            http://${_host}/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/login
-    else
-        nohup minikube dashboard \
-            --profile "$_ST_CONTEXT_KUBERNETES_LOCAL" \
-            --port ${_host#*:} &>/dev/null &
-    fi
-}
-
 # Displays and returns status of control plane and worker nodes.
 function sc_cluster_status() {
     if [[ -n "${_ST_CONTEXT_OPENSHIFT_LOCAL}${_ST_CONTEXT_KUBERNETES_LOCAL}" ]]; then
@@ -74,8 +60,8 @@ function sc_cluster_backup_restore_secret() {
     trap 'rm -f /tmp/exoscale.toml' EXIT
     local -r _secret="/tmp/exoscale.toml"
     if ! kubectl get secret exoscale-backup --namespace serenditree &>/dev/null; then
-        export _KEY_SUBST="$(pass serenditree/backup@exoscale.com.access)"
-        export _SECRET_SUBST="$(pass serenditree/backup@exoscale.com.secret)"
+        export _KEY_SUBST="$(pass serenditree/iam/backup@exoscale.com.access)"
+        export _SECRET_SUBST="$(pass serenditree/iam/backup@exoscale.com.secret)"
         envsubst '$_KEY_SUBST $_SECRET_SUBST $_ST_ZONE' <"${_ST_HOME_STEM}/rc/templates/exoscale.toml" >"$_secret"
         kubectl create secret generic exoscale-backup --namespace serenditree --from-file="$_secret"
     fi

@@ -1,6 +1,0 @@
-cert-manager:
-  installCRDs: true
-setupIssuer: false
-letsencrypt:
-  issuer: ~
-  email: ~

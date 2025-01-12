@@ -17,7 +17,7 @@ function sc_login() {
     case $1 in
     redhat)
         local -r _registry=registry.redhat.io
-        local -r _credentials=$(pass serenditree/$_registry)
+        local -r _credentials=$(pass serenditree/ext/redhat.io)
         { sc_logged_in $_registry && echo 'Already logged in.'; } || podman login \
             -u "${_credentials%%:*}" \
             -p "${_credentials#*:}" \
@@ -25,14 +25,14 @@ function sc_login() {
         ;;
     quay)
         local -r _registry=quay.io
-        local -r _credentials=$(pass serenditree/$_registry)
+        local -r _credentials=$(pass serenditree/ext/quay.io)
         { sc_logged_in $_registry && echo 'Already logged in.'; } || podman login \
             -u "${_credentials%%:*}" \
             -p "${_credentials#*:}" \
             "$_registry"
         ;;
     argo*)
-        local -r _argocd_password="$(pass serenditree/argocd)"
+        local -r _argocd_password="$(pass serenditree/cicd/terraArgocd.password)"
         sc_cluster_expose argocd
         sleep 1s
         argocd login localhost:9098 --insecure --username admin --password "$_argocd_password"
@@ -50,7 +50,7 @@ function sc_login() {
         if [[ -n "$_ST_CONTEXT_TKN" ]]; then
             local -r _credentials="${_ST_OPENSHIFT_USERNAME}:${_ST_OPENSHIFT_PASSWORD}"
         else
-            local -r _credentials=$(pass serenditree/crc.testing)
+            local -r _credentials="kubeadmin:crc.testing"
         fi
         oc login \
             -u "${_credentials%%:*}" \
@@ -72,11 +72,12 @@ function sc_login_db() {
     case $_db in
     user | maria)
         if [[ "$_ctx" == "cluster" ]]; then
-            local -r _credentials=$(pass serenditree/root.user)
+            local -r _username=$(pass serenditree/app/rootUser.parameters.db.user)
+            local -r _password=$(pass serenditree/app/rootUser.parameters.db.password)
             kubectl --namespace serenditree port-forward svc/root-user 3306:3306 &
             if [[ -z "$_ARG_EXPOSE" ]]; then
                 sleep 1s
-                mysql -u"${_credentials%%:*}" -p"${_credentials#*:}" --protocol=TCP serenditree
+                mysql -u"$_username" -p"$_password" --protocol=TCP serenditree
                 killall kubectl && echo "Port-forwarding stopped"
             fi
         else
@@ -85,11 +86,12 @@ function sc_login_db() {
         ;;
     seed | mongo)
         if [[ "$_ctx" == "cluster" ]]; then
-            local -r _credentials=$(pass serenditree/root.seed)
+            local -r _username=$(pass serenditree/app/rootSeed.parameters.auth.usernames)
+            local -r _password=$(pass serenditree/app/rootSeed.parameters.auth.passwords)
             kubectl --namespace serenditree port-forward pod/root-seed-0 27017:27017 &
             if [[ -z "$_ARG_EXPOSE" ]]; then
                 sleep 1s
-                mongosh --username="${_credentials%%:*}" --password="${_credentials#*:}" serenditree
+                mongosh --username="${_username}" --password="${_password}" serenditree
                 killall kubectl && echo "Port-forwarding stopped"
             fi
         else

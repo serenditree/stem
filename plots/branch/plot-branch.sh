@@ -7,7 +7,7 @@ source ./plot.env
 # BRANCH
 ########################################################################################################################
 _SERVICE=branch-${_BRANCH}
-_ORDINAL=$((_OFFSET + 19))
+_ORDINAL=$((_OFFSET + 10))
 
 _IMAGE=serenditree/branch-${_BRANCH}
 _VERSION=latest
@@ -91,77 +91,41 @@ if [[ " $* " =~ " build " ]]; then
 ########################################################################################################################
 # UP
 ########################################################################################################################
-elif [[ " $* " =~ " up " ]]; then
-    if [[ -z "$_ST_CONTEXT_CLUSTER" ]]; then
-        sc_heading 1 "Starting ${_SERVICE}:${_TAG}"
-        sc_container_rm $_CONTAINER
-        _EXPOSE="$((${_EXPOSE%/*} + _OFFSET + 1))"
+elif [[ " $* " =~ " up " ]] && [[ -z "$_ST_CONTEXT_CLUSTER" ]]; then
+    sc_heading 1 "Starting ${_SERVICE}:${_TAG}"
+    sc_container_rm $_CONTAINER
+    _EXPOSE="$((${_EXPOSE%/*} + _OFFSET + 1))"
 
-        cat <(./src/secrets.sh podman) <(echo "serenditree/java-builder:latest bash wrapper.sh") | xargs \
-            podman run \
-            --user 0:0 \
-            --log-level $_ST_LOG_LEVEL \
-            --pod $_ST_POD \
-            --name $_CONTAINER \
-            --label serenditree.io/service=${_SERVICE} \
-            --env-file ./plot.env \
-            --env SERENDITREE_BRANCH="$_BRANCH" \
-            --env SERENDITREE_SERVICE="$_SERVICE" \
-            --env SERENDITREE_VERSION="$_VERSION" \
-            --env SERENDITREE_ORDINAL="$_ORDINAL" \
-            --env SERENDITREE_STAGE="$_ST_STAGE" \
-            --env QUARKUS_HTTP_PORT="$_EXPOSE" \
-            --volume ${_VOLUME_SRC_REPO}:${_VOLUME_DST_REPO}:Z \
-            --health-cmd "bash health.sh" \
-            --health-interval 3s \
-            --health-retries 1 \
-            --detach
+    cat <(./src/secrets.sh) <(echo "serenditree/java-builder:latest bash wrapper.sh") | xargs \
+        podman run \
+        --user 0:0 \
+        --log-level $_ST_LOG_LEVEL \
+        --pod $_ST_POD \
+        --name $_CONTAINER \
+        --label serenditree.io/service=${_SERVICE} \
+        --env-file ./plot.env \
+        --env SERENDITREE_BRANCH="$_BRANCH" \
+        --env SERENDITREE_SERVICE="$_SERVICE" \
+        --env SERENDITREE_VERSION="$_VERSION" \
+        --env SERENDITREE_ORDINAL="$_ORDINAL" \
+        --env SERENDITREE_STAGE="$_ST_STAGE" \
+        --env QUARKUS_HTTP_PORT="$_EXPOSE" \
+        --volume ${_VOLUME_SRC_REPO}:${_VOLUME_DST_REPO}:Z \
+        --health-cmd "bash health.sh" \
+        --health-interval 3s \
+        --health-retries 1 \
+        --detach
 
-        echo "Adding source from ${_VOLUME_SRC_SRC}..."
-        podman cp ${_VOLUME_SRC_SRC}/. ${_CONTAINER}:${_VOLUME_DST_SRC}
-        echo "Starting build..."
-        podman exec ${_CONTAINER} touch ${_VOLUME_DST_SRC}/release
-########################################################################################################################
-# SETUP
-########################################################################################################################
-    elif [[ -n "$_ARG_SETUP" ]]; then
-        sc_heading 1 "Setting up branch"
-
-        [[ -z "$_ARG_DRYRUN" ]] && _ST_HELM_NAME=branch
-        ./src/secrets.sh helm | xargs \
-            helm $_ST_HELM_CMD $_ST_HELM_NAME ./charts/cd \
-            --set "global.context=$_ST_CONTEXT" \
-            --set "ingress.letsencrypt.issuer=$_ARG_ISSUER" \
-            --set "branch.host=$_ST_DOMAIN" \
-            --set "branch.jsonWebKey=$(pass serenditree/json.web.key)" | $_ST_HELM_PIPE
-
-        if [[ -z "$_ARG_DRYRUN" ]]; then
-            argocd app sync branch
-            argocd app wait branch --health
-        else
-            ./src/secrets.sh helm | xargs \
-                helm $_ST_HELM_CMD $_ST_HELM_NAME ./charts/app \
-                --set "global.context=$_ST_CONTEXT" \
-                --set "ingress.letsencrypt.issuer=$_ARG_ISSUER" \
-                --set "branch.host=$_ST_DOMAIN" \
-                --set "branch.jsonWebKey=$(pass serenditree/json.web.key)" | $_ST_HELM_PIPE
-        fi
-    fi
-########################################################################################################################
-# DOWN
-########################################################################################################################
-elif [[ " $* " =~ " down " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]]; then
-    if [[ -n "$_ARG_DELETE" ]]; then
-        sc_heading 1 "Deleting ${_SERVICE}"
-        argocd app delete --yes branch
-        helm uninstall branch
-    fi
+    echo "Adding source from ${_VOLUME_SRC_SRC}..."
+    podman cp ${_VOLUME_SRC_SRC}/. ${_CONTAINER}:${_VOLUME_DST_SRC}
+    echo "Starting build..."
+    podman exec ${_CONTAINER} touch ${_VOLUME_DST_SRC}/release
 ########################################################################################################################
 # TEKTON
 ########################################################################################################################
 elif [[ " $* " =~ ( (tekton|tkn) ) ]]; then
     sc_heading 1 "Running tekton..."
-    kubectl create --namespace terra-tekton -f ./charts/tkn/resources/run.yml &&
+    kubectl create --namespace terra-tekton -f ./rc/run.yml &&
         sleep 1s &&
         tkn pipeline logs --namespace terra-tekton --last --follow branch
 fi
