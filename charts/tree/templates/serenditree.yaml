@@ -55,8 +55,12 @@ spec:
         - name: terraCilium.parameters.k8sServiceHost
           value: {{ .Values.terraCilium.parameters.k8sServiceHost }}
 
-        - name: terraScale.parameters.autoscalingGroupNames
-        - value: {{ .Values.terraScale.parameters.autoscalingGroupNames }}
+          {{- $index := 0 }}
+          {{- range .Values.terraScale.parameters.autoscalingGroupNames }}
+        - name: terraScale.parameters.autoscalingGroupNames[{{ $index }}]
+          value: {{ . | quote }}
+          {{- $index = add1 $index }}
+          {{- end }}
 
         - name: rootMap.parameters.data.apikey
           value: {{ .Values.rootMap.parameters.data.apikey | quote }}
