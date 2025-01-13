@@ -12,10 +12,10 @@ spec:
     - controller
     - broker
   storage:
-    {{- if hasSuffix "local" $.Values.global.context }}
-        type: ephemeral
-    {{- else }}
-        type: persistent-claim
+  {{- if hasSuffix "local" $.Values.global.context }}
+    type: ephemeral
+  {{- else }}
+    type: persistent-claim
     volumes:
       - id: 0
         size: "{{ .storage | int }}Gi"
