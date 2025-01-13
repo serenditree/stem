@@ -15,6 +15,10 @@ spec:
     repoURL: {{ .Values.global.repository | quote }}
     path: "{{ .Values.global.terraPath }}/{{ trimPrefix .Values.global.terraPrefix .Values.terraScope.name }}"
     targetRevision: {{ .Values.terraScope.revision | default .Values.global.revision | quote }}
+    helm:
+      parameters:
+        - name: kube-prometheus-stack.alertmanager.config.receivers[0].slack_configs[0].api_url
+          value: {{ .Values.terraScope.parameters.webhook | quote }}
   destination:
     server: {{ .Values.global.destinationServer }}
     namespace: {{ .Values.terraScope.namespace }}

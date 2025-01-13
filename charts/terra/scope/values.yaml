@@ -1,4 +1,7 @@
 kube-prometheus-stack:
+########################################################################################################################
+# Prometheus
+########################################################################################################################
   prometheus:
     prometheusSpec:
       podMonitorSelectorNilUsesHelmValues: false
@@ -21,6 +24,9 @@ kube-prometheus-stack:
     enabled: false
   kubeControllerManager:
     enabled: false
+########################################################################################################################
+# Alertmanager
+########################################################################################################################
   alertmanager:
     alertmanagerSpec:
       storage:
@@ -32,6 +38,28 @@ kube-prometheus-stack:
             resources:
               requests:
                 storage: 10Gi
+    config:
+      global:
+        resolve_timeout: 10m
+      route:
+        group_by:
+         - alertname
+         - priority
+        group_wait: 1m
+        repeat_interval: 1h
+        receiver: slack
+        routes:
+          - receiver: 'null'
+            matchers:
+              - alertname = "Watchdog"
+      receivers:
+        - name: slack
+          slack_configs:
+            - api_url: ~
+        - name: 'null'
+########################################################################################################################
+# Grafana
+########################################################################################################################
   grafana:
     replicas: 1
     persistence:
