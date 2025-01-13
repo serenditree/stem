@@ -17,7 +17,7 @@ spec:
     targetRevision: {{ .Values.terraScope.revision | default .Values.global.revision | quote }}
     helm:
       parameters:
-        - name: kube-prometheus-stack.alertmanager.config.receivers[0].slack_configs[0].api_url
+        - name: kube-prometheus-stack.alertmanager.config.global.slack_api_url
           value: {{ .Values.terraScope.parameters.webhook | quote }}
   destination:
     server: {{ .Values.global.destinationServer }}
