@@ -17,7 +17,6 @@ spec:
     {{- else }}
     type: persistent-claim
     size: {{ .storage }}Gi
-    type: persistent-claim
     deleteClaim: false
     kraftMetadata: shared
     {{- end }}
