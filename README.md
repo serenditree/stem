@@ -9,7 +9,6 @@ Folders containing a file called `plot.sh` contain everything that is needed to 
 ```
 > sc plots
 ORDINAL  SERVICE            IMAGE                     TAG     PATH
-0        terra              -                         -       /home/tanwald/Development/Serenditree/stem/plots/terra/plot.sh
 1        soil-java-base     serenditree/java-base     latest  /home/tanwald/Development/Serenditree/stem/plots/soil/java/plot-java.sh:base:0
 2        soil-java-builder  serenditree/java-builder  latest  /home/tanwald/Development/Serenditree/stem/plots/soil/java/plot-java.sh:builder:1
 3        soil-node-base     serenditree/node-base     latest  /home/tanwald/Development/Serenditree/stem/plots/soil/node/plot-node.sh:base:0
@@ -50,8 +49,8 @@ that processes command-line arguments and calls the functions of dedicated scrip
 
 ```
 > sc help
-[1mSerenditree CLI
-(B[mUsage:  sc [-a|--all] [--compose] [--delete] [-D|--dryrun] [-E|--expose] [-h|--help] [--init] [--insert] [--integration] [-k|--kubernetes] [-l|--local] [--open] [-o|--openshift] [-P|--prod] [--reset] [--setup] [-T|--test] [--upgrade] [-v|--verbose] [-w|--watch] [-y|--yes] [--issuer <arg>] [--resume <arg>] [--] <command> ... 
+Serenditree CLI
+Usage:  sc [-a|--all] [--compose] [--delete] [-D|--dryrun] [-E|--expose] [-h|--help] [--init] [--insert] [--integration] [-k|--kubernetes] [-l|--local] [--open] [-o|--openshift] [-P|--prod] [--reset] [--setup] [-T|--test] [--upgrade] [-v|--verbose] [-w|--watch] [-y|--yes] [--issuer <arg>] [--resume <arg>] [--] <command> ... 
 
 	<command>:          Command to execute. Please type sc <help> for a list of commands!
 	... :               Other arguments passed to command.
@@ -79,7 +78,7 @@ that processes command-line arguments and calls the functions of dedicated scrip
 	--issuer:           Set let's encrypt issuer to prod or staging. (default: 'prod')
 	--resume:           Resume plots from the given plot. (default: '.*')
 
-	[1mLocal commands:(B[m
+	Local commands:
 	up [svc]:           Starts a local development stack or a single container. [--expose] [--watch] [--compose] [--integration]
 	down [svc]:         Stops local stack or single containers. [--compose] [--integration] Stop cluster too: [--all]
 
@@ -105,7 +104,7 @@ that processes command-line arguments and calls the functions of dedicated scrip
 	status:             Prints status information and checks prerequisites.
 	update [comp]:      Update components.
 
-	[1mCluster commands:(B[m
+	Cluster commands:
 	up [comp]:          Cluster start/setup. [--init|--setup|--upgrade] [--resume] [--dashboard]
 	down:               Cluster stop/deletion. [--reset|--delete]
 
@@ -125,5 +124,4 @@ that processes command-line arguments and calls the functions of dedicated scrip
 	tekton|tkn [svc]:   Triggers tekton runs for all or individual services.
 
 Please type 'sc <command> --help' for details about a certain command!
-
 ```
