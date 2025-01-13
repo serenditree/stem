@@ -11,3 +11,5 @@ strimzi-kafka-operator:
     initialDelaySeconds: 60
   readinessProbe:
     initialDelaySeconds: 60
+  dashboards:
+    enabled: true
