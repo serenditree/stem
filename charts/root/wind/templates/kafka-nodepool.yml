@@ -18,6 +18,7 @@ spec:
     type: persistent-claim
     volumes:
       - id: 0
+        type: persistent-claim
         size: "{{ .storage | int }}Gi"
         deleteClaim: false
         kraftMetadata: shared
