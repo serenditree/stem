@@ -107,18 +107,6 @@ variable "stage" {
     error_message = "Valid values for stage: {dev,test,prod}."
   }
 }
-variable "git_repo" {
-  description = "GitOps repository."
-  type        = string
-  validation {
-    condition     = startswith(var.git_repo, "git@")
-    error_message = "SSH destination required."
-  }
-}
-variable "git_ssh" {
-  description = "Path to the ssh private key for git."
-  type        = string
-}
 ########################################################################################################################
 # Helm Sensitive
 ########################################################################################################################

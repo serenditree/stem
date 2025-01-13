@@ -16,6 +16,7 @@ argocd login localhost:9098 \
     --insecure \
     --username admin \
     --password "$ARGOCD_INITIAL_PASSWORD"
+
 argocd account update-password \
     --account admin \
     --current-password "$ARGOCD_INITIAL_PASSWORD" \
@@ -23,7 +24,7 @@ argocd account update-password \
 ########################################################################################################################
 # Add git repository
 ########################################################################################################################
-argocd repo add "$GIT_REPO" \
-    --ssh-private-key-path "$GIT_SSH" \
+argocd repo add "$_ST_GIT" \
+    --ssh-private-key-path "$_ST_GIT_SSH" \
     --project default \
     --name serenditree-stem

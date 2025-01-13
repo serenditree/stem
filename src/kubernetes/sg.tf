@@ -73,7 +73,7 @@ resource "exoscale_security_group_rule" "cilium_hubble" {
   end_port               = 4244
 }
 
-resource "exoscale_security_group_rule" "cilium_prometheus" {
+resource "exoscale_security_group_rule" "prometheus" {
   count                  = var.cni == "cilium" || var.cni == "" ? 1 : 0
   security_group_id      = exoscale_security_group.serenditree.id
   user_security_group_id = exoscale_security_group.serenditree.id
@@ -83,7 +83,7 @@ resource "exoscale_security_group_rule" "cilium_prometheus" {
   end_port               = 9965
 }
 
-resource "exoscale_security_group_rule" "cilium_prometheus_node_exporter" {
+resource "exoscale_security_group_rule" "prometheus_node_exporter" {
   count                  = var.cni == "cilium" || var.cni == "" ? 1 : 0
   security_group_id      = exoscale_security_group.serenditree.id
   user_security_group_id = exoscale_security_group.serenditree.id

@@ -78,8 +78,6 @@ resource "terraform_data" "post_bootstrap" {
     command = "./src/post-bootstrap.sh"
     environment = {
       KUBECONFIG = "${path.module}/${local_sensitive_file.serenditree_kubeconfig_file.filename}"
-      GIT_REPO = var.git_repo
-      GIT_SSH = var.git_ssh
     }
   }
 }
