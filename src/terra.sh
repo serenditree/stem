@@ -142,11 +142,11 @@ function sc_terra_up() {
         else
             sc_heading 1 "Applying terraform"
             terraform -chdir="$_ST_CONTEXT_HOME" apply "$_plan"
+            sc_heading 1 "Backing up IAM credentials"
+            sc_terra_up_iam
             sc_heading 1 "Setting up context"
             sc_context_clean
             sc_context_init_kube "${_ST_CONTEXT_HOME}/kubeconfig"
-            sc_heading 1 "Backing up IAM credentials"
-            sc_terra_up_iam
         fi
     else
         echo "Kubernetes version $_ST_VERSION_KUBERNETES is not available. Aborting..."
