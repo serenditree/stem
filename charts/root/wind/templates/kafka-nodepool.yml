@@ -12,13 +12,12 @@ spec:
     - controller
     - broker
   storage:
-    volumes:
     {{- if hasSuffix "local" $.Values.global.context }}
-      - id: 0
         type: ephemeral
     {{- else }}
-      - id: 0
         type: persistent-claim
+    volumes:
+      - id: 0
         size: "{{ .storage | int }}Gi"
         deleteClaim: false
         kraftMetadata: shared
