@@ -12,15 +12,13 @@ spec:
     - controller
     - broker
   storage:
-  {{- if hasSuffix "local" $.Values.global.context }}
+    {{- if hasSuffix "local" $.Values.global.context }}
     type: ephemeral
-  {{- else }}
+    {{- else }}
     type: persistent-claim
-    volumes:
-      - id: 0
-        type: persistent-claim
-        size: {{ .storage }}Gi
-        deleteClaim: false
-        kraftMetadata: shared
+    size: {{ .storage }}Gi
+    type: persistent-claim
+    deleteClaim: false
+    kraftMetadata: shared
     {{- end }}
 {{- end }}
