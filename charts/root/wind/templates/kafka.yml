@@ -4,20 +4,28 @@ apiVersion: kafka.strimzi.io/v1beta2
 kind: Kafka
 metadata:
   name: {{ .name }}
+  annotations:
+    strimzi.io/node-pools: enabled
+    strimzi.io/kraft: enabled
 spec:
-  entityOperator:
-    topicOperator: { }
-    userOperator: { }
   kafka:
+    version: 3.9.0
+    listeners:
+      - name: plain
+        port: 9092
+        type: internal
+        tls: false
+    jvmOptions:
+      gcLoggingEnabled: false
     config:
-      default.replication.factor: {{ .replicas }}
-      log.retention.bytes: {{ mulf (div (mul .storage 1000000000) (mul .topics .partitions .replicas)) 0.8 | int }}
+      default.replication.factor: {{ .replicationFactor }}
+      log.retention.bytes: {{ mulf (div (mul .storage 1000000000) (mul .topics .partitions .replicationFactor)) 0.8 | int }}
       log.retention.check.interval.ms: 60000
       log.retention.hours: {{ .logRetentionHours | int }}
       num.partitions: {{ .partitions | int }}
-      transaction.state.log.replication.factor: {{ .replicas }}
-      transaction.state.log.min.isr: {{ .replicas }}
-      offsets.topic.replication.factor: {{ .replicas }}
+      transaction.state.log.replication.factor: {{ .replicationFactor }}
+      transaction.state.log.min.isr: {{ .replicationFactor }}
+      offsets.topic.replication.factor: {{ .replicationFactor }}
       compression.type: {{ .compressionType }}
       fetch.max.bytes: {{ .messageMaxBytes | int }}
       message.max.bytes: {{ .messageMaxBytes | int }}
@@ -33,32 +41,7 @@ spec:
       producer.compression.type: {{ .compressionType }}
       producer.max.request.size: {{ .messageMaxBytes | int }}
       producer.request.timeout.ms: {{ .requestTimeoutMs | int }}
-    jvmOptions:
-      gcLoggingEnabled: false
-    listeners:
-      - name: plain
-        port: 9092
-        type: internal
-        tls: false
-    replicas: {{ .replicas }}
-    {{- if hasSuffix "local" $.Values.global.context }}
-    storage:
-      type: ephemeral
-    {{- else }}
-    storage:
-      deleteClaim: true
-      size: "{{ .storage | int }}Gi"
-      type: persistent-claim
-    {{- end }}
-  zookeeper:
-    replicas: {{ .replicas }}
-    {{- if hasSuffix "local" $.Values.global.context }}
-    storage:
-      type: ephemeral
-    {{- else }}
-    storage:
-      deleteClaim: true
-      size: "{{ div .storage 2 | int }}Gi"
-      type: persistent-claim
-    {{- end }}
+  entityOperator:
+    topicOperator: { }
+    userOperator: { }
 {{- end }}

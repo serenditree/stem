@@ -1,13 +1,15 @@
+{{- with .Values.kafka }}
+---
 apiVersion: v1
 kind: Service
 metadata:
-  name: root-wind
+  name: {{ .name }}
 spec:
   type: ClusterIP
   selector:
-    strimzi.io/cluster: root-wind
     strimzi.io/kind: Kafka
-    strimzi.io/name: root-wind-kafka
+    strimzi.io/cluster: {{ .name }}
+    strimzi.io/name: {{ .name }}-kafka
   ports:
     - name: tcp-replication
       port: 9091
@@ -22,3 +24,4 @@ spec:
   ipFamilyPolicy: SingleStack
   internalTrafficPolicy: Cluster
   sessionAffinity: None
+{{- end }}
