@@ -61,6 +61,14 @@ resource "helm_release" "serenditree" {
     }
   }
   dynamic "set_sensitive" {
+    for_each = nonsensitive(var.o11y_parameters)
+    iterator = o11y_parameters
+    content {
+      name  = o11y_parameters.key
+      value = o11y_parameters.value
+    }
+  }
+  dynamic "set_sensitive" {
     for_each = nonsensitive(var.oidc_parameters)
     iterator = oidc_parameter
     content {

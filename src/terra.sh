@@ -3,8 +3,9 @@
 # TERRA
 # Cloud infrastructure setup.
 ########################################################################################################################
-# Utils
-########################################################################################################################
+
+# Turns pass key-value pairs into a JSON object for setting terraform variables.
+# $1: Pass folder.
 function sc_terra_secrets() {
     local -r _target=$1
     local _index=0
@@ -12,7 +13,7 @@ function sc_terra_secrets() {
     echo -n "Setting sensitive ${_target}-parameters..." >&2
     _JSON="{"
     while read -r _item; do
-        if [[ "$_target" == "app" ]] || [[ "$_target" == "cicd" ]]; then
+        if [[ "$_target" =~ ^(app|cicd|o11y)$ ]]; then
             _JSON+="\"${_item}\": \"$(pass serenditree/${_target}/${_item})\", "
         elif [[ "$_target" == "oidc" ]]; then
             _COUNTRY="${_item%.*}"
@@ -134,6 +135,7 @@ function sc_terra_up() {
             -var=git_ssh="${_ST_GIT_SSH}" \
             -var=app_parameters="$(sc_terra_secrets app)" \
             -var=cicd_parameters="$(sc_terra_secrets cicd)" \
+            -var=o11y_parameters="$(sc_terra_secrets o11y)" \
             -var=oidc_parameters="$(sc_terra_secrets oidc)" \
             -out "$_plan"
 
@@ -214,6 +216,7 @@ function sc_terra_down() {
             -var=git_ssh="${_ST_GIT_SSH}" \
             -var=app_parameters="$(sc_terra_secrets app)" \
             -var=cicd_parameters="$(sc_terra_secrets cicd)" \
+            -var=o11y_parameters="$(sc_terra_secrets o11y)" \
             -var=oidc_parameters="$(sc_terra_secrets oidc)"
 
         sc_prompt "Remove DNS records?" sc_terra_down_dns

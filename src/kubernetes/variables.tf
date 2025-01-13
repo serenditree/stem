@@ -132,6 +132,11 @@ variable "cicd_parameters" {
   type        = map(string)
   sensitive   = true
 }
+variable "o11y_parameters" {
+  description = "Sensitive observability parameters."
+  type        = map(string)
+  sensitive   = true
+}
 variable "oidc_parameters" {
   description = "Sensitive OIDC parameters."
   type        = map(string)
