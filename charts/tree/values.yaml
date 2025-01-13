@@ -88,7 +88,7 @@ terraIngress:
   name: terra-ingress
   namespace: terra-ingress
 terraTekton:
-  enabled: true
+  enabled: false
   wave: 10
   name: terra-tekton
   namespace: terra-tekton
