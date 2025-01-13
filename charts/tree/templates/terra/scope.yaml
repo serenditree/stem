@@ -17,6 +17,8 @@ spec:
     targetRevision: {{ .Values.terraScope.revision | default .Values.global.revision | quote }}
     helm:
       parameters:
+        - name: kube-prometheus-stack.grafana.adminPassword
+          value: {{ .Values.terraScope.parameters.password | quote }}
         - name: kube-prometheus-stack.alertmanager.config.global.slack_api_url
           value: {{ .Values.terraScope.parameters.webhook | quote }}
   destination:

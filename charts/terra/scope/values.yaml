@@ -66,16 +66,13 @@ kube-prometheus-stack:
 # Grafana
 ########################################################################################################################
   grafana:
+    adminPassword: ~
     replicas: 1
     persistence:
       enabled: true
       accessModes:
         - ReadWriteOnce
       size: 10Gi
-    env:
-      GF_AUTH_ANONYMOUS_ENABLED: true
-      GF_AUTH_ANONYMOUS_ORG_ROLE: "Admin"
-      GF_AUTH_DISABLE_LOGIN_FORM: true
     plugins:
       - quickwit-quickwit-datasource
     datasources:

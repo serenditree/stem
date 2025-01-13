@@ -34,6 +34,8 @@ spec:
 
         - name: terraScope.parameters.webhook
           value: {{ .Values.terraScope.parameters.webhook | quote }}
+        - name: terraScope.parameters.password
+          value: {{ .Values.terraScope.parameters.password | quote }}
 
         - name: terraTraces.parameters.config.storage.s3.access_key_id
           value: {{ .Values.terraTraces.parameters.config.storage.s3.access_key_id }}

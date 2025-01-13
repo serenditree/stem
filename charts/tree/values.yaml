@@ -52,6 +52,7 @@ terraScope:
   namespace: terra-scope
   parameters:
     webhook: ~
+    password: ~
 terraTraces:
   enabled: true
   wave: 5
