@@ -3,7 +3,7 @@
 # LEAF
 ########################################################################################################################
 _SERVICE=leaf
-_ORDINAL=13
+_ORDINAL=14
 
 _IMAGE=serenditree/leaf
 _VERSION=latest
@@ -20,8 +20,6 @@ _CONTAINER=$_SERVICE
 
 _VOLUME_SRC=$_ST_HOME_LEAF
 _VOLUME_DST=${_ST_CONTAINER_ROOT}/src
-
-_EXPOSE=8080/tcp
 
 if [[ -n "$_ST_CONTEXT_TKN" ]]; then
     _QUALIFIED="${_ST_REGISTRY}/"
@@ -47,31 +45,25 @@ if [[ " $* " =~ " build " ]]; then
     buildah run $_CONTAINER_REF_1 -- yarn run build --configuration="$_CONFIG"
 
     # STEP PACKAGE
-    _CONTAINER_REF=$(buildah from $_ST_FROM_LEAF)
+    _CONTAINER_REF=$(buildah from ${_QUALIFIED}serenditree/nginx)
+    _MOUNT_REF=$(buildah mount $_CONTAINER_REF)
 
-    echo "Upgrading distribution..."
-    buildah run --user 0:0 $_CONTAINER_REF -- apt-get update
-    buildah run --user 0:0 $_CONTAINER_REF -- apt-get dist-upgrade -y
     if [[ "$_CONFIG" == "compose" ]]; then
         echo "Installing curl..."
-        buildah run --user 0:0 $_CONTAINER_REF -- apt-get install -y curl
+        dnf install --installroot ${_MOUNT_REF:?} $_ST_DNF_OPTS_HOST curl
+        dnf clean all --installroot ${_MOUNT_REF:?} --noplugins
+        echo "Disabling otel..."
+        buildah config --env OTEL_ENABLED="off" $_CONTAINER_REF
     fi
-    buildah run --user 0:0 $_CONTAINER_REF -- apt-get clean
 
     echo "Adding application..."
-    buildah add --chown 1001:0 $_CONTAINER_REF ${_VOLUME_SRC}/dist/browser
-    echo "Adding configuration..."
-    _NGINX_CONFIG_FILE="serenditree.${_CONFIG}.conf"
-    _SERVER_BLOCK=/opt/bitnami/nginx/conf/server_blocks/${_NGINX_CONFIG_FILE}
-    buildah add --chown 1001:0 $_CONTAINER_REF src/${_NGINX_CONFIG_FILE} $_SERVER_BLOCK
-
-    sc_label_rm $_ST_FROM_LEAF $_CONTAINER_REF
-    sc_env_rm "$_CONTAINER_REF"
+    buildah add --chown 1001:0 $_CONTAINER_REF ${_VOLUME_SRC}/dist/browser ${_ST_CONTAINER_ROOT}/html
 
     buildah config --env DESCRIPTION="$_DESCRIPTION" $_CONTAINER_REF
     buildah config --label description="$_DESCRIPTION" $_CONTAINER_REF
-    buildah config --port $_EXPOSE $_CONTAINER_REF
 
+    buildah rm $_CONTAINER_REF_1
+    buildah umount $_CONTAINER_REF
     sc_image_config_commit "$_SERVICE" "$_IMAGE" "$_VERSION" "$_TAG" "$_ORDINAL" "$_CONTAINER_REF"
 ########################################################################################################################
 # UP

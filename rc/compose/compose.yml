@@ -7,6 +7,9 @@ services:
     restart: unless-stopped
     ports:
       - "8080:8080"
+    environment:
+      - SERENDITREE_STAGE=compose
+      - OTEL_ENABLED=off
     healthcheck:
       test: curl localhost:8080
 

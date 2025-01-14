@@ -1,0 +1,5 @@
+#!/bin/sh
+envsubst '$SERENDITREE_CONTENT $SERENDITREE_STAGE $OTEL_ENABLED $OTEL_HOST $OTEL_PORT $OTEL_SERVICE $OTEL_SPAN' \
+    <serenditree.conf >"$SERENDITREE_CONFIG"
+
+exec "$SERENDITREE_BIN" -g 'daemon off;'

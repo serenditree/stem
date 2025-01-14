@@ -3,7 +3,7 @@
 # BUILDAH
 ########################################################################################################################
 _SERVICE=soil-buildah
-_ORDINAL=5
+_ORDINAL=6
 
 _IMAGE=serenditree/buildah
 _VERSION=latest

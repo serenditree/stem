@@ -3,7 +3,7 @@
 # ROOT-SEED
 ########################################################################################################################
 _SERVICE=root-seed
-_ORDINAL=7
+_ORDINAL=8
 
 _IMAGE=serenditree/root-seed
 _VERSION=latest
@@ -27,7 +27,7 @@ if [[ " $* " =~ " build " ]]; then
     [[ -n "$_ARG_DRYRUN" ]] && exit 0
     _CONTAINER_REF=$(buildah from $_ST_FROM_ROOT_SEED)
 
-    buildah add --chown 1001:0 $_CONTAINER_REF ./charts/app/resources/0.0.1-init.js /docker-entrypoint-initdb.d/
+    buildah add --chown 1001:0 $_CONTAINER_REF ./rc/0.0.1-init.js /docker-entrypoint-initdb.d/
 
     buildah config --volume $_VOLUME_DST $_CONTAINER_REF
     buildah config --port $_EXPOSE $_CONTAINER_REF

@@ -4,5 +4,6 @@ global:
   issuer: ~
   stage: ~
 leaf:
+  otelHost: ~
   minReplicas: 1
   maxReplicas: 3

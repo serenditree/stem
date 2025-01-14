@@ -23,6 +23,8 @@ spec:
           value: {{ .Values.global.issuer }}
         - name: global.host
           value: {{ .Values.global.host | quote }}
+        - name: leaf.otelHost
+          value: "{{ .Values.terraCollect.name }}-opentelemetry-collector.{{ .Values.terraCollect.namespace }}.svc.{{ .Values.global.clusterDomain }}"
   destination:
     server: {{ .Values.global.destinationServer }}
     namespace: {{ .Values.leaf.namespace }}
