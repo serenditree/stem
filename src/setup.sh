@@ -56,7 +56,7 @@ function sc_setup_helm_update() {
         sed -E "/${_ST_VERSION_FIXED_HELM:-st-none}/,/latest/d" "$_log" |
             grep -E '^(path|version|latest)' |
             awk '{print $2}' |
-            xargs -n3 bash -c 'sed -i "s/$1/$2/" $0'
+            xargs -n3 bash -c "sed -i 's/\$1/\$2/' \$0"
         git diff |
             grep -EB 2 "version: [0-9.v]+" |
             sed -E -e '/repository/d' -e 's/^(\W+|.*:)//' |

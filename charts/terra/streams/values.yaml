@@ -2,7 +2,7 @@ global:
   clusterDomain: ~
   context: ~
 kafdrop:
-  enabled: false
+  enabled: true
 strimzi-kafka-operator:
   kubernetesServiceDnsDomain: ~
   watchNamespaces:
