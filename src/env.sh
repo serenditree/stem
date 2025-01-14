@@ -61,7 +61,6 @@ export _ST_VERSION_MONGODB=8.0
 export _ST_VERSION_MARIADB=11.5
 export _ST_VERSION_KAFKA=3.7.1
 export _ST_VERSION_KAFKA_SCALA=2.13
-export _ST_VERSION_NGINX=1.27
 
 export _ST_VERSION_FIXED_HELM=""
 ########################################################################################################################
@@ -81,7 +80,6 @@ export _ST_DNF_OPTS_HOST="--use-host-config --releasever $_ST_VERSION_FEDORA $_S
 ########################################################################################################################
 export _ST_FROM_ROOT_SEED=docker.io/bitnami/mongodb:${_ST_VERSION_MONGODB}
 export _ST_FROM_ROOT_USER=docker.io/bitnami/mariadb:${_ST_VERSION_MARIADB}
-export _ST_FROM_LEAF=docker.io/bitnami/nginx:${_ST_VERSION_NGINX}
 ########################################################################################################################
 # CONTEXT
 ########################################################################################################################
