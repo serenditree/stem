@@ -18,6 +18,8 @@ spec:
       parameters:
         - name: global.context
           value: {{ .Values.global.context }}
+        - name: global.clusterDomain
+          value: {{ .Values.global.clusterDomain }}
         - name: strimzi-kafka-operator.kubernetesServiceDnsDomain
           value: {{ .Values.global.clusterDomain }}
   destination:
