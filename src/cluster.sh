@@ -230,9 +230,7 @@ function sc_cluster_expose() {
     local -r _pattern=$1
     local _used_ports
 
-    _used_ports="$(netstat --inet -tlnp 2>&1 |
-        sed -En 's/.*127.0.0.1:([0-9]+).*kubectl/\1/p' |
-        xargs tr ' ' '|')"
+    _used_ports="$(netstat -4tlnp 2>&1 | sed -En 's/.*127.0.0.1:([0-9]+).*kubectl/\1/p' | xargs echo | tr ' ' '|')"
     [[ -n "$_used_ports" ]] || _used_ports='none'
     echo -e "kubectl listening on ports: $_used_ports\n" | tr '|' ' '
 
@@ -244,7 +242,7 @@ function sc_cluster_expose() {
             local _namespace="${_path%%/*}"
             local _svc="${_path#*/}"
             if [[ -n "$_ARG_DELETE" ]]; then
-                netstat --inet -tlnp 2>&1 |
+                netstat -4tlnp 2>&1 |
                     sed -En "s/.*127.0.0.1:${_ports%:*}.* ([0-9]+)\/kubectl/\1/p" |
                     xargs kill &>/dev/null && echo "${_svc};${_BOLD}terminated${_NORMAL}"
             elif [[ ${_ports%:*} =~ $_used_ports ]]; then
