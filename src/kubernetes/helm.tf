@@ -57,7 +57,7 @@ resource "helm_release" "terra_argocd" {
   repository       = "https://argoproj.github.io/argo-helm"
   chart            = "argo-cd"
   namespace        = "terra-argocd"
-  version          = "7.7.7"
+  version          = "7.7.15"
   wait             = true
   wait_for_jobs    = true
   create_namespace = true
