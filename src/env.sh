@@ -63,7 +63,7 @@ export _ST_VERSION_KAFKA=3.7.1
 export _ST_VERSION_KAFKA_SCALA=2.13
 export _ST_VERSION_NGINX=1.27
 
-export _ST_VERSION_FIXED_HELM="strimzi-kafka-operator"
+export _ST_VERSION_FIXED_HELM=""
 ########################################################################################################################
 # BUILD
 ########################################################################################################################
