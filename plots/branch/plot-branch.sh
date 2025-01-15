@@ -20,7 +20,6 @@ _EXPOSE=8080/tcp
 
 if [[ -n "$_ST_CONTEXT_TKN" ]]; then
     _QUALIFIED="${_ST_REGISTRY}/"
-    #_BUILDAH_ARGS="--tls-verify=false"
     _VOLUME_SRC_REPO=$_ST_REPO
 fi
 
