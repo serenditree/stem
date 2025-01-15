@@ -19,7 +19,6 @@ _EXPOSE_LOCAL=8084/tcp
 
 _TILESERVER_VERSION="$_ST_VERSION_TILESERVER"
 _TILESERVER_PORT=${_EXPOSE%/*}
-# TODO check versions (compatibility with mbtiles)
 _STYLES_VERSION=v1.9
 _FONTS_VERSION=v2.0
 
@@ -45,45 +44,44 @@ if [[ " $* " =~ " build " ]]; then
     if [[ ! -d $_SERVER_DIR  ]]; then
         mkdir -pv ${_SERVER_DIR}/styles/positron ${_SERVER_DIR}/fonts ${_SERVER_DIR}/data
         pushd $_SERVER_DIR >/dev/null || exit 1
-        echo "Downloading styles ${_STYLES_VERSION}..."
+        sc_heading 2 "Downloading styles ${_STYLES_VERSION}..."
         curl -L $_STYLES_URL -o styles/positron/${_STYLES_VERSION}.zip
         unzip -q styles/positron/${_STYLES_VERSION}.zip -d styles/positron && rm styles/positron/${_STYLES_VERSION}.zip
-        echo "Downloading fonts ${_FONTS_VERSION}..."
+        sc_heading 2 "Downloading fonts ${_FONTS_VERSION}..."
         curl -L $_FONTS_URL -o fonts/${_FONTS_VERSION}.zip
         unzip -q fonts/${_FONTS_VERSION}.zip -d fonts && rm fonts/${_FONTS_VERSION}.zip
 
-        echo "Installing tileserver ${_TILESERVER_VERSION}..."
+        sc_heading 2 "Installing tileserver ${_TILESERVER_VERSION}..."
         yarn add tileserver-gl-light@${_TILESERVER_VERSION}
         ln -s ./node_modules/.bin/tileserver-gl-light tileserver-gl-light
         popd >/dev/null || exit 1
     else
-        echo "Using existing data..."
+        sc_heading 2 "Using existing data..."
     fi
 
-    echo "Adding script..."
+    sc_heading 2 "Adding script..."
     buildah add --chown 1001:0 $_CONTAINER_REF ./src
-    echo "Adding server..."
+    sc_heading 2 "Adding server..."
     buildah add --chown 1001:0 $_CONTAINER_REF $_SERVER_DIR
 
     buildah run $_CONTAINER_REF -- chown -R 1001:0 $_ST_CONTAINER_ROOT
     buildah run $_CONTAINER_REF -- chmod -R g=u $_ST_CONTAINER_ROOT
 
-    buildah config --label description="$_DESCRIPTION" $_CONTAINER_REF
-
-    buildah config --env DESCRIPTION="$_DESCRIPTION" $_CONTAINER_REF
-    buildah config --env TILESERVER_VERSION=$_TILESERVER_VERSION $_CONTAINER_REF
-    buildah config --env TILESERVER_PORT=$_TILESERVER_PORT $_CONTAINER_REF
-
-    buildah config --user 1001:0 $_CONTAINER_REF
-    buildah config --volume $_VOLUME_DST $_CONTAINER_REF
-    buildah config --port $_EXPOSE $_CONTAINER_REF
-    buildah config --port $_EXPOSE_LOCAL $_CONTAINER_REF
-
-    buildah config --cmd "bash wrapper.sh" $_CONTAINER_REF
+    sc_heading 2 "Configuring image..."
+    buildah config \
+        --env DESCRIPTION="$_DESCRIPTION" \
+        --env TILESERVER_VERSION="$_TILESERVER_VERSION" \
+        --env TILESERVER_PORT="$_TILESERVER_PORT" \
+        --label description="$_DESCRIPTION" \
+        --volume "$_VOLUME_DST" \
+        --port "$_EXPOSE" \
+        --port "$_EXPOSE_LOCAL" \
+        --user 1001:0 \
+        --cmd "bash wrapper.sh" \
+        $_CONTAINER_REF
 
     rm -rf ${_MOUNT_REF:?}/var/cache/*
     buildah umount $_CONTAINER_REF
-
     sc_image_config_commit "$_SERVICE" "$_IMAGE" "$_VERSION" "$_TAG" "$_ORDINAL" "$_CONTAINER_REF"
 ########################################################################################################################
 # UP

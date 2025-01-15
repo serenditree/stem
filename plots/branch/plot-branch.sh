@@ -41,52 +41,53 @@ if [[ " $* " =~ " build " ]]; then
     _DESCRIPTION="Production image for branch-${_BRANCH}."
     _BUILDAH_ARGS="--ulimit nofile=10240 "
     _BUILDAH_ARGS+="--volume ${_VOLUME_SRC_REPO}:${_VOLUME_DST_REPO}:rw,z "
+    ####################################################################################################################
+    # STEP BUILDER
+    ####################################################################################################################
+    _BUILD_CONTAINER_REF=$(buildah from $_BUILDAH_ARGS ${_QUALIFIED}serenditree/java-builder)
+    _BUILD_MOUNT_REF=$(buildah mount $_BUILD_CONTAINER_REF)
 
-    # STEP BUILD
-    _CONTAINER_REF_1=$(buildah from $_BUILDAH_ARGS ${_QUALIFIED}serenditree/java-builder)
-    _MOUNT_REF_1=$(buildah mount $_CONTAINER_REF_1)
+    buildah config \
+        --env SERENDITREE_BRANCH=$_BRANCH\
+        --workingdir $_VOLUME_DST_SRC $_BUILD_CONTAINER_REF
 
-    buildah config --env SERENDITREE_BRANCH=$_BRANCH $_CONTAINER_REF_1
-    buildah config --workingdir $_VOLUME_DST_SRC $_CONTAINER_REF_1
-
-    echo "Adding source from ${_VOLUME_SRC_SRC}..."
-    buildah add $_CONTAINER_REF_1 $_VOLUME_SRC_SRC
-
-    buildah run $_CONTAINER_REF_1 -- mvn clean install --also-make --projects leaves/leaf-${_BRANCH}
+    sc_heading 2 "Adding source from ${_VOLUME_SRC_SRC} and building project..."
+    buildah add $_BUILD_CONTAINER_REF $_VOLUME_SRC_SRC
+    buildah run $_BUILD_CONTAINER_REF -- mvn clean install --also-make --projects leaves/leaf-${_BRANCH}
     if [[ -n "$_ST_CONTEXT_TKN" ]]; then
-        buildah run $_CONTAINER_REF_1 -- chmod -R g=u $_VOLUME_DST_REPO
+        buildah run $_BUILD_CONTAINER_REF -- chmod -R g=u $_VOLUME_DST_REPO
     fi
-
+    ####################################################################################################################
     # STEP PACKAGE
+    ####################################################################################################################
     _CONTAINER_REF=$(buildah from $_BUILDAH_ARGS ${_QUALIFIED}serenditree/java-base)
 
-    echo "Adding artifacts to production image..."
+    sc_heading 2 "Adding artifacts to production image..."
     buildah add --chown 1001:0 $_CONTAINER_REF \
-        ${_MOUNT_REF_1:?}/serenditree/src/leaves/leaf-${_BRANCH}/target/serenditree/lib/ \
+        ${_BUILD_MOUNT_REF:?}/serenditree/src/leaves/leaf-${_BRANCH}/target/serenditree/lib/ \
         ${_ST_CONTAINER_ROOT}/lib/
     buildah add --chown 1001:0 $_CONTAINER_REF \
-        ${_MOUNT_REF_1:?}/serenditree/src/leaves/leaf-${_BRANCH}/target/serenditree/*.jar \
+        ${_BUILD_MOUNT_REF:?}/serenditree/src/leaves/leaf-${_BRANCH}/target/serenditree/*.jar \
         ${_ST_CONTAINER_ROOT}/
     buildah add --chown 1001:0 $_CONTAINER_REF \
-        ${_MOUNT_REF_1:?}/serenditree/src/leaves/leaf-${_BRANCH}/target/serenditree/app/ \
+        ${_BUILD_MOUNT_REF:?}/serenditree/src/leaves/leaf-${_BRANCH}/target/serenditree/app/ \
         ${_ST_CONTAINER_ROOT}/app/
     buildah add --chown 1001:0 $_CONTAINER_REF \
-        ${_MOUNT_REF_1:?}/serenditree/src/leaves/leaf-${_BRANCH}/target/serenditree/quarkus/ \
+        ${_BUILD_MOUNT_REF:?}/serenditree/src/leaves/leaf-${_BRANCH}/target/serenditree/quarkus/ \
         ${_ST_CONTAINER_ROOT}/quarkus/
 
-    buildah config --user 1001:0 $_CONTAINER_REF
+    buildah config \
+        --env SERENDITREE_BRANCH="$_BRANCH" \
+        --env DESCRIPTION="$_DESCRIPTION" \
+        --label description="$_DESCRIPTION" \
+        --port "$_EXPOSE" \
+        --user 1001:0 \
+        --cmd "${_ST_CONTAINER_ROOT}/run.sh" \
+        $_CONTAINER_REF
 
-    buildah config --cmd "${_ST_CONTAINER_ROOT}/run.sh" $_CONTAINER_REF
-
-    # CLEANUP
-    buildah umount $_CONTAINER_REF_1
-    buildah rm $_CONTAINER_REF_1
-
-    buildah config --env SERENDITREE_BRANCH=$_BRANCH $_CONTAINER_REF
-    buildah config --env DESCRIPTION="$_DESCRIPTION" $_CONTAINER_REF
-    buildah config --label description="$_DESCRIPTION" $_CONTAINER_REF
-    buildah config --port $_EXPOSE $_CONTAINER_REF
-
+    buildah umount $_BUILD_CONTAINER_REF
+    buildah umount $_CONTAINER_REF
+    buildah rm $_BUILD_CONTAINER_REF
     sc_image_config_commit "$_SERVICE" "$_IMAGE" "$_VERSION" "$_TAG" "$_ORDINAL" "$_CONTAINER_REF"
 ########################################################################################################################
 # UP

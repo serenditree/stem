@@ -32,28 +32,29 @@ if [[ " $* " =~ " build " ]]; then
     _MOUNT_REF=$(buildah mount $_CONTAINER_REF)
 
     if [[ ! -f ${_KAFKA_ARCHIVE} ]]; then
-        echo "Downloading ${_KAFKA_ARCHIVE}..."
+        sc_heading 2 "Downloading ${_KAFKA_ARCHIVE}..."
         mkdir -p ${_KAFKA_ARCHIVE%/*}
         curl "${_KAFKA_MIRROR}/${_ST_VERSION_KAFKA}/${_KAFKA_PATH}.tgz" --output ${_KAFKA_ARCHIVE}
     fi
     _KAFKA_PATH="${_ST_CONTAINER_ROOT}/${_KAFKA_PATH}"
 
+    sc_heading 2 "Adding kafka and scripts..."
     buildah config --workingdir $_ST_CONTAINER_ROOT $_CONTAINER_REF
-
     buildah add --chown 1000:0 $_CONTAINER_REF ${_KAFKA_ARCHIVE}
     buildah add --chown 1000:0 $_CONTAINER_REF src/
 
     sed -i 's/=INFO/=WARN/g' ${_MOUNT_REF}/${_KAFKA_PATH}/config/*log4j.properties
 
-    buildah config --env KAFKA_PATH=$_KAFKA_PATH $_CONTAINER_REF
-    buildah config --env KAFKA_VERSION=$_ST_VERSION_KAFKA $_CONTAINER_REF
-    buildah config --env KAFKA_SCALA_VERSION=$_ST_VERSION_KAFKA_SCALA $_CONTAINER_REF
-    buildah config --env KAFKA_PORT=$_KAFKA_PORT $_CONTAINER_REF
-    buildah config --env KAFKA_TOPICS="$_KAFKA_TOPICS" $_CONTAINER_REF
-
-    buildah config --port $_EXPOSE $_CONTAINER_REF
-
-    buildah config --cmd "bash wrapper.sh" $_CONTAINER_REF
+    sc_heading 2 "Configuring image..."
+    buildah config \
+        --env KAFKA_PATH="$_KAFKA_PATH" \
+        --env KAFKA_VERSION="$_ST_VERSION_KAFKA" \
+        --env KAFKA_SCALA_VERSION="$_ST_VERSION_KAFKA_SCALA" \
+        --env KAFKA_PORT="$_KAFKA_PORT" \
+        --env KAFKA_TOPICS="$_KAFKA_TOPICS" \
+        --port "$_EXPOSE" \
+        --cmd "bash wrapper.sh" \
+        $_CONTAINER_REF
 
     buildah umount $_CONTAINER_REF
     sc_image_config_commit "$_SERVICE" "$_IMAGE" "$_VERSION" "$_TAG" "$_ORDINAL" "$_CONTAINER_REF"

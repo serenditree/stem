@@ -36,33 +36,39 @@ if [[ " $* " =~ " build " ]]; then
     [[ -n "$_ARG_DRYRUN" ]] && exit 0
     _DESCRIPTION="Production image for leaf."
     _BUILDAH_ARGS="--volume ${_VOLUME_SRC}:${_VOLUME_DST}:rw,z "
+    ####################################################################################################################
+    # STEP BUILDER
+    ####################################################################################################################
+    _BUILD_CONTAINER_REF=$(buildah from $_BUILDAH_ARGS ${_QUALIFIED}serenditree/node-builder)
 
-    # STEP BUILD
-    _CONTAINER_REF_1=$(buildah from $_BUILDAH_ARGS ${_QUALIFIED}serenditree/node-builder)
-
-    echo "Building project..."
-    buildah run $_CONTAINER_REF_1 -- yarn
-    buildah run $_CONTAINER_REF_1 -- yarn run build --configuration="$_CONFIG"
-
+    sc_heading 2 "Building project..."
+    buildah run $_BUILD_CONTAINER_REF -- yarn
+    buildah run $_BUILD_CONTAINER_REF -- yarn run build --configuration="$_CONFIG"
+    ####################################################################################################################
     # STEP PACKAGE
+    ####################################################################################################################
     _CONTAINER_REF=$(buildah from ${_QUALIFIED}serenditree/nginx)
     _MOUNT_REF=$(buildah mount $_CONTAINER_REF)
 
     if [[ "$_CONFIG" == "compose" ]]; then
-        echo "Installing curl..."
+        sc_heading 2 "Installing curl..."
         dnf install --installroot ${_MOUNT_REF:?} $_ST_DNF_OPTS_HOST curl
         dnf clean all --installroot ${_MOUNT_REF:?} --noplugins
-        echo "Disabling otel..."
+
+        sc_heading 2 "Disabling otel..."
         buildah config --env OTEL_ENABLED="off" $_CONTAINER_REF
     fi
 
-    echo "Adding application..."
+    sc_heading 2 "Adding application..."
     buildah add --chown 1001:0 $_CONTAINER_REF ${_VOLUME_SRC}/dist/browser ${_ST_CONTAINER_ROOT}/html
 
-    buildah config --env DESCRIPTION="$_DESCRIPTION" $_CONTAINER_REF
-    buildah config --label description="$_DESCRIPTION" $_CONTAINER_REF
+    sc_heading 2 "Configuring image..."
+    buildah config \
+        --env DESCRIPTION="$_DESCRIPTION" \
+        --label description="$_DESCRIPTION" \
+        $_CONTAINER_REF
 
-    buildah rm $_CONTAINER_REF_1
+    buildah rm $_BUILD_CONTAINER_REF
     buildah umount $_CONTAINER_REF
     sc_image_config_commit "$_SERVICE" "$_IMAGE" "$_VERSION" "$_TAG" "$_ORDINAL" "$_CONTAINER_REF"
 ########################################################################################################################

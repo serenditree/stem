@@ -28,9 +28,10 @@ if [[ " $* " =~ " build " ]]; then
     _CONTAINER_REF=$(buildah from $_ST_FROM_ROOT_SEED)
 
     buildah add --chown 1001:0 $_CONTAINER_REF ./rc/0.0.1-init.js /docker-entrypoint-initdb.d/
-
-    buildah config --volume $_VOLUME_DST $_CONTAINER_REF
-    buildah config --port $_EXPOSE $_CONTAINER_REF
+    buildah config \
+        --volume $_VOLUME_DST \
+        --port $_EXPOSE \
+        $_CONTAINER_REF
 
     sc_env_rm $_CONTAINER_REF
     sc_label_rm $_ST_FROM_ROOT_SEED $_CONTAINER_REF

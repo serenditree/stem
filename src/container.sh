@@ -31,10 +31,12 @@ export -f sc_label_rm
 function sc_env_rm() {
     local -r _container_ref=$1
     echo "Removing inherited environment variables..."
-    buildah config --env SUMMARY- $_container_ref
-    buildah config --env DESCRIPTION- $_container_ref
-    buildah config --env STI_SCRIPTS_URL- $_container_ref
-    buildah config --env STI_SCRIPTS_PATH- $_container_ref
+    buildah config \
+        --env SUMMARY- \
+        --env DESCRIPTION- \
+        --env STI_SCRIPTS_URL- \
+        --env STI_SCRIPTS_PATH- \
+        $_container_ref
 }
 export -f sc_env_rm
 
@@ -77,7 +79,6 @@ function sc_image_commit() {
     local -r _container_ref=$3
 
     # buildah config --author "$(git config --get user.email)" $_container_ref
-
     buildah commit --format oci $_container_ref ${_image}:${_tag}
 
     buildah inspect $_container_ref | jq '.OCIv1.config'
@@ -101,15 +102,16 @@ function sc_image_config_commit() {
     local -r _ordinal=$5
     local -r _container_ref=$6
 
-    buildah config --label serenditree.io/service=$_service $_container_ref
-    buildah config --label serenditree.io/version=$_version $_container_ref
-    buildah config --label serenditree.io/ordinal=$_ordinal $_container_ref
-    buildah config --label serenditree.io/stage=$_ST_STAGE $_container_ref
-
-    buildah config --env SERENDITREE_SERVICE=$_service $_container_ref
-    buildah config --env SERENDITREE_VERSION=$_version $_container_ref
-    buildah config --env SERENDITREE_ORDINAL=$_ordinal $_container_ref
-    buildah config --env SERENDITREE_STAGE=$_ST_STAGE $_container_ref
+    buildah config \
+        --label serenditree.io/service=$_service \
+        --label serenditree.io/version=$_version \
+        --label serenditree.io/ordinal=$_ordinal \
+        --label serenditree.io/stage=$_ST_STAGE \
+        --env SERENDITREE_SERVICE=$_service \
+        --env SERENDITREE_VERSION=$_version \
+        --env SERENDITREE_ORDINAL=$_ordinal \
+        --env SERENDITREE_STAGE=$_ST_STAGE \
+        $_container_ref
 
     sc_image_commit "$_image" "$_tag" "$_container_ref"
 }
