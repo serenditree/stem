@@ -61,6 +61,5 @@ if [[ " $* " =~ " build " ]]; then
             $_CONTAINER_REF
     fi
 
-    buildah umount $_CONTAINER_REF
-    sc_image_commit "$_IMAGE" "$_TAG" "$_CONTAINER_REF"
+    sc_image_commit "$_IMAGE" "$_TAG" "$_CONTAINER_REF" "on"
 fi

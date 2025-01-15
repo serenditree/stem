@@ -66,15 +66,31 @@ function sc_build() {
 # $1: Image identifier.
 # $2: Image tag.
 # $3: Reference to the temporary container.
+# $4: Flag to add platform config.
 function sc_image_commit() {
     local -r _image=$1
     local -r _tag=$2
     local -r _container_ref=$3
+    local -r _platform_config=$4
 
-    # buildah config --author "$(git config --get user.email)" $_container_ref
+    if [[ "$_platform_config" == "on" ]]; then
+        _OS_NAME="linux"
+        _OS_VERSION="$(uname -r)"
+        _PLATFORM_ARCH="amd64"
+        buildah config \
+            --os "$_OS_NAME" \
+            --os-version "$_OS_VERSION" \
+            --arch "$_PLATFORM_ARCH" \
+            --env OS_NAME="$_OS_NAME" \
+            --env OS_VERSION="$_OS_VERSION" \
+            --env PLATFORM_ARCH="$_PLATFORM_ARCH" \
+            $_container_ref
+    fi
+
     buildah commit --format oci $_container_ref ${_image}:${_tag}
 
     buildah inspect $_container_ref | jq '.OCIv1.config'
+    buildah umount $_container_ref &>/dev/null
     buildah rm $_container_ref
 }
 export -f sc_image_commit
@@ -87,6 +103,7 @@ export -f sc_image_commit
 # $4: Image tag.
 # $5: Ordinal for sorting and build/deployment order.
 # $6: Reference to the temporary container.
+# $7: Flag to add platform config.
 function sc_image_config_commit() {
     local -r _service=$1
     local -r _image=$2
@@ -94,6 +111,7 @@ function sc_image_config_commit() {
     local -r _tag=$4
     local -r _ordinal=$5
     local -r _container_ref=$6
+    local -r _platform_config=$7
 
     buildah config \
         --label serenditree.io/service=$_service \
@@ -106,7 +124,7 @@ function sc_image_config_commit() {
         --env SERENDITREE_STAGE=$_ST_STAGE \
         $_container_ref
 
-    sc_image_commit "$_image" "$_tag" "$_container_ref"
+    sc_image_commit "$_image" "$_tag" "$_container_ref" "$_platform_config"
 }
 export -f sc_image_config_commit
 

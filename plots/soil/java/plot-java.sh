@@ -81,5 +81,5 @@ if [[ " $* " =~ " build " ]]; then
         buildah add --chown 1000:0 $_CONTAINER_REF ./src
     fi
 
-    sc_image_commit "$_IMAGE" "$_TAG" "$_CONTAINER_REF"
+    sc_image_commit "$_IMAGE" "$_TAG" "$_CONTAINER_REF" "on"
 fi

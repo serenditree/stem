@@ -66,7 +66,6 @@ if [[ " $* " =~ " build " ]]; then
         $_CONTAINER_REF
 
     buildah rm $_BUILD_CONTAINER_REF
-    buildah umount $_CONTAINER_REF
     sc_image_config_commit "$_SERVICE" "$_IMAGE" "$_VERSION" "$_TAG" "$_ORDINAL" "$_CONTAINER_REF"
 ########################################################################################################################
 # UP

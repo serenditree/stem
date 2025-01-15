@@ -53,7 +53,7 @@ if [[ -f /etc/fedora-release ]] && [[ -z "$_ST_CONTEXT_TKN" ]]; then
     export _ST_VERSION_FEDORA
 fi
 export _ST_VERSION_KUBERNETES=1.31.3
-export _ST_VERSION_JAVA=17
+export _ST_VERSION_JAVA=21
 export _ST_VERSION_NODE=23.x
 export _ST_VERSION_TILESERVER=5.0.0
 export _ST_VERSION_ANGULAR=18

@@ -18,10 +18,6 @@ fi
 ########################################################################################################################
 if [[ " $* " =~ " build " ]]; then
     sc_heading 1 "Building ${_IMAGE}:${_TAG}"
-    _OS_NAME="linux"
-    _OS_VERSION="$(uname -r)"
-    _OS_ARCH="amd64"
-    _DNF_PKGS="c-ares-devel cmake gcc-c++ git openssl-devel openssl-devel-engine pcre2-devel zlib-ng-compat-devel"
     ####################################################################################################################
     # STEP BUILDER
     ####################################################################################################################
@@ -29,7 +25,8 @@ if [[ " $* " =~ " build " ]]; then
     _BUILD_MOUNT_REF=$(buildah mount $_BUILD_CONTAINER_REF)
 
     sc_heading 2 "Installing build-dependencies..."
-    dnf install --installroot ${_BUILD_MOUNT_REF:?} $_ST_DNF_OPTS_HOST $_DNF_PKGS
+    dnf install --installroot ${_BUILD_MOUNT_REF:?} $_ST_DNF_OPTS_HOST \
+        c-ares-devel cmake gcc-c++ git openssl-devel openssl-devel-engine pcre2-devel zlib-ng-compat-devel
 
     sc_heading 2 "Building and installing nginx with modules..."
     buildah config --env NGINX_ROOT="$_ST_CONTAINER_ROOT" $_BUILD_CONTAINER_REF
@@ -68,9 +65,6 @@ if [[ " $* " =~ " build " ]]; then
 
     sc_heading 2 "Configuring image..."
     buildah config \
-        --os "$_OS_NAME" \
-        --os-version "$_OS_VERSION" \
-        --arch "$_OS_ARCH" \
         --env DESCRIPTION="NGINX with otel module" \
         --env SERENDITREE_CONTENT="${_ST_CONTAINER_ROOT}/html" \
         --env SERENDITREE_CONFIG="${_ST_CONTAINER_ROOT}/conf/nginx.conf" \
@@ -81,9 +75,6 @@ if [[ " $* " =~ " build " ]]; then
         --env OTEL_SERVICE="leaf" \
         --env OTEL_SPAN="leaf-server" \
         --env NGINX_VERSION="$_NGINX_VERSION" \
-        --env OS_NAME="$_OS_NAME" \
-        --env OS_VERSION="$_OS_VERSION" \
-        --env OS_ARCH="$_OS_ARCH" \
         --port "$_EXPOSE" \
         --stop-signal "SIGQUIT" \
         --user 1001:0 \
@@ -92,6 +83,5 @@ if [[ " $* " =~ " build " ]]; then
 
     buildah umount $_BUILD_CONTAINER_REF
     buildah rm $_BUILD_CONTAINER_REF
-    buildah umount $_CONTAINER_REF
-    sc_image_config_commit "$_SERVICE" "$_IMAGE" "$_VERSION" "$_TAG" "$_ORDINAL" "$_CONTAINER_REF"
+    sc_image_config_commit "$_SERVICE" "$_IMAGE" "$_VERSION" "$_TAG" "$_ORDINAL" "$_CONTAINER_REF" "on"
 fi

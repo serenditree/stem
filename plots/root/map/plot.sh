@@ -76,7 +76,6 @@ if [[ " $* " =~ " build " ]]; then
         $_CONTAINER_REF
 
     rm -rf ${_MOUNT_REF:?}/var/cache/*
-    buildah umount $_CONTAINER_REF
     sc_image_config_commit "$_SERVICE" "$_IMAGE" "$_VERSION" "$_TAG" "$_ORDINAL" "$_CONTAINER_REF"
 ########################################################################################################################
 # UP
