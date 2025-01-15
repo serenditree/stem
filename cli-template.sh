@@ -157,7 +157,6 @@ function sc_help() {
     printf '\t%-20s%s\n' "expose:" "Port-forward operational services. [--reset|--delete]"
     printf '\t%-20s%s\n' "login:" "Login to OpenShift and its internal registry."
     printf '\t%-20s%s\n' "logs <svc>:" "Prints logs of the given pod(s)."
-    printf '\t%-20s%s\n' "patch <arg>:" "Applies patches to the current cluster."
     printf '\t%-20s%s\n' "registry [img]:" "Inspects the OpenShift image registry."
     printf '\t%-20s%s\n' "resources|rc [csv]:" "Prints resource allocations. Optionally in CSV."
     printf '\t%-20s%s\n' "restore:" "Restore databases."
@@ -383,17 +382,6 @@ cluster)
         ;;
     logs | log)
         sc_cluster_logs ${_ARG_LEFTOVERS[*]}
-        ;;
-    patch)
-        if [[ -n "$_ARG_HELP" ]]; then
-            sc_heading 2 "sc cluster patch <arg>"
-            echo "Applies patches to the current cluster."
-            printf '\n\t%-20s%s\n' "nginx-ingress:" "Sets load balancing strategy to round-robin."
-            printf '\t%-20s%s\n' "recreate:" "Patches deployment strategy for low performance environments."
-            printf '\t%-20s%s\n' "argocd-cm:" "Patch ArgoCD config map to ignore resources."
-        else
-            sc_cluster_patch ${_ARG_LEFTOVERS[*]}
-        fi
         ;;
     registry)
         time sc_cluster_registry ${_ARG_LEFTOVERS[*]}

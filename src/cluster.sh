@@ -102,25 +102,6 @@ function sc_cluster_backup() {
     done
 }
 
-# Applies predefined patches to cluster resources.
-# $1: Patch to apply.
-function sc_cluster_patch() {
-    case $1 in
-    argocd-cm)
-        kubectl patch cm argocd-cm \
-            --patch-file="${_ST_HOME_STEM}/rc/patches/argocd-cm.yaml" \
-            --namespace terra-cargo
-        ;;
-    recreate)
-        # Patch deployment strategy for low performance environments.
-        kubectl get deploy --namespace serenditree --no-headers --selector app.kubernetes.io/part-of=serenditree |
-            cut -d' ' -f1 |
-            xargs -I{} kubectl patch deploy {} --patch-file="${_ST_HOME_STEM}/rc/patches/global-recreate.yaml"
-        ;;
-    esac
-}
-export -f sc_cluster_patch
-
 # Prints and follows logs of the given service.
 function sc_cluster_logs() {
     kubectl get pods --no-headers -l name=$1 | cut -d' ' -f1 | xargs kubectl logs -f
