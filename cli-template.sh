@@ -52,7 +52,6 @@ echo "Done"
 # ARGBASH_SET_INDENT([    ])
 # ARGBASH_GO
 # [
-trap 'popd &>/dev/null || exit 1' EXIT
 pushd "$(dirname "$(realpath $0)")" &>/dev/null || exit 1
 ########################################################################################################################
 # ARGUMENTS
@@ -353,9 +352,9 @@ cluster)
             printf '\t%-20s%s\n' "--delete" "Delete the cluster of the current context."
          else
             if [[ -n "$_ARG_DELETE" ]]; then
-                time sc_prompt "Delete cluster?" sc_terra_down
+                sc_prompt "Delete cluster?" && time sc_terra_down
             else
-                time sc_prompt "Stop worker nodes?" sc_cluster_down
+                sc_prompt "Stop worker nodes?" && time sc_cluster_down
             fi
         fi
         ;;

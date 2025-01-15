@@ -116,7 +116,7 @@ function sc_terra_up() {
     if [[ -n "$_ARG_DRYRUN" ]]; then
         local -r _serenditree_tf="${_ST_CONTEXT_HOME}/serenditree.tf"
         # shellcheck disable=SC2064
-        trap "mv ${_serenditree_tf}.bak ${_serenditree_tf}" EXIT
+        sc_trap "mv ${_serenditree_tf}.bak ${_serenditree_tf}" EXIT
         sed -Ei.bak 's/set_sensitive/set/' "${_serenditree_tf}"
     fi
 
@@ -198,7 +198,7 @@ function sc_terra_down() {
         -var=o11y_parameters="$(sc_terra_secrets o11y)" \
         -var=oidc_parameters="$(sc_terra_secrets oidc)"
 
-    sc_prompt "Remove DNS records?" sc_terra_down_dns
-    sc_prompt "Delete loadbalancer?" sc_terra_down_loadbalancer
-    sc_prompt "Delete volumes?" sc_terra_down_volumes
+    sc_prompt "Remove DNS records?" && sc_terra_down_dns
+    sc_prompt "Delete loadbalancer?" && sc_terra_down_loadbalancer
+    sc_prompt "Delete volumes?" && sc_terra_down_volumes
 }

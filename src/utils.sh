@@ -31,30 +31,38 @@ export -f sc_args_to_pattern
 
 # Prompts the user before running a function. The prompt will be "$1 [y/N]: ".
 # $1: Prompt message.
-# $2: Function to execute.
-# $*: Optional function parameters.
 function sc_prompt() {
-    echo -n $_BOLD
     if [[ -z "$_ARG_YES" ]]; then
-        read -rp "$1 [y/N]: " _proceed
+        read -rp "${_BOLD}$1 [y/N]:${_NORMAL} " _proceed
     else
         _proceed=y
-        echo "$1 [y/N]: ${_proceed}"
+        echo "${_BOLD}$1 [y/N]:${_NORMAL} ${_proceed}"
     fi
-    echo -n $_NORMAL
+
     local _exit=1
     if [[ "$_proceed" == "y" ]]; then
-        local _function=$2
-        shift 2
-        # shellcheck disable=SC2068
-        $_function $@
-        _exit=$?
+        _exit=0
     fi
     unset _proceed
 
     return $_exit
 }
 export -f sc_prompt
+
+# Adds a trap.
+# $1: New trap to add.
+# $2: Signals
+# shellcheck disable=SC2064,SC2086
+function sc_trap() {
+    local -r _new_trap="${1}; echo done"
+    local -r _signals="$2"
+    local -r _trap=$(trap -p $_signals | sed -E -e "s/^[^']+'(.+)'[^']+/\1/" -e "s/['\]{3}//g")
+    if [[ -n "$_trap" ]]; then
+        trap "${_trap%;*}; ${_new_trap}" $_signals
+    else
+        trap "echo -n Cleaning up...; ${_new_trap}" $_signals
+    fi
+}
 
 # Adds bash-completion script to /etc/bash_completion.d/.
 function sc_completion() {

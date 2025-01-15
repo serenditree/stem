@@ -88,7 +88,6 @@ function sc_setup_image_update() {
 
 # Updates maven dependencies or checks for updates.
 function sc_setup_maven_update() {
-    trap 'popd &>/dev/null || exit 1' EXIT
     pushd "$_ST_HOME_BRANCH" &>/dev/null || exit 1
     if [[ -n "$_ARG_YES" ]]; then
         echo "Updating dependencies..."
@@ -101,11 +100,11 @@ function sc_setup_maven_update() {
             sed -r -e 's/\[INFO\] +//' -e 's/.*available version.*/Latest:/' -e 's/.*are available.*/Updates:/' |
             head -n-1
     fi
+    popd &>/dev/null || exit 1
 }
 
 # Updates node modules and syncs package.json with yarn.lock.
 function sc_setup_yarn_update() {
-    trap 'popd &>/dev/null || exit 1' EXIT
     pushd "$_ST_HOME_LEAF" &>/dev/null || exit 1
     yarn install
     if [[ -n "$_ARG_YES" ]]; then
@@ -114,4 +113,5 @@ function sc_setup_yarn_update() {
     else
         yarn outdated
     fi
+    popd &>/dev/null || exit 1
 }

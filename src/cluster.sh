@@ -12,7 +12,7 @@ function sc_cluster_deploy() {
     sc_login argocd
     for _app in branch leaf; do
         if [[ "$_app" =~ $_args ]]; then
-            if [[ -n "$_ARG_YES" ]] || sc_prompt "Deploy ${_app}?" echo -n; then
+            if sc_prompt "Deploy ${_app}?"; then
                 sc_heading 2 "Deployment of $_app started..."
                 argocd app actions run --all --kind Deployment $_app restart
                 _apps+=" $_app"
@@ -70,7 +70,7 @@ function sc_cluster_wait() {
 
 # Creates a secret for backup/restore-jobs.
 function sc_cluster_backup_restore_secret() {
-    trap 'rm -f /tmp/exoscale.toml' EXIT
+    sc_trap 'rm -f /tmp/exoscale.toml' EXIT
     local -r _secret="/tmp/exoscale.toml"
     if ! kubectl get secret exoscale-backup --namespace serenditree &>/dev/null; then
         export _KEY_SUBST="$(pass serenditree/iam/backup@exoscale.com.access)"
@@ -294,7 +294,7 @@ function sc_cluster_up() {
 
     local -r _scaler=terra-scale-exoscale-cluster-autoscaler
     if kubectl get deployment $_scaler --namespace kube-system &>/dev/null; then
-        sc_prompt "Enable autoscaler?" kubectl scale deployment $_scaler --replicas 1 --namespace kube-system
+        sc_prompt "Enable autoscaler?" && kubectl scale deployment $_scaler --replicas 1 --namespace kube-system
     fi
 }
 

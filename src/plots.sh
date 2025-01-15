@@ -41,10 +41,6 @@ function sc_plot_do() {
     _plot=${_plot##*/}
     _plot=${_plot//:/ }
     if [[ " $* " =~ " build " ]] && [[ -z "$_ST_CONTEXT_TKN" ]]; then
-        if [[ -f ./plot-privileged.sh ]]; then
-            source ./plot-privileged.sh
-            sc_plot_privileged "${_plot// /:}"
-        fi
         buildah unshare bash $_plot "$*" || exit 1
     else
         bash $_plot "$*" || exit 1

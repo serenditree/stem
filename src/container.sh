@@ -54,18 +54,11 @@ export -f sc_env_get
 # $*: Optional list of images to build. Images are selected by grep pattern matching.
 function sc_build() {
     local -r _plots="$(sc_args_to_pattern "$*")"
-
-    if [[ -z "$_ST_CONTEXT_TKN" ]] && [[ "$_ST_FROM" == "rhel" ]]; then
-        sc_heading 1 "Checking base images..."
-        sc_login redhat
-        local -r _pulled=$(
-            env | grep "_ST_FROM_" | cut -d'=' -f2 |
-                xargs -I{} bash -c "podman image exists {} || podman pull {}" |
-                wc -l
-        )
-        [[ $_pulled -eq 0 ]] && echo "All set!"
+    if [[ -z "$_ST_CONTEXT_TKN" ]] && [[ "java node nginx" =~ $_plots ]]; then
+        sc_heading 1 "Checking preconditions"
+        [[ "java node nginx" =~ $_plots ]] && sc_status_build_repos
+        [[ "node" =~ $_plots ]] && sc_status_build_node
     fi
-
     sc_plots_do "${_plots}" build
 }
 

@@ -37,6 +37,49 @@ function sc_status_required_files() {
     fi
 }
 
+# Checks if base images are available and pulls them.
+# TODO deprecated
+function sc_status_build_base_images() {
+    if [[ "$_ST_FROM" == "rhel" ]]; then
+        echo "Checking base images..."
+        sc_login redhat
+        local -r _pulled=$(
+            env | grep "_ST_FROM_" | cut -d'=' -f2 |
+                xargs -I{} bash -c "podman image exists {} || podman pull {}" |
+                wc -l
+        )
+        [[ $_pulled -eq 0 ]] && echo "All set!"
+    fi
+}
+
+# Checks if the repository for custom node versions exists.
+function sc_status_build_node() {
+    echo -n "Checking nodejs repository..."
+    local -r _node_repo=/etc/yum.repos.d/nodesource-nodejs.repo
+    if [[ -f $_node_repo ]]; then
+        echo "${_BOLD}ok${_NORMAL}"
+    else
+        echo " nodejs repository does not exists."
+        sc_trap "sudo rm -f ${_node_repo}" EXIT
+        sc_prompt "Temporarily install custom nodjs repository" &&
+            curl -fsSL "https://rpm.nodesource.com/setup_${_ST_VERSION_NODE}" |
+            sudo bash -
+    fi
+}
+
+# Checks if repositories are ready for the installation with dnf of the host.
+function sc_status_build_repos() {
+    echo -n "Checking if 'countme' is disabled..."
+    if grep -Eq '^countme=1' /etc/yum.repos.d/*; then
+        echo " countme is enabled."
+        sc_trap "sudo sed -Ei 's/^countme=0/countme=1/' /etc/yum.repos.d/*" EXIT
+        sc_prompt "Temporarily disable countme" &&
+            sudo sed -Ei 's/^countme=1/countme=0/' /etc/yum.repos.d/*
+    else
+        echo "${_BOLD}ok${_NORMAL}"
+    fi
+}
+
 # Checks operating system.
 function sc_status_os() {
     echo -n "Required distribution..."
