@@ -55,6 +55,19 @@ function sc_cluster_status() {
 }
 export -f sc_cluster_status
 
+# Waits for all pods to become ready.
+# $1: Timeout.
+function sc_cluster_wait() {
+    local -r _timeout="$1"
+    kubectl wait --for condition=ready --all pod \
+        --field-selector status.phase==Running \
+        --all-namespaces \
+        --timeout "$_timeout"
+
+    sc_heading 2 "Running pods:"
+    kubectl get pod --all-namespaces --output wide
+}
+
 # Creates a secret for backup/restore-jobs.
 function sc_cluster_backup_restore_secret() {
     trap 'rm -f /tmp/exoscale.toml' EXIT
@@ -276,12 +289,8 @@ function sc_cluster_toggle() {
 function sc_cluster_up() {
     sc_heading 2 "Starting nodes..."
     sc_cluster_toggle start
-
     sc_heading 2 "Waiting for pods to become ready..."
-    kubectl wait --for condition=ready --all pod \
-        --field-selector status.phase==Running \
-        --all-namespaces \
-        --timeout 10m
+    sc_cluster_wait 10m
 
     local -r _scaler=terra-scale-exoscale-cluster-autoscaler
     if kubectl get deployment $_scaler --namespace kube-system &>/dev/null; then

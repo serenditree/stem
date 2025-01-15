@@ -148,6 +148,8 @@ function sc_terra_up() {
         sc_heading 1 "Setting up context"
         sc_context_clean
         sc_context_init_kube "${_ST_CONTEXT_HOME}/kubeconfig"
+        sc_heading 1 "Waiting for pods to become ready"
+        sc_cluster_wait 10m
     fi
 }
 ########################################################################################################################
