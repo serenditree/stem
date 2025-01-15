@@ -1,25 +1,21 @@
 #!/usr/bin/env bash
-_BRANCH=$1
-_ROOT=$2
-_OFFSET=$3
-source ./plot.env
 ########################################################################################################################
 # BRANCH
 ########################################################################################################################
+_BRANCH=$1
+_ROOT=$2
+_OFFSET=$3
 _SERVICE=branch-${_BRANCH}
 _ORDINAL=$((_OFFSET + 11))
 
 _IMAGE=serenditree/branch-${_BRANCH}
 _VERSION=latest
 _TAG=$_VERSION
-
 _CONTAINER=$_SERVICE
-
 _VOLUME_SRC_REPO=${HOME}/.m2/repository
 _VOLUME_DST_REPO=${_ST_CONTAINER_ROOT}/.m2/repository
 _VOLUME_SRC_SRC=${_ST_HOME_BRANCH}
 _VOLUME_DST_SRC=${_ST_CONTAINER_ROOT}/src
-
 _EXPOSE=8080/tcp
 
 if [[ -n "$_ST_CONTEXT_TKN" ]]; then
@@ -37,7 +33,6 @@ fi
 if [[ " $* " =~ " build " ]]; then
     sc_heading 1 "Building ${_IMAGE}:${_TAG}"
     [[ -n "$_ARG_DRYRUN" ]] && exit 0
-
     _DESCRIPTION="Production image for branch-${_BRANCH}."
     _BUILDAH_ARGS="--ulimit nofile=10240 "
     _BUILDAH_ARGS+="--volume ${_VOLUME_SRC_REPO}:${_VOLUME_DST_REPO}:rw,z "
@@ -49,7 +44,8 @@ if [[ " $* " =~ " build " ]]; then
 
     buildah config \
         --env SERENDITREE_BRANCH=$_BRANCH\
-        --workingdir $_VOLUME_DST_SRC $_BUILD_CONTAINER_REF
+        --workingdir $_VOLUME_DST_SRC \
+        $_BUILD_CONTAINER_REF
 
     sc_heading 2 "Adding source from ${_VOLUME_SRC_SRC} and building project..."
     buildah add $_BUILD_CONTAINER_REF $_VOLUME_SRC_SRC

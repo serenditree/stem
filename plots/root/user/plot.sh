@@ -8,12 +8,9 @@ _ORDINAL=7
 _IMAGE=serenditree/root-user
 _VERSION=latest
 _TAG=$_VERSION
-
 _CONTAINER=$_SERVICE
-
 _VOLUME_SRC=root-user
 _VOLUME_DST=/bitnami/mariadb
-
 _EXPOSE=3306/tcp
 
 if [[ " $* " =~ " info " ]] || [[ -n "$_ARG_DRYRUN" ]]; then

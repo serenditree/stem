@@ -8,7 +8,6 @@ _ORDINAL=5
 
 _IMAGE=serenditree/nginx
 _TAG=latest
-
 _EXPOSE=8080/tcp
 
 if [[ " $* " =~ " info " ]] || [[ -n "$_ARG_DRYRUN" ]]; then

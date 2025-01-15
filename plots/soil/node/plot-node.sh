@@ -9,7 +9,6 @@ _ORDINAL=$((_OFFSET + 3))
 
 _IMAGE=serenditree/node-${_FLAVOR}
 _TAG=latest
-
 _VOLUME_DST=${_ST_CONTAINER_ROOT}/src
 
 if [[ " $* " =~ " info " ]] || [[ -n "$_ARG_DRYRUN" ]]; then
@@ -24,7 +23,6 @@ if [[ " $* " =~ " build " ]]; then
 
     if [[ "$_FLAVOR" == "base" ]]; then
         _DESCRIPTION="Node base image including curl."
-
         _CONTAINER_REF=$(buildah from scratch)
         _MOUNT_REF=$(buildah mount $_CONTAINER_REF)
 
@@ -33,18 +31,17 @@ if [[ " $* " =~ " build " ]]; then
 
         buildah run $_CONTAINER_REF -- mkdir -pv $_ST_CONTAINER_ROOT
 
-        buildah config --workingdir $_ST_CONTAINER_ROOT $_CONTAINER_REF
-
-        buildah config --label description="$_DESCRIPTION" $_CONTAINER_REF
-
-        buildah config --env SERENDITREE_LOG_LEVEL=INFO $_CONTAINER_REF
-        buildah config --env DESCRIPTION="$_DESCRIPTION" $_CONTAINER_REF
-        buildah config --env LANG="en_US.UTF-8" $_CONTAINER_REF
-        buildah config --env LANGUAGE="en_US:en" $_CONTAINER_REF
-        buildah config --env NODE_VERSION="$_ST_VERSION_NODE" $_CONTAINER_REF
+        buildah config \
+            --env SERENDITREE_LOG_LEVEL=INFO \
+            --env DESCRIPTION="$_DESCRIPTION" \
+            --env LANG="en_US.UTF-8" \
+            --env LANGUAGE="en_US:en" \
+            --env NODE_VERSION="$_ST_VERSION_NODE" \
+            --label description="$_DESCRIPTION" \
+            --workingdir "$_ST_CONTAINER_ROOT" \
+            $_CONTAINER_REF
     elif [[ "$_FLAVOR" == "builder" ]]; then
         _DESCRIPTION="Node builder image including curl."
-
         _CONTAINER_REF=$(buildah from serenditree/node-base)
         _MOUNT_REF=$(buildah mount $_CONTAINER_REF)
 
@@ -52,16 +49,16 @@ if [[ " $* " =~ " build " ]]; then
         dnf clean all --installroot ${_MOUNT_REF:?} --noplugins
 
         buildah run $_CONTAINER_REF -- yarn global add @angular/cli@${_ST_VERSION_ANGULAR} sass-migrator
-        buildah run $_CONTAINER_REF -- mkdir -pv $_VOLUME_DST
+        buildah run $_CONTAINER_REF -- mkdir -pv "$_VOLUME_DST"
 
-        # buildah config --volume $_VOLUME_DST $_CONTAINER_REF
-        buildah config --workingdir $_VOLUME_DST $_CONTAINER_REF
-
-        buildah config --label description="$_DESCRIPTION" $_CONTAINER_REF
-
-        buildah config --env SERENDITREE_LOG_LEVEL=DEBUG $_CONTAINER_REF
-        buildah config --env DESCRIPTION="$_DESCRIPTION" $_CONTAINER_REF
-        buildah config --env YARN_CACHE="$(buildah run $_CONTAINER_REF yarn cache dir)" $_CONTAINER_REF
+        buildah config \
+            --env SERENDITREE_LOG_LEVEL=DEBUG \
+            --env DESCRIPTION="$_DESCRIPTION" \
+            --env YARN_CACHE="$(buildah run $_CONTAINER_REF yarn cache dir)" \
+            --label description="$_DESCRIPTION" \
+            --workingdir "$_VOLUME_DST" \
+            --volume "$_VOLUME_DST" \
+            $_CONTAINER_REF
     fi
 
     buildah umount $_CONTAINER_REF

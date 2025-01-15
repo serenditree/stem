@@ -8,12 +8,9 @@ _ORDINAL=8
 _IMAGE=serenditree/root-seed
 _VERSION=latest
 _TAG=$_VERSION
-
 _CONTAINER=$_SERVICE
-
 _VOLUME_SRC=root-seed
 _VOLUME_DST=/bitnami/mongodb
-
 _EXPOSE=27017/tcp
 
 if [[ " $* " =~ " info " ]] || [[ -n "$_ARG_DRYRUN" ]]; then

@@ -18,7 +18,6 @@ fi
 if [[ " $* " =~ " build " ]]; then
     sc_heading 1 "Building buildah:${_TAG}"
     [[ -n "$_ARG_DRYRUN" ]] && exit 0
-
     _DESCRIPTION="Buildah image including findutils and jq."
     _CONTAINER_REF=$(buildah from quay.io/buildah/stable)
 

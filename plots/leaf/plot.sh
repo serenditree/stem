@@ -8,16 +8,13 @@ _ORDINAL=14
 _IMAGE=serenditree/leaf
 _VERSION=latest
 _TAG=$_VERSION
-
 if [[ -n "$_ARG_COMPOSE" ]]; then
     _CONFIG='compose'
     _TAG=$_CONFIG
 else
     _CONFIG='prod'
 fi
-
 _CONTAINER=$_SERVICE
-
 _VOLUME_SRC=$_ST_HOME_LEAF
 _VOLUME_DST=${_ST_CONTAINER_ROOT}/src
 

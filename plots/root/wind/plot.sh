@@ -8,9 +8,7 @@ _ORDINAL=10
 _IMAGE=serenditree/$_SERVICE
 _VERSION=latest
 _TAG=$_VERSION
-
 _CONTAINER=$_SERVICE
-
 _EXPOSE=9092/tcp
 
 _KAFKA_MIRROR=https://archive.apache.org/dist/kafka
@@ -36,13 +34,12 @@ if [[ " $* " =~ " build " ]]; then
         mkdir -p ${_KAFKA_ARCHIVE%/*}
         curl "${_KAFKA_MIRROR}/${_ST_VERSION_KAFKA}/${_KAFKA_PATH}.tgz" --output ${_KAFKA_ARCHIVE}
     fi
-    _KAFKA_PATH="${_ST_CONTAINER_ROOT}/${_KAFKA_PATH}"
-
     sc_heading 2 "Adding kafka and scripts..."
     buildah config --workingdir $_ST_CONTAINER_ROOT $_CONTAINER_REF
     buildah add --chown 1000:0 $_CONTAINER_REF ${_KAFKA_ARCHIVE}
     buildah add --chown 1000:0 $_CONTAINER_REF src/
 
+    _KAFKA_PATH="${_ST_CONTAINER_ROOT}/${_KAFKA_PATH}"
     sed -i 's/=INFO/=WARN/g' ${_MOUNT_REF}/${_KAFKA_PATH}/config/*log4j.properties
 
     sc_heading 2 "Configuring image..."

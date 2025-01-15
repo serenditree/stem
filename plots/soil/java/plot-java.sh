@@ -10,7 +10,6 @@ _ORDINAL=$((_OFFSET + 1))
 _IMAGE=serenditree/java-${_FLAVOR}
 _VERSION=latest
 _TAG=$_VERSION
-
 _VOLUME_DST_REPO=${_ST_CONTAINER_ROOT}/.m2/repository
 
 _JAVA_OPTIONS="-XshowSettings:vm -Djava.util.logging.manager=org.jboss.logmanager.LogManager"
@@ -32,7 +31,6 @@ if [[ " $* " =~ " build " ]]; then
     ####################################################################################################################
     if [[ "$_FLAVOR" == "base" ]]; then
         _DESCRIPTION="Java runtime (${_ST_JAVA_PACKAGE}) including curl."
-
         _CONTAINER_REF=$(buildah from scratch)
         _MOUNT_REF=$(buildah mount $_CONTAINER_REF)
 
@@ -45,42 +43,41 @@ if [[ " $* " =~ " build " ]]; then
         buildah run $_CONTAINER_REF -- chmod u+x ${_ST_CONTAINER_ROOT}/run.sh
         buildah run $_CONTAINER_REF -- chmod -R g=u $_ST_CONTAINER_ROOT
 
-        buildah config --label description="$_DESCRIPTION" $_CONTAINER_REF
-
-        buildah config --env SERENDITREE_LOG_LEVEL=INFO $_CONTAINER_REF
-        buildah config --env DESCRIPTION="$_DESCRIPTION" $_CONTAINER_REF
-        buildah config --env JAVA_VERSION="$_ST_VERSION_JAVA" $_CONTAINER_REF
-        buildah config --env JAVA_HOME="$_ST_JAVA_JRE_HOME" $_CONTAINER_REF
-        buildah config --env JAVA_PACKAGE="$_ST_JAVA_PACKAGE" $_CONTAINER_REF
-        buildah config --env JAVA_OPTIONS="$_JAVA_OPTIONS" $_CONTAINER_REF
-        buildah config --env JAVA_RUN_SCRIPT="$_JAVA_RUN_SCRIPT" $_CONTAINER_REF
-        buildah config --env JAVA_RUN_VERSION="$_JAVA_RUN_VERSION" $_CONTAINER_REF
-        buildah config --env LANG="en_US.UTF-8" $_CONTAINER_REF
-        buildah config --env LANGUAGE="en_US:en" $_CONTAINER_REF
+        buildah config \
+            --env SERENDITREE_LOG_LEVEL=INFO \
+            --env DESCRIPTION="$_DESCRIPTION" \
+            --env JAVA_VERSION="$_ST_VERSION_JAVA" \
+            --env JAVA_HOME="$_ST_JAVA_JRE_HOME" \
+            --env JAVA_PACKAGE="$_ST_JAVA_PACKAGE" \
+            --env JAVA_OPTIONS="$_JAVA_OPTIONS" \
+            --env JAVA_RUN_SCRIPT="$_JAVA_RUN_SCRIPT" \
+            --env JAVA_RUN_VERSION="$_JAVA_RUN_VERSION" \
+            --env LANG="en_US.UTF-8" \
+            --env LANGUAGE="en_US:en" \
+            --label description="$_DESCRIPTION" \
+            $_CONTAINER_REF
     ####################################################################################################################
     # BUILD BUILDER
     ####################################################################################################################
     elif [[ "$_FLAVOR" == "builder" ]]; then
         _DESCRIPTION="Java development kit (${_ST_JAVA_PACKAGE}) including maven and curl."
-
         _CONTAINER_REF=$(buildah from serenditree/java-base)
         _MOUNT_REF=$(buildah mount $_CONTAINER_REF)
 
         dnf install --installroot ${_MOUNT_REF:?} $_ST_DNF_OPTS_HOST $_ST_JAVA_PACKAGE_DEVEL maven
         dnf clean all --installroot ${_MOUNT_REF:?} --noplugins
 
-        buildah config --workingdir $_ST_CONTAINER_ROOT $_CONTAINER_REF
-
-        buildah config --label description="$_DESCRIPTION" $_CONTAINER_REF
-
-        buildah config --env SERENDITREE_LOG_LEVEL=DEBUG $_CONTAINER_REF
-        buildah config --env DESCRIPTION="$_DESCRIPTION" $_CONTAINER_REF
-        buildah config --env JAVA_HOME=$_ST_JAVA_JDK_HOME $_CONTAINER_REF
-        buildah config --env M2_HOME="${_VOLUME_DST_REPO%/*}" $_CONTAINER_REF
-        buildah config --env MAVEN_OPTS="-Dmaven.repo.local=${_VOLUME_DST_REPO}" $_CONTAINER_REF
+        buildah config \
+            --env SERENDITREE_LOG_LEVEL=DEBUG \
+            --env DESCRIPTION="$_DESCRIPTION" \
+            --env JAVA_HOME=$_ST_JAVA_JDK_HOME \
+            --env M2_HOME="${_VOLUME_DST_REPO%/*}" \
+            --env MAVEN_OPTS="-Dmaven.repo.local=${_VOLUME_DST_REPO}" \
+            --label description="$_DESCRIPTION" \
+            --workingdir $_ST_CONTAINER_ROOT \
+            $_CONTAINER_REF
 
         buildah run $_CONTAINER_REF -- mkdir src
-
         buildah add --chown 1000:0 $_CONTAINER_REF ./src
     fi
 

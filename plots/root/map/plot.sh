@@ -8,20 +8,16 @@ _ORDINAL=9
 _IMAGE=serenditree/root-map
 _VERSION=latest
 _TAG=$_VERSION
-
 _CONTAINER=$_SERVICE
-
 _VOLUME_SRC="$(dirname "$(realpath $0)")/data/database"
 _VOLUME_DST=${_ST_CONTAINER_ROOT}/data
-
 _EXPOSE=8080/tcp
 _EXPOSE_LOCAL=8084/tcp
 
 _TILESERVER_VERSION="$_ST_VERSION_TILESERVER"
-_TILESERVER_PORT=${_EXPOSE%/*}
+_TILESERVER_PORT="${_EXPOSE%/*}"
 _STYLES_VERSION=v1.9
 _FONTS_VERSION=v2.0
-
 _BASE_URL=https://github.com/openmaptiles
 _STYLES_URL=${_BASE_URL}/positron-gl-style/releases/download/${_STYLES_VERSION}/${_STYLES_VERSION}.zip
 _FONTS_URL=${_BASE_URL}/fonts/releases/download/${_FONTS_VERSION}/${_FONTS_VERSION}.zip
@@ -36,7 +32,6 @@ if [[ " $* " =~ " build " ]]; then
     sc_heading 1 "Building ${_IMAGE}:${_TAG}"
     [[ -n "$_ARG_DRYRUN" ]] && exit 0
     _DESCRIPTION="Production image for root-map."
-
     _CONTAINER_REF=$(buildah from serenditree/node-base)
     _MOUNT_REF=$(buildah mount $_CONTAINER_REF)
 
