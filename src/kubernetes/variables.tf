@@ -73,11 +73,6 @@ variable "traces" {
 ########################################################################################################################
 # Global
 ########################################################################################################################
-variable "account" {
-  description = "Exoscale account to use."
-  type        = string
-  default     = "serenditree"
-}
 variable "context" {
   description = "Kubernetes context to use."
   type        = string

@@ -670,7 +670,7 @@ cluster)
             _help_message+="[--init|--setup|--upgrade]"
             sc_heading 2 "$_help_message"
             echo "Start or install the cluster of the current context."
-            printf '\n\t%-20s%s\n' "--init" "Initialize terraform and create assets for openshift-install."
+            printf '\n\t%-20s%s\n' "--init" "Initialize OpenTofu and create assets for openshift-install."
             printf '\n\t%-20s%s\n' "--setup" "Setup the cluster of the current context."
             printf '\n\t%-20s%s\n' "--upgrade" "Upgrade the cluster of the current context."
         else

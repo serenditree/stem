@@ -4,7 +4,7 @@
 # Cloud infrastructure setup.
 ########################################################################################################################
 
-# Turns pass key-value pairs into a JSON object for setting terraform variables.
+# Turns pass key-value pairs into a JSON object for setting tofu variables.
 # $1: Pass folder.
 function sc_terra_secrets() {
     local -r _target=$1
@@ -42,7 +42,7 @@ function sc_terra_secrets() {
 function sc_terra_render() {
     local -r _plan="$1"
     sc_heading 1 "Rendering apps"
-    terraform -chdir="$_ST_CONTEXT_HOME" show -json "$_plan" |
+    tofu -chdir="$_ST_CONTEXT_HOME" show -json "$_plan" |
         jq ".resource_changes[] | select(.type == \"helm_release\" and .name == \"serenditree\") | \
             .change.after.set[] | \"--set=\(.name)=\(.value)\"" |
         xargs helm template "${_ST_HOME_STEM}/charts/tree" |
@@ -69,12 +69,12 @@ function sc_terra_versions() {
 ########################################################################################################################
 function sc_terra_up_init() {
     if exo compute sks versions --output-format text | grep -Eq "^${_ST_VERSION_KUBERNETES}$"; then
-        sc_heading 1 "Initializing terraform"
+        sc_heading 1 "Initializing"
         if [[ -n "$_ARG_INIT" ]]; then
             rm -rf "${_ST_CONTEXT_HOME}/"{terraform*,.terraform,modules/bootstrap/assets}
         fi
-        terraform -chdir="$_ST_CONTEXT_HOME" init -upgrade=true
-        sc_terra_versions
+        tofu -chdir="$_ST_CONTEXT_HOME" init -upgrade=true
+        # sc_terra_versions
     else
         echo "Kubernetes version $_ST_VERSION_KUBERNETES is not available. Aborting..."
         exit 1
@@ -83,7 +83,7 @@ function sc_terra_up_init() {
 
 function sc_terra_up_assets() {
     sc_heading 2 "Creating assets..."
-    terraform -chdir="$_ST_CONTEXT_HOME" apply \
+    tofu -chdir="$_ST_CONTEXT_HOME" apply \
         -auto-approve \
         -target="module.bootstrap.null_resource.create_assets[0]" \
         -replace="module.bootstrap.null_resource.create_assets[0]" \
@@ -110,6 +110,23 @@ function sc_terra_up_iam_backup() {
     done
 }
 
+function sc_terra_up_dns() {
+    echo "Waiting for load-balancer..."
+    until exo compute nlb list --output-template '{{.Name}}' | grep -Eq '^serenditree$'; do sleep 1s; done
+
+    local _nlb_ip
+    until [[ -n "$_nlb_ip" ]] && [[ "$_nlb_ip" != "<nil>" ]]; do
+        _nlb_ip=$(exo compute nlb show 'serenditree' --output-format json | jq -r '.ip_address')
+        sleep 1s
+    done
+
+    exo dns add A "$_ST_DOMAIN" --name "" --address "$_nlb_ip"
+    exo dns add CNAME "$_ST_DOMAIN" --name "www" --alias "$_ST_DOMAIN"
+    exo dns show "$_ST_DOMAIN" --output-template "{{.ID}};{{.Name}};{{.RecordType}};{{.Content}};{{.TTL}}" |
+        sort -t ';' -k 3 |
+        column -ts ';'
+}
+
 function sc_terra_up() {
     sc_terra_up_init
 
@@ -120,13 +137,12 @@ function sc_terra_up() {
         sed -Ei.bak 's/set_sensitive/set/' "${_serenditree_tf}"
     fi
 
-    sc_heading 1 "Planing terraform"
+    sc_heading 1 "Planing infrastructure"
     local -r _plan='serenditree.tfplan'
-    terraform -chdir="$_ST_CONTEXT_HOME" plan \
+    tofu -chdir="$_ST_CONTEXT_HOME" plan \
         -var=api_key="$(pass serenditree/iam/serenditree@exoscale.com.access)" \
         -var=api_secret="$(pass serenditree/iam/serenditree@exoscale.com.secret)" \
         -var=kubernetes_version="${_ST_VERSION_KUBERNETES}" \
-        -var=account="${_ST_ACCOUNT}" \
         -var=context="${_ST_CONTEXT}" \
         -var=stage="${_ST_STAGE}" \
         -var=host="${_ST_DOMAIN}" \
@@ -141,13 +157,15 @@ function sc_terra_up() {
     if [[ -n "$_ARG_DRYRUN" ]]; then
         sc_terra_render "$_plan"
     else
-        sc_heading 1 "Applying terraform"
-        terraform -chdir="$_ST_CONTEXT_HOME" apply "$_plan"
+        sc_heading 1 "Applying plan"
+        tofu -chdir="$_ST_CONTEXT_HOME" apply "$_plan"
         sc_heading 1 "Backing up IAM credentials"
         sc_terra_up_iam_backup
         sc_heading 1 "Setting up context"
         sc_context_clean
         sc_context_init_kube "${_ST_CONTEXT_HOME}/kubeconfig"
+        sc_heading 1 "Setting up DNS"
+        sc_terra_up_dns
         sc_heading 1 "Waiting for pods to become ready"
         sc_cluster_wait 10m
     fi
@@ -174,20 +192,19 @@ function sc_terra_down_volumes() {
 }
 
 function sc_terra_down() {
-    sc_heading 2 "Cluster volumes:"
-    kubectl get pv --output=custom-columns='name:.metadata.name' --no-headers | tee /tmp/serenditree-pv
-
-    sc_heading 2 "Removing helm releases from state..."
-    terraform -chdir="$_ST_CONTEXT_HOME" show -json serenditree.tfplan |
+    sc_heading 1 "Removing helm releases from state"
+    tofu -chdir="$_ST_CONTEXT_HOME" show -json serenditree.tfplan |
         jq -r ".configuration.root_module.resources[] | select(.type == \"helm_release\") | .address" |
-        xargs terraform -chdir="$_ST_CONTEXT_HOME" state rm
+        xargs tofu -chdir="$_ST_CONTEXT_HOME" state rm
 
-    sc_heading 2 "Starting deletion..."
-    terraform -chdir="$_ST_CONTEXT_HOME" destroy -auto-approve \
+    # Store created volumes
+    kubectl get pv --output=custom-columns='name:.metadata.name' --no-headers >/tmp/serenditree-pv
+
+    sc_heading 1 "Starting deletion"
+    tofu -chdir="$_ST_CONTEXT_HOME" destroy -auto-approve \
         -var=api_key="$(pass serenditree/iam/serenditree@exoscale.com.access)" \
         -var=api_secret="$(pass serenditree/iam/serenditree@exoscale.com.secret)" \
         -var=kubernetes_version="${_ST_VERSION_KUBERNETES}" \
-        -var=account="${_ST_ACCOUNT}" \
         -var=context="${_ST_CONTEXT}" \
         -var=stage="${_ST_STAGE}" \
         -var=host="${_ST_DOMAIN}" \
@@ -198,6 +215,7 @@ function sc_terra_down() {
         -var=o11y_parameters="$(sc_terra_secrets o11y)" \
         -var=oidc_parameters="$(sc_terra_secrets oidc)"
 
+    sc_heading 1 "Removing dynamically created resources"
     sc_prompt "Remove DNS records?" && sc_terra_down_dns
     sc_prompt "Delete loadbalancer?" && sc_terra_down_loadbalancer
     sc_prompt "Delete volumes?" && sc_terra_down_volumes
