@@ -73,7 +73,7 @@ if [[ " $* " =~ " build " ]]; then
         --env OTEL_HOST="localhost" \
         --env OTEL_PORT="4317" \
         --env OTEL_SERVICE="leaf" \
-        --env OTEL_SPAN="leaf-server" \
+        --env OTEL_SPAN="serve" \
         --env NGINX_VERSION="$_NGINX_VERSION" \
         --port "$_EXPOSE" \
         --stop-signal "SIGQUIT" \
