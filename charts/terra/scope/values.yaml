@@ -59,8 +59,8 @@ kube-prometheus-stack:
           slack_configs:
             - channel: "#alerts"
               send_resolved: true
-              title: "{{ range .Alerts }}{{ .Annotations.summary }}\n{{ end }}"
-              text: "{{ range .Alerts }}{{ .Annotations.description }}\n{{ end }}"
+              title: "{{ range $i, $item := .Alerts }}{{ if lt $i 2 }}{{ .Annotations.summary }}\n{{ end }}{{ end }}..."
+              text: "{{ range .Alerts }}*{{ .Annotations.summary }}*\n{{ .Annotations.description }}\n\n{{ end }}"
         - name: "null"
 ########################################################################################################################
 # Grafana
