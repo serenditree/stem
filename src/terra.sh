@@ -3,8 +3,7 @@
 # TERRA
 # Cloud infrastructure setup.
 ########################################################################################################################
-
-# Turns pass key-value pairs into a JSON object for setting tofu variables.
+# Turns key-value pairs in pass-folders (standard unix password manager) into JSON objects.
 # $1: Pass folder.
 function sc_terra_secrets() {
     local -r _target=$1
@@ -39,6 +38,8 @@ function sc_terra_secrets() {
     echo "done" >&2
 }
 
+# Renders ArgoCD applications using values from the IaC plan (OpenTofu).
+# $1: Location of the IaC plan.
 function sc_terra_render() {
     local -r _plan="$1"
     sc_heading 1 "Rendering apps"
@@ -51,6 +52,8 @@ function sc_terra_render() {
         sed -E 's/sync-wave: ([-0-9]+)/sync-wave: "\1"/' |
         yq
 }
+
+# Syncs versions.tf with versions from a lockfile.
 function sc_terra_versions() {
     local -r _versions_tf=$(find "${_ST_CONTEXT_HOME}" -name versions.tf)
     sed -En \
@@ -67,6 +70,8 @@ function sc_terra_versions() {
 ########################################################################################################################
 # Up
 ########################################################################################################################
+# Checks if the defined kubernetes version is still supported and initializes OpenTofu.
+# If the argument '--init' is given, previous initialization-artifacts are removed.
 function sc_terra_up_init() {
     if exo compute sks versions --output-format text | grep -Eq "^${_ST_VERSION_KUBERNETES}$"; then
         sc_heading 1 "Initializing"
@@ -81,6 +86,7 @@ function sc_terra_up_init() {
     fi
 }
 
+# Generates assets needed for OpenShift setup.
 function sc_terra_up_assets() {
     sc_heading 2 "Creating assets..."
     tofu -chdir="$_ST_CONTEXT_HOME" apply \
@@ -92,6 +98,7 @@ function sc_terra_up_assets() {
         -var="cluster_name=${_ST_STAGE}"
 }
 
+# Stores IAM keys created during setup.
 function sc_terra_up_iam_backup() {
     for _role in backup data scaler traces; do
         echo -n "Saving credentials for ${_role}..."
@@ -110,6 +117,7 @@ function sc_terra_up_iam_backup() {
     done
 }
 
+# Waits for the CCM-created load-balancer to create DNS records.
 function sc_terra_up_dns() {
     echo "Waiting for load-balancer..."
     until exo compute nlb list --output-template '{{.Name}}' | grep -Eq '^serenditree$'; do sleep 1s; done
@@ -127,6 +135,7 @@ function sc_terra_up_dns() {
         column -ts ';'
 }
 
+# Provisions infrastructure, configures context, bootstraps Serenditree and hands-over control to ArgoCD.
 function sc_terra_up() {
     sc_terra_up_init
 
