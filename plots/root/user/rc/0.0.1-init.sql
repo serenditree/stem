@@ -106,10 +106,7 @@ CREATE TABLE IF NOT EXISTS FenceRecord
     userId     VARCHAR(36) NOT NULL,
     entityId   VARCHAR(36) NULL, -- For cascade remove.
     expiration DATETIME    NULL,
-    INDEX (action),
-    INDEX (userId),
-    INDEX (entityId),
-    INDEX (expiration)
+    INDEX (_id, action, userId, entityId, expiration)
 )
     CHARACTER SET 'utf8'
     ENGINE = InnoDB
