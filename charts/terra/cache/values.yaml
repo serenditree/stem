@@ -1,0 +1,6 @@
+global:
+  wait: ~
+  wave: ~
+dragonfly:
+  fullnameOverride: terra-cache
+  replicaCount: 3

@@ -1,0 +1,24 @@
+openbao:
+  fullnameOverride: vault
+  global:
+    enabled: false
+  server:
+    enabled: true
+    readinessProbe:
+      enabled: false # not ready until vault is initialized
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 250m
+      limits:
+        memory: 512Mi
+        cpu: 500m
+    dataStorage:
+      enabled: true
+      size: 10Gi
+      accessMode: ReadWriteOnce
+    standalone:
+      enabled: true
+external-secrets:
+  fullnameOverride: secrets
+  installCRDs: true

@@ -1,0 +1,21 @@
+global:
+  context: ~
+  host: ~
+  issuer: ~
+  stage: ~
+  wait: ~
+  wave: ~
+branch:
+  branches:
+    - user
+    - seed
+    - garden
+    - poll
+  minReplicas: 1
+  maxReplicas: 3
+  waterRetention: 21
+  logLevel: INFO
+  otlp:
+    endpoint: ~
+    traceRatio: 0.1d
+  oidc: []

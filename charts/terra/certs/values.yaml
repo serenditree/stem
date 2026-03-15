@@ -1,0 +1,18 @@
+global:
+  host: ~
+  wait: ~
+  wave: ~
+cert-manager:
+  crds:
+    enabled: true
+  startupapicheck:
+    enabled: false
+  extraArgs:
+    - --enable-gateway-api
+exoscale-webhook:
+  certManager:
+    namespace: terra-certs
+    serviceAccountName: terra-certs-cert-manager
+letsencrypt:
+  issuer: ~
+  email: ~

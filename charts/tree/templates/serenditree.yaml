@@ -1,0 +1,84 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Values.serenditree.name }}
+  namespace: {{ .Values.global.argocdNamespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: {{ .Values.serenditree.wave | quote }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: {{ .Values.global.repository | quote }}
+    path: "{{ .Values.global.path }}/tree"
+    targetRevision: {{ .Values.serenditree.revision | default .Values.global.revision | quote }}
+    helm:
+      parameters:
+        - name: global.wait
+          value: {{ .Values.global.wait | quote }}
+        - name: global.context
+          value: {{ .Values.global.context }}
+        - name: global.clusterDomain
+          value: {{ .Values.global.clusterDomain }}
+        - name: global.host
+          value: {{ .Values.global.host }}
+        - name: global.issuer
+          value: {{ .Values.global.issuer }}
+        - name: global.email
+          value: {{ .Values.global.email }}
+        - name: global.stage
+          value: {{ .Values.global.stage }}
+        - name: global.zone.compute1
+          value: {{ .Values.global.zone.compute1 }}
+        - name: global.zone.storage1
+          value: {{ .Values.global.zone.storage1 }}
+        - name: global.zone.storage2
+          value: {{ .Values.global.zone.storage2 }}
+
+        - name: terraStreams.parameters.kafdrop.enabled
+          value: {{ .Values.terraStreams.parameters.kafdrop.enabled | quote }}
+
+        - name: terraTraces.parameters.quickwit.config.storage.s3.endpoint
+          value: {{ .Values.terraTraces.parameters.quickwit.config.storage.s3.endpoint }}
+        - name: terraTraces.parameters.quickwit.config.storage.s3.region
+          value: {{ .Values.terraTraces.parameters.quickwit.config.storage.s3.region }}
+        - name: terraTraces.parameters.quickwit.config.default_index_root_uri
+          value: {{ .Values.terraTraces.parameters.quickwit.config.default_index_root_uri }}
+
+        - name: terraCilium.enabled
+          value: {{ .Values.terraCilium.enabled | quote }}
+        - name: terraCilium.parameters.cluster.name
+          value: {{ .Values.terraCilium.parameters.cluster.name }}
+        - name: terraCilium.parameters.k8sServiceHost
+          value: {{ .Values.terraCilium.parameters.k8sServiceHost }}
+
+          {{- $index := 0 }}
+          {{- range .Values.terraScale.parameters.autoscalingGroupNames }}
+        - name: terraScale.parameters.autoscalingGroupNames[{{ $index }}]
+          value: {{ . | quote }}
+          {{- $index = add1 $index }}
+          {{- end }}
+
+        - name: rootSeed.parameters.s3.endpoint
+          value: {{ .Values.rootSeed.parameters.s3.endpoint | quote }}
+        - name: rootSeed.parameters.s3.region
+          value: {{ .Values.rootSeed.parameters.s3.region | quote }}
+
+        - name: branch.parameters.logLevel
+          value: {{ .Values.branch.parameters.logLevel }}
+          {{- $indexOidc := 0 }}
+          {{- range .Values.branch.parameters.oidc }}
+        - name: branch.parameters.oidc[{{ $indexOidc }}]
+          {{- $indexOidc = add1 $indexOidc }}
+          value: {{ . }}
+          {{- end }}
+  destination:
+    server: {{ .Values.global.destinationServer }}
+    namespace: {{ .Values.global.argocdNamespace }}
+  syncPolicy:
+    automated: {{ .Values.global.automated | toYaml | nindent 6 }}
+    retry: {{ .Values.global.retry | toYaml | nindent 6  }}
+    syncOptions:
+      - CreateNamespace=true

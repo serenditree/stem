@@ -1,0 +1,122 @@
+global:
+  wait: ~
+  wave: ~
+kube-prometheus-stack:
+########################################################################################################################
+# Prometheus
+########################################################################################################################
+  prometheusOperator:
+    enabled: true
+    admissionWebhooks:
+      enabled: false # Argo-CD race conditions
+    tls:
+      enabled: false
+  prometheus:
+    prometheusSpec:
+      enableRemoteWriteReceiver: true
+      podMonitorSelectorNilUsesHelmValues: false
+      probeSelectorNilUsesHelmValues: false
+      ruleSelectorNilUsesHelmValues: false
+      scrapeConfigSelectorNilUsesHelmValues: false
+      serviceMonitorSelectorNilUsesHelmValues: false
+      storageSpec:
+        volumeClaimTemplate:
+          spec:
+            storageClassName: exoscale-sbs
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 10Gi
+  kubeProxy:
+    enabled: false
+  kubeScheduler:
+    enabled: false
+  kubeControllerManager:
+    enabled: false
+########################################################################################################################
+# Alertmanager
+########################################################################################################################
+  alertmanager:
+    alertmanagerSpec:
+      storage:
+        volumeClaimTemplate:
+          spec:
+            storageClassName: exoscale-sbs
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 10Gi
+      secrets:
+        - slack-api-url
+    config:
+      global:
+        resolve_timeout: 5m
+        slack_api_url_file: /etc/alertmanager/secrets/slack-api-url/slack-api-url
+      route:
+        receiver: slack
+        group_by:
+          - alertname
+        group_wait: 30s
+        group_interval: 5m
+        repeat_interval: 3h
+        routes:
+          - receiver: "null"
+            matchers:
+              - 'alertname =~ "Watchdog|KubeClientCertificateExpiration"'
+          - receiver: slack
+      receivers:
+        - name: slack
+          slack_configs:
+            - channel: "#alerts"
+              send_resolved: true
+              title: "{{ range .Alerts }}{{ .Annotations.summary }}\n{{ end }}"
+              text: "{{ range .Alerts }}*{{ .Annotations.summary }}*\n{{ .Annotations.description }}\n\n{{ end }}"
+        - name: "null"
+########################################################################################################################
+# Grafana
+########################################################################################################################
+  grafana:
+    image:
+      tag: 11.6.4
+    admin:
+      existingSecret: grafana-credentials
+      userKey: username
+      passwordKey: password
+    replicas: 1
+    persistence:
+      enabled: true
+      accessModes:
+        - ReadWriteOnce
+      size: 10Gi
+    plugins:
+      - quickwit-quickwit-datasource
+    datasources:
+      datasources.yaml:
+        apiVersion: 1
+        datasources:
+          - name: "Quickwit Logs"
+            uid: "QuickwitLogs"
+            editable: false
+            isDefault: false
+            type: quickwit-quickwit-datasource
+            jsonData:
+              index: "otel-logs-v0_7"
+              logMessageField: "body.message"
+              logLevelField: "severity_number"
+            url: http://traces-searcher.terra-traces.svc.cluster.local:7280/api/v1
+          - name: "Quickwit Traces"
+            uid: "QuickwitTraces"
+            editable: false
+            isDefault: false
+            type: quickwit-quickwit-datasource
+            jsonData:
+              index: "otel-traces-v0_7"
+            url: http://traces-searcher.terra-traces.svc.cluster.local:7280/api/v1
+          - name: "Jaeger Traces"
+            uid: "JaegerTraces"
+            editable: false
+            isDefault: false
+            type: jaeger
+            url: http://traces-searcher.terra-traces.svc.cluster.local:7280/api/v1/otel-traces-v0_7/jaeger

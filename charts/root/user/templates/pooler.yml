@@ -1,0 +1,35 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Pooler
+metadata:
+  name: root-user
+  labels:
+    serenditree.io/policy: fence-root-user
+    serenditree.io/otel: root-user-pooler
+spec:
+  cluster:
+    name: {{ .Values.rootUser.clusterName }}
+  instances: 2
+  type: rw
+  template:
+    metadata:
+      labels:
+        serenditree.io/policy: fence-root-user
+        serenditree.io/otel: root-user-pooler
+        app: pooler
+  serviceTemplate:
+    metadata:
+      labels:
+        serenditree.io/policy: fence-root-user
+        serenditree.io/otel: root-user-pooler
+        app: pooler
+    spec:
+      type: ClusterIP
+  pgbouncer:
+    poolMode: transaction
+    parameters:
+      max_client_conn: "1000"
+      default_pool_size: "25"
+      min_pool_size: "10"
+      reserve_pool_size: "5"
+      max_db_connections: "75"

@@ -1,45 +1,75 @@
 #!/usr/bin/env bash
 ########################################################################################################################
-# ENVIRONMENT
+# CONFIG
 # Global settings and definitions.
 ########################################################################################################################
-
+# UTILITY
+########################################################################################################################
+_NORMAL=$(tput sgr0 2>/dev/null)
+_BOLD=$(tput bold 2>/dev/null)
+export _NORMAL _BOLD
+########################################################################################################################
+# STAGE
+########################################################################################################################
+_ST_STAGE="dev"
+if [[ -n "$_ARG_TEST" ]]; then
+    _ST_STAGE="test"
+elif [[ -n "$_ARG_PROD" ]]; then
+    _ST_STAGE="prod"
+fi
+export _ST_STAGE
 ########################################################################################################################
 # PROJECT
 ########################################################################################################################
-
 if [[ -z "$_ST_CONTEXT_TKN" ]]; then
     _ST_HOME=$(realpath $0 | sed 's/\/stem.*//')
     export _ST_HOME
-    export _ST_HOME_STEM=$_ST_HOME/stem
-    export _ST_HOME_BRANCH=$_ST_HOME/branch
-    export _ST_HOME_LEAF=$_ST_HOME/leaf
+    export _ST_HOME_STEM=${_ST_HOME}/stem
+    export _ST_HOME_BRANCH=${_ST_HOME}/branch
+    export _ST_HOME_LEAF=${_ST_HOME}/leaf
 else
-    export _ST_HOME_STEM=$_ST_HOME/sc
-    export _ST_HOME_BRANCH=$_ST_HOME/src
-    export _ST_HOME_LEAF=$_ST_HOME/src
+    export _ST_HOME_STEM=${_ST_HOME}/sc
+    export _ST_HOME_BRANCH=${_ST_HOME}/src
+    export _ST_HOME_LEAF=${_ST_HOME}/src
 fi
+########################################################################################################################
+# CONFIG
+########################################################################################################################
+export _ST_ACCOUNT=${_ST_ACCOUNT:-serenditree}
+export _ST_DOMAIN=${_ST_DOMAIN:-serenditree.io}
+export _ST_GIT=${_ST_GIT:-git@github.com:serenditree/stem.git}
+export _ST_GIT_SSH=${_ST_GIT_SSH:-${HOME}/.ssh/stem@serenditree.io}
 export _ST_LOG_LEVEL=${_ST_LOG_LEVEL:-info}
+export _ST_POD=${_ST_POD:-serenditree}
+export _ST_POD_TIMEOUT=${_ST_POD_TIMEOUT:-5}
+export _ST_ZONE_COMPUTE_1=${_ST_ZONE_COMPUTE_1:-at-vie-2}
+export _ST_ZONE_STORAGE_1=${_ST_ZONE_STORAGE_1:-at-vie-1}
+export _ST_ZONE_STORAGE_2=${_ST_ZONE_STORAGE_2:-hr-zag-1}
 
+export EXOSCALE_ACCOUNT=$_ST_ACCOUNT
 ########################################################################################################################
 # VERSIONS
 ########################################################################################################################
-
-if [[ -z "$_ST_CONTEXT_TKN" ]]; then
+if [[ -f /etc/fedora-release ]] && [[ -z "$_ST_CONTEXT_TKN" ]]; then
     _ST_VERSION_FEDORA=$(cut -d' ' -f3 /etc/fedora-release)
     export _ST_VERSION_FEDORA
 fi
-export _ST_VERSION_JAVA=11
-export _ST_VERSION_NODE=18
-export _ST_VERSION_MVN=3.8.4
-export _ST_VERSION_MONGODB=4.4
-export _ST_VERSION_MARIADB=10.6
-export _ST_VERSION_NGINX=1.21
+export _ST_VERSION_KUBERNETES=1.34.1
+export _ST_VERSION_JAVA=21
+export _ST_VERSION_NODE=24.x
+export _ST_VERSION_GO=1.25
+export _ST_VERSION_K6=1.3.0
+export _ST_VERSION_TILESERVER=5.4.0
+export _ST_VERSION_ANGULAR=20
+export _ST_VERSION_OPENSEARCH=3
+export _ST_VERSION_POSTGRESQL=18
+export _ST_VERSION_KAFKA=4.0.0
+export _ST_VERSION_KAFKA_SCALA=2.13
 
+export _ST_VERSION_FIXED_HELM= # chart[|chart]
 ########################################################################################################################
 # BUILD
 ########################################################################################################################
-
 export _ST_CONTAINER_ROOT=/serenditree
 
 export _ST_JAVA_JRE_HOME=/usr/lib/jvm/jre-${_ST_VERSION_JAVA}-openjdk
@@ -47,21 +77,22 @@ export _ST_JAVA_JDK_HOME=/usr/lib/jvm/java-${_ST_VERSION_JAVA}-openjdk
 export _ST_JAVA_PACKAGE=java-${_ST_VERSION_JAVA}-openjdk-headless
 export _ST_JAVA_PACKAGE_DEVEL=java-${_ST_VERSION_JAVA}-openjdk-devel
 
-export _ST_DNF_OPTS="--assumeyes --noplugins --nodocs --setopt install_weak_deps=0"
-export _ST_DNF_OPTS_HOST="--releasever $_ST_VERSION_FEDORA $_ST_DNF_OPTS"
-
+_ST_DNF_OPTS="--assumeyes --noplugins --nodocs --setopt install_weak_deps=0"
+_ST_DNF_OPTS_HOST="--use-host-config --setopt *.countme=false "
+_ST_DNF_OPTS_HOST+="--releasever $_ST_VERSION_FEDORA $_ST_DNF_OPTS"
+export _ST_DNF_OPTS _ST_DNF_OPTS_HOST
 ########################################################################################################################
 # BASE IMAGES
 ########################################################################################################################
-
-export _ST_FROM_ROOT_SEED=docker.io/bitnami/mongodb:${_ST_VERSION_MONGODB}
-export _ST_FROM_ROOT_USER=docker.io/bitnami/mariadb:${_ST_VERSION_MARIADB}
-export _ST_FROM_LEAF=docker.io/bitnami/nginx:${_ST_VERSION_NGINX}
-
+export _ST_FROM_ROOT_SEED=docker.io/opensearchproject/opensearch:${_ST_VERSION_OPENSEARCH}
+export _ST_FROM_ROOT_SEED_DASH=docker.io/opensearchproject/opensearch-dashboards:${_ST_VERSION_OPENSEARCH}
+export _ST_FROM_ROOT_USER=docker.io/postgres:${_ST_VERSION_POSTGRESQL}
+export _ST_FROM_ROOT_WIND_DASH=docker.io/obsidiandynamics/kafdrop:latest
+export _ST_FROM_SOIL_TEST=docker.io/grafana/k6:${_ST_VERSION_K6}
+export _ST_FROM_SOIL_TEST_BUILDER=docker.io/library/golang:${_ST_VERSION_GO}
 ########################################################################################################################
 # CONTEXT
 ########################################################################################################################
-
 _kubernetes="serenditree-kubernetes"
 _kubernetes_local="serenditree-kubernetes-local"
 _openshift="serenditree-openshift"
@@ -69,7 +100,6 @@ _openshift_local="serenditree-openshift-local"
 
 # shellcheck disable=SC2155,SC2011
 if [[ -z "$_ST_CONTEXT_TKN" ]]; then
-    export KUBECONFIG="$(ls ~/.kube/config* | xargs echo | tr ' ' ':')"
     export MINIKUBE_IN_STYLE=false
 
     if [[ -n "$_ARG_KUBERNETES" ]]; then
@@ -91,6 +121,7 @@ if [[ -z "$_ST_CONTEXT_TKN" ]]; then
 fi
 
 export _ST_CONTEXTS=("$_kubernetes" "$_kubernetes_local" "$_openshift" "$_openshift_local")
+export _ST_CONTEXTS_NOOP="noop/serenditree"
 export _ST_REGISTRY=quay.io
 if [[ "$_ST_CONTEXT" == "$_kubernetes" ]]; then
     export _ST_CONTEXT_IS_KUBERNETES=on
@@ -110,33 +141,21 @@ elif [[ "$_ST_CONTEXT" == "$_openshift_local" ]]; then
     export _ST_CONTEXT_IS_LOCAL=on
     export _ST_CONTEXT_OPENSHIFT_LOCAL=$_openshift_local
     export _ST_REGISTRY=default-route-openshift-image-registry.apps-crc.testing
-fi
-
-if [[ -z "${_ST_CONTEXT_IS_LOCAL}${_ST_CONTEXT_TKN}" ]]; then
-    # shellcheck disable=SC2155
-    export _ST_CLUSTER_DOMAIN="$(yq eval '.current-context' ~/.kube/config.sks).cluster.local"
 else
-    export _ST_CLUSTER_DOMAIN="cluster.local"
+    [[ -z "${_ST_ARGBASH}${_ST_CONTEXT_TKN}" ]] &&
+        ! [[ $_ARG_COMMAND =~ [1-4]|ctx|context ]] &&
+        echo -e "${_BOLD}Warning:${_NORMAL} Serenditree context is not set\n" >&2
+    export _ST_CONTEXT=
 fi
-
-########################################################################################################################
-# DEBUG
-########################################################################################################################
-
-if [[ -n "$_ARG_DRYRUN" ]]; then
-    _ST_HELM_CMD="template"
-    _ST_HELM_PIPE="yq eval"
+if [[ -n "$_ST_CONTEXT_IS_KUBERNETES" ]]; then
+    export _ST_CONTEXT_HOME="${_ST_HOME_STEM}/src/kubernetes"
 else
-    _ST_HELM_CMD="install"
-    _ST_HELM_PIPE="tee"
+    export _ST_CONTEXT_HOME="${_ST_HOME_STEM}/src/openshift"
 fi
-export _ST_HELM_CMD _ST_HELM_PIPE
-
+export _ST_CONTEXT_PLAN="${_ST_CONTEXT_HOME}/serenditree.tfplan"
 ########################################################################################################################
-# UTILITY
+# COMPOSE
 ########################################################################################################################
-
-_BOLD=$(tput bold 2>/dev/null)
-export _BOLD
-_NORMAL=$(tput sgr0 2>/dev/null)
-export _NORMAL
+podman pod exists "pod_${_ST_POD}" &&
+    [[ $_ARG_COMMAND =~ down|d|logs|log ]] &&
+    export _ARG_COMPOSE=on
