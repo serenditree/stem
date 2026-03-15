@@ -1,0 +1,21 @@
+apiVersion: k6.io/v1alpha1
+kind: TestRun
+metadata:
+  name: testrun
+  annotations:
+    "helm.sh/hook": post-install
+spec:
+  parallelism: 4
+  script:
+    configMap:
+      name: testing
+      file: main.js
+  runner:
+    image: quay.io/serenditree/testing:latest
+    env:
+      - name: BRANCH_USER
+        value: branch-user:8080
+      - name: BRANCH_SEED
+        value: branch-seed:8080
+      - name: BRANCH_POLL
+        value: branch-poll:8080

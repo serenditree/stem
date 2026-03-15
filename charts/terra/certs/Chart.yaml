@@ -1,0 +1,14 @@
+apiVersion: v2
+type: application
+name: terra-certs
+description: "Cert-manager resources"
+version: 0.0.1
+appVersion: 0.0.1
+dependencies:
+  - name: exoscale-webhook
+    repository: oci://quay.io/tanwald/charts
+    version: 0.3.2
+    condition: letsencrypt.dns.enabled
+  - name: cert-manager
+    repository: https://charts.jetstack.io
+    version: v1.18.2

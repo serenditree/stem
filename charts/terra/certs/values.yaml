@@ -1,0 +1,21 @@
+global:
+  host: ~
+cert-manager:
+  crds:
+    enabled: true
+  config:
+    apiVersion: controller.config.cert-manager.io/v1alpha1
+    kind: ControllerConfiguration
+    enableGatewayAPI: true
+exoscale-webhook:
+  certManager:
+    namespace: terra-certs
+    serviceAccountName: terra-certs-cert-manager
+letsencrypt:
+  issuer: ~
+  email: ~
+  dns:
+    enabled: false
+    secretName: exoscale-webhook
+    key: ~
+    secret: ~

@@ -1,0 +1,10 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.opensearch.initScriptsCM }}
+  labels:
+    {{- include "st-default-labels" . }}
+data:
+  init.sh: |
+{{ .Files.Get "resources/init.sh" | indent 4 }}

@@ -1,0 +1,39 @@
+valkey:
+  global:
+    imageRegistry: quay.io
+    security:
+      allowInsecureImages: true
+  image:
+    repository: tanwald/valkey
+  kubectl:
+    image:
+      repository: tanwald/kubectl
+  metrics:
+    image:
+      repository: tanwald/redis-exporter
+  sentinel:
+    image:
+      repository: tanwald/valkey-sentinel
+  volumePermissions:
+    image:
+      repository: tanwald/os-shell
+  fullnameOverride: cache
+  auth:
+    enabled: false
+  primary:
+    replicaCount: 1
+    resourcesPreset: small
+    persistence:
+      enabled: false
+  replica:
+    replicaCount: 1
+    autoscaling:
+      hpa:
+        enabled: true
+        minReplicas: 1
+        maxReplicas: 3
+        targetCPU: 75
+        targetMemory: 75
+    resourcesPreset: small
+    persistence:
+      enabled: false

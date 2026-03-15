@@ -1,0 +1,10 @@
+apiVersion: v2
+type: application
+name: testing
+description: K6 testing resources
+version: 0.0.1
+appVersion: 0.0.1
+dependencies:
+  - name: k6-operator
+    repository: https://grafana.github.io/helm-charts
+    version: 3.15.0

@@ -1,0 +1,10 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.rootSeed.backup.retention }}
+  labels:
+    {{- include "st-default-labels" . }}
+data:
+  retention.py: |
+{{ .Files.Get "resources/retention.py" | indent 4 }}

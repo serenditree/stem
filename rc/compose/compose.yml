@@ -1,12 +1,14 @@
 version: '3'
 services:
-
   leaf:
     image: localhost/serenditree/leaf:compose
     hostname: leaf
     restart: unless-stopped
     ports:
       - "8080:8080"
+    environment:
+      - SERENDITREE_STAGE=compose
+      - OTEL_ENABLED=off
     healthcheck:
       test: curl localhost:8080
 
@@ -20,6 +22,7 @@ services:
       - ../../plots/branch/plot.env
     environment:
       - SERENDITREE_STAGE=compose
+      - SERENDITREE_LOG_LEVEL=DEBUG
     healthcheck:
       test: curl localhost:8080/q/health/ready
     depends_on:
@@ -36,6 +39,7 @@ services:
       - ../../plots/branch/plot.env
     environment:
       - SERENDITREE_STAGE=compose
+      - SERENDITREE_LOG_LEVEL=DEBUG
     healthcheck:
       test: curl localhost:8080/q/health/ready
     depends_on:
@@ -52,6 +56,7 @@ services:
       - ../../plots/branch/plot.env
     environment:
       - SERENDITREE_STAGE=compose
+      - SERENDITREE_LOG_LEVEL=DEBUG
     healthcheck:
       test: curl localhost:8080/q/health/ready
     depends_on:
@@ -63,26 +68,24 @@ services:
     hostname: root-map
     restart: unless-stopped
     ports:
-      - "8084:8080"
-    environment:
-      - SERENDITREE_DATA_URL=${SERENDITREE_DATA_URL}
+      - "8084:8081"
     volumes:
-      - root-map:/serenditree/data
+      - ${_ST_HOME_STEM}/plots/root/map/data/database:/serenditree/data:Z
     healthcheck:
-      test: curl localhost:8080/index.json
+      test: curl localhost:8081/index.json
 
   root-user:
     image: localhost/serenditree/root-user:latest
     hostname: root-user
     restart: unless-stopped
     ports:
-      - "8085:3306"
+      - "8085:5432"
     env_file:
       - ../../plots/root/user/plot.env
     volumes:
-      - root-user:/bitnami/mariadb
+      - root-user:/bitnami/postgresql
     healthcheck:
-      test: mysqladmin status -uroot -proot
+      test: pg_isready -U user -d serenditree -h 127.0.0.1 -p 5432
 
   root-seed:
     image: localhost/serenditree/root-seed:latest
@@ -93,12 +96,29 @@ services:
     env_file:
       - ../../plots/root/seed/plot.env
     volumes:
-      - root-seed:/bitnami/mongodb
+      - root-seed:/bitnami/opensearch/data
     healthcheck:
-      test: mongo --disableImplicitSessions --eval 'db.hello().isWritablePrimary' | grep -q true
+      test: curl http://localhost:9200/_cluster/health?wait_for_status=yellow&timeout=1s
     ulimits:
-      nproc: 64000
-      nofile: 64000
+      nproc: ${NPROC}
+      nofile: ${NOFILE}
+
+  root-seed-dash:
+    image: docker.io/bitnami/opensearch-dashboards:3
+    hostname: dashboards
+    restart: unless-stopped
+    ports:
+      - "5601:5601"
+    environment:
+      - OPENSEARCH_DASHBOARDS_OPENSEARCH_URL=http://root-seed:9200
+    labels:
+      - serenditree.io/service=root-seed-dash
+    volumes:
+      - root-seed-dash:/bitnami/opensearch-dashboards
+    healthcheck:
+      test: curl http://localhost:5601/api/status
+    depends_on:
+      - root-seed
 
   root-wind:
     image: localhost/serenditree/root-wind:latest
@@ -111,7 +131,7 @@ services:
     healthcheck:
       test: bash health.sh
 
-  kafdrop:
+  root-wind-dash:
     image: docker.io/obsidiandynamics/kafdrop:latest
     restart: unless-stopped
     hostname: kafdrop
@@ -119,5 +139,14 @@ services:
       - "9000:9000"
     environment:
       KAFKA_BROKERCONNECT: root-wind:9092
+    labels:
+      - serenditree.io/service=root-wind-dash
+    healthcheck:
+      test: curl http://localhost:9000/actuator/health
     depends_on:
       - root-wind
+volumes:
+  root-user:
+  root-seed:
+  root-seed-dash:
+  root-wind:

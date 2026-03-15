@@ -1,0 +1,75 @@
+global:
+  context: ~
+rootSeed:
+  backup:
+    endpoint: http://root-seed:9200/_snapshot/seed-backup
+    cronjob: root-seed-backup
+    retention: root-seed-backup-retention
+    accessKey: ~
+    accessSecret: ~
+opensearch:
+  global:
+    imageRegistry: quay.io
+    security:
+      allowInsecureImages: true
+  image:
+    repository: tanwald/opensearch
+  dashboards:
+    image:
+      repository: tanwald/opensearch-dashboards
+  snapshots:
+    image:
+      repository: tanwald/os-shell
+  sysctlImage:
+    repository: tanwald/os-shell
+  volumePermissions:
+    image:
+      repository: tanwald/os-shell
+  clusterDomain: cluster.local
+  fullnameOverride: root-seed
+  clusterName: serenditree
+  commonLabels:
+    serenditree.io/policy: fence-root-seed
+    serenditree.io/otel: root-seed
+  plugins: repository-s3
+  useIstioLabels: false
+  security:
+    enabled: false
+  master:
+    replicaCount: 3
+    networkPolicy:
+      enabled: false
+    masterOnly: false
+    extraRoles:
+      - data
+    resourcesPreset: none
+    persistence:
+      enabled: true
+      size: 10Gi
+    persistentVolumeClaimRetentionPolicy:
+      enabled: true
+    containerSecurityContext:
+      readOnlyRootFilesystem: false
+  data:
+    replicaCount: 0
+  coordinating:
+    replicaCount: 0
+  ingest:
+    replicaCount: 0
+  extraConfig:
+    s3:
+      client:
+        default:
+          endpoint: https://sos-at-vie-1.exo.io
+          region: at-vie-1
+    plugins:
+      ml_commons:
+        sync_up_job_interval_in_seconds: 0
+    logger:
+      org:
+        opensearch:
+          jobscheduler:
+            sweeper: WARN
+  initScriptsCM: root-seed-init
+  extraEnvVarsSecret: root-seed
+

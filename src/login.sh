@@ -17,7 +17,7 @@ function sc_login() {
     case $1 in
     redhat)
         local -r _registry=registry.redhat.io
-        local -r _credentials=$(pass serenditree/$_registry)
+        local -r _credentials=$(pass serenditree/ext/redhat.io)
         { sc_logged_in $_registry && echo 'Already logged in.'; } || podman login \
             -u "${_credentials%%:*}" \
             -p "${_credentials#*:}" \
@@ -25,14 +25,20 @@ function sc_login() {
         ;;
     quay)
         local -r _registry=quay.io
-        local -r _credentials=$(pass serenditree/$_registry)
+        local -r _credentials=$(pass serenditree/ext/quay.io)
+        echo "Containers..."
         { sc_logged_in $_registry && echo 'Already logged in.'; } || podman login \
+            -u "${_credentials%%:*}" \
+            -p "${_credentials#*:}" \
+            "$_registry"
+        echo "Charts..."
+        helm registry login \
             -u "${_credentials%%:*}" \
             -p "${_credentials#*:}" \
             "$_registry"
         ;;
     argo*)
-        local -r _argocd_password="$(pass serenditree/argocd)"
+        local -r _argocd_password="$(pass serenditree/cicd/terraArgocd.password)"
         sc_cluster_expose argocd
         sleep 1s
         argocd login localhost:9098 --insecure --username admin --password "$_argocd_password"
@@ -50,13 +56,13 @@ function sc_login() {
         if [[ -n "$_ST_CONTEXT_TKN" ]]; then
             local -r _credentials="${_ST_OPENSHIFT_USERNAME}:${_ST_OPENSHIFT_PASSWORD}"
         else
-            local -r _credentials=$(pass serenditree/crc.testing)
+            local -r _credentials="kubeadmin:crc.testing"
         fi
-        oc login --insecure-skip-tls-verify \
+        oc login \
             -u "${_credentials%%:*}" \
             -p "${_credentials#*:}" \
-            "$_ST_CLUSTER"
-        oc registry login --skip-check
+            https://api.crc.testing:6443
+        oc registry login
         ;;
     esac
 }
@@ -70,26 +76,37 @@ function sc_login_db() {
     local -r _db=$2
 
     case $_db in
-    user | maria)
+    user)
         if [[ "$_ctx" == "cluster" ]]; then
-            local -r _credentials=$(pass serenditree/root.user)
-            kubectl port-forward svc/root-user 3306:3306 &
-            sleep 1s
-            mysql -u"${_credentials%%:*}" -p"${_credentials#*:}" --protocol=TCP serenditree
-            killall kubectl && echo "Port-forwarding stopped"
+            kubectl --namespace serenditree port-forward svc/root-user-pgpool 5432:5432 &
+            local -r _pid=$!
+            if [[ -z "$_ARG_EXPOSE" ]]; then
+                local -r _username=$(pass serenditree/app/rootUser.parameters.db.user)
+                local -r _password=$(pass serenditree/app/rootUser.parameters.db.password)
+                psql "postgresql://${_username}:${_password}@localhost:5432/serenditree"
+                kill $_pid
+            fi
         else
-            mysql -uuser -puser --port=8085 --protocol=TCP serenditree
+            psql "postgresql://${_username}:${_password}@localhost:8085/serenditree"
         fi
         ;;
-    seed | mongo)
+    seed)
         if [[ "$_ctx" == "cluster" ]]; then
-            local -r _credentials=$(pass serenditree/root.seed)
-            kubectl port-forward svc/root-seed 27017:27017 &
-            sleep 1s
-            mongo -u"${_credentials%%:*}" -p"${_credentials#*:}" serenditree
-            killall kubectl && echo "Port-forwarding stopped"
+            kubectl --namespace serenditree port-forward svc/root-seed 9200:9200 &
+        fi
+        ;;
+    trace*)
+        if [[ "$_ctx" == "cluster" ]]; then
+            kubectl --namespace terra-traces port-forward svc/metastore 5433:5432 &
+            local -r _pid=$!
+            if [[ -z "$_ARG_EXPOSE" ]]; then
+                local -r _username=$(pass serenditree/o11y/terraTraces.parameters.postgresql.auth.username)
+                local -r _password=$(pass serenditree/o11y/terraTraces.parameters.postgresql.auth.password)
+                psql "postgresql://${_username}:${_password}@localhost:5433/metastore"
+                kill $_pid
+            fi
         else
-            mongo -uuser -puser --port=8086 serenditree
+            echo "Quickwit is only available in cluster contexts."
         fi
         ;;
     esac

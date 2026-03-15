@@ -1,0 +1,7 @@
+k6-operator:
+  namespace:
+    create: false
+  metrics:
+    serviceMonitor:
+      enabled: true
+      namespace: terra-scope

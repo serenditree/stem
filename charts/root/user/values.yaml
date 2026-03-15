@@ -1,0 +1,76 @@
+global:
+  context: ~
+rootUser:
+  clusterDomain: ~
+  db:
+    name: serenditree
+    user: ~
+    password: ~
+  rootUser:
+    password: ~
+  backup:
+    cronjob: root-user-backup
+    apikey: ~
+    secret: ~
+postgresql-ha:
+  global:
+    imageRegistry: quay.io
+    security:
+      allowInsecureImages: true
+  metrics:
+    image:
+      repository: tanwald/postgres-exporter
+  volumePermissions:
+    image:
+      repository: tanwald/os-shell
+  clusterDomain: cluster.local
+  fullnameOverride: root-user
+  namespaceOverride: serenditree
+  commonLabels:
+    serenditree.io/policy: fence-root-user
+    serenditree.io/otel: root-user
+  persistence:
+    size: 10Gi
+  postgresql:
+    image:
+      repository: tanwald/postgresql-repmgr
+    replicaCount: 3
+    networkPolicy:
+      enabled: false
+    resourcesPreset: none
+    initdbScriptsCM: root-user-init
+    username: serenditree
+    database: serenditree
+    existingSecret: root-user
+    extraEnvVars:
+      - name: REPMGR_START_OPTIONS
+        value: "--no-pid-file"
+      - name: POSTGRESQL_SR_CHECK_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: root-user
+            key: repmgr-password
+  pgpool:
+    image:
+      repository: tanwald/pgpool
+    replicaCount: 1
+    networkPolicy:
+      enabled: false
+    resourcesPreset: none
+    existingSecret: root-user
+    customUsersSecret: root-user
+    extraEnvVars:
+      - name: PGPOOL_DISCARD_STATUS
+        value: "true"
+      - name: PGPOOL_SR_CHECK_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: root-user
+            key: repmgr-password
+      - name: PGPOOL_HEALTH_CHECK_USER
+        value: "serenditree"
+      - name: PGPOOL_HEALTH_CHECK_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: root-user
+            key: password

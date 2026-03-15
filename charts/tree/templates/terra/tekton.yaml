@@ -1,0 +1,45 @@
+{{- if .Values.terraTekton.enabled }}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Values.terraTekton.name }}
+  namespace: {{ .Values.global.cdNamespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: {{ .Values.terraTekton.wave | quote }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: {{ .Values.global.repository | quote }}
+    path: "{{ .Values.global.terraPath }}/{{ trimPrefix .Values.global.terraPrefix .Values.terraTekton.name }}"
+    targetRevision: {{ .Values.terraTekton.revision | default .Values.global.revision | quote }}
+    helm:
+      parameters:
+        - name: global.context
+          value: {{ .Values.global.context }}
+        - name: webhook
+          value: {{ .Values.terraTekton.parameters.webhook }}
+        - name: basic.github
+          value: {{ .Values.terraTekton.parameters.basic.github }}
+        - name: basic.quay
+          value: {{ .Values.terraTekton.parameters.basic.quay }}
+        - name: basic.redhat
+          value: {{ .Values.terraTekton.parameters.basic.redhat }}
+  destination:
+    server: {{ .Values.global.destinationServer }}
+    namespace: {{ .Values.terraTekton.namespace }}
+  syncPolicy:
+    automated: {{ .Values.global.automated | toYaml | nindent 6 }}
+    retry: {{ .Values.global.retry | toYaml | nindent 6  }}
+    syncOptions:
+      - CreateNamespace=true
+      - RespectIgnoreDifferences=true
+  ignoreDifferences:
+    - group: tekton.dev
+      kind: ClusterTask
+      jqPathExpressions:
+        - ".spec.steps[].workingdir"
+        - ".spec.steps[].resources"
+{{- end }}

@@ -1,0 +1,30 @@
+{{- range .Values.terraGateway.redirects }}
+---
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: HTTPRoute
+metadata:
+  name: {{ . }}-redirect
+spec:
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: {{ $.Values.terraGateway.name }}
+      sectionName: {{ . }}
+  hostnames:
+    {{- if hasSuffix "www" . }}
+    - www.{{ $.Values.global.host }}
+    {{- else }}
+    - {{ $.Values.global.host }}
+    {{- end }}
+  rules:
+    - filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            hostname: {{ $.Values.global.host }}
+            statusCode: 301
+      matches:
+        - path:
+            type: PathPrefix
+            value: /
+{{- end }}

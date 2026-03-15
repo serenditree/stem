@@ -3,6 +3,7 @@
 # CONTAINER/IMAGE
 # Common routines for image and container manipulation.
 ########################################################################################################################
+# shellcheck disable=SC2155
 
 # Stops and removes the given container.
 # $1: Container id or name.
@@ -19,22 +20,24 @@ export -f sc_container_rm
 # $2: Reference to the temporary container for label removal.
 function sc_label_rm() {
     local -r _from=$1
-    local -r _container_ref=$2
+    local -r _reference=$2
     echo "Removing inherited labels..."
     buildah inspect $_from | jq -r '.OCIv1.config.Labels | to_entries[] | "\(.key)-"' |
-        xargs -I{} buildah config --label {} $_container_ref
+        xargs -I{} buildah config --label {} $_reference
 }
 export -f sc_label_rm
 
 # Removes a predefined set of inherited environment variables.
 # $1: Reference to the temporary container for environment variable removal.
 function sc_env_rm() {
-    local -r _container_ref=$1
+    local -r _reference=$1
     echo "Removing inherited environment variables..."
-    buildah config --env SUMMARY- $_container_ref
-    buildah config --env DESCRIPTION- $_container_ref
-    buildah config --env STI_SCRIPTS_URL- $_container_ref
-    buildah config --env STI_SCRIPTS_PATH- $_container_ref
+    buildah config \
+        --env SUMMARY- \
+        --env DESCRIPTION- \
+        --env STI_SCRIPTS_URL- \
+        --env STI_SCRIPTS_PATH- \
+        $_reference
 }
 export -f sc_env_rm
 
@@ -52,36 +55,81 @@ export -f sc_env_get
 # $*: Optional list of images to build. Images are selected by grep pattern matching.
 function sc_build() {
     local -r _plots="$(sc_args_to_pattern "$*")"
-
-    if [[ -z "$_ST_CONTEXT_TKN" ]] && [[ "$_ST_FROM" == "rhel" ]]; then
-        sc_heading 1 "Checking base images..."
-        sc_login redhat
-        local -r _pulled=$(
-            env | grep "_ST_FROM_" | cut -d'=' -f2 |
-                xargs -I{} bash -c "podman image exists {} || podman pull {}" |
-                wc -l
-        )
-        [[ $_pulled -eq 0 ]] && echo "All set!"
+    if [[ -z "$_ST_CONTEXT_TKN" ]] && [[ "node-base" =~ $_plots ]]; then
+        sc_heading 1 "Checking preconditions"
+        sc_status_build_node
     fi
-
     sc_plots_do "${_plots}" build
+}
+
+# Upgrades images.
+# $1: Package manager {dnf | dnf-host | apt}.
+# $2: Container or mount reference.
+function sc_image_upgrade() {
+    local -r _pkg_mgr=$1
+    local -r _reference=$2
+
+    case "$_pkg_mgr" in
+        "dnf")
+            buildah run --user 0:0 $_reference -- dnf distro-sync --assumeyes --noplugins
+            buildah run --user 0:0 $_reference -- dnf clean all --noplugins
+            ;;
+        "dnf-host")
+            dnf distro-sync --installroot ${_reference:?} $_ST_DNF_OPTS_HOST
+            dnf clean all --installroot ${_reference:?} --noplugins
+            ;;
+        "apt")
+            buildah run --user 0:0 $_reference -- apt-get update
+            buildah run --user 0:0 $_reference -- apt-get upgrade -y
+            buildah run --user 0:0 $_reference -- apt-get clean
+            buildah run --user 0:0 $_reference -- rm -rf /var/lib/apt/lists/*
+            ;;
+    esac
+}
+export -f sc_image_upgrade
+
+# Copies bitnami images to quay.io.
+function sc_image_copy() {
+    export _ARG_LEFTOVERS=( placeholder root-user root-seed terra-cache terra-traces )
+    while read -r _image; do
+        local _image_ref="${_image##*/}"
+        sc_heading 2 "Copying ${_image}..."
+        skopeo copy \
+            docker://docker.io/bitnami/${_image_ref%:*}:latest \
+            docker://quay.io/tanwald/${_image_ref%:*}:${_image_ref#*:}
+    done < <(sc_helm_template | grep -Eo 'quay.io/tanwald/.*' | sort -u)
 }
 
 # Unified, OCI formatted buildah image commit.
 # $1: Image identifier.
 # $2: Image tag.
 # $3: Reference to the temporary container.
+# $4: Flag to add platform config.
 function sc_image_commit() {
     local -r _image=$1
     local -r _tag=$2
-    local -r _container_ref=$3
+    local -r _reference=$3
+    local -r _platform_config=$4
 
-    # buildah config --author "$(git config --get user.email)" $_container_ref
+    if [[ "$_platform_config" == "on" ]]; then
+        _OS_NAME="linux"
+        _OS_VERSION="$(uname -r)"
+        _PLATFORM_ARCH="amd64"
+        buildah config \
+            --os "$_OS_NAME" \
+            --os-version "$_OS_VERSION" \
+            --arch "$_PLATFORM_ARCH" \
+            --env OS_NAME="$_OS_NAME" \
+            --env OS_VERSION="$_OS_VERSION" \
+            --env PLATFORM_ARCH="$_PLATFORM_ARCH" \
+            $_reference
+    fi
 
-    buildah commit --format oci $_container_ref ${_image}:${_tag}
+    buildah commit --format oci $_reference ${_image}:${_tag}
 
-    buildah inspect $_container_ref | jq '.OCIv1.config'
-    buildah rm $_container_ref
+    buildah inspect $_reference | jq '.OCIv1.config'
+    buildah umount $_reference &>/dev/null
+    buildah rm $_reference
 }
 export -f sc_image_commit
 
@@ -93,59 +141,38 @@ export -f sc_image_commit
 # $4: Image tag.
 # $5: Ordinal for sorting and build/deployment order.
 # $6: Reference to the temporary container.
+# $7: Flag to add platform config.
 function sc_image_config_commit() {
     local -r _service=$1
     local -r _image=$2
     local -r _version=$3
     local -r _tag=$4
     local -r _ordinal=$5
-    local -r _container_ref=$6
+    local -r _reference=$6
+    local -r _platform_config=$7
 
-    buildah config --label serenditree.io/service=$_service $_container_ref
-    buildah config --label serenditree.io/version=$_version $_container_ref
-    buildah config --label serenditree.io/ordinal=$_ordinal $_container_ref
-    buildah config --label serenditree.io/stage=$_ST_STAGE $_container_ref
+    buildah config \
+        --label serenditree.io/service=$_service \
+        --label serenditree.io/version=$_version \
+        --label serenditree.io/ordinal=$_ordinal \
+        --label serenditree.io/stage=$_ST_STAGE \
+        --env SERENDITREE_SERVICE=$_service \
+        --env SERENDITREE_VERSION=$_version \
+        --env SERENDITREE_ORDINAL=$_ordinal \
+        --env SERENDITREE_STAGE=$_ST_STAGE \
+        $_reference
 
-    buildah config --env SERENDITREE_SERVICE=$_service $_container_ref
-    buildah config --env SERENDITREE_VERSION=$_version $_container_ref
-    buildah config --env SERENDITREE_ORDINAL=$_ordinal $_container_ref
-    buildah config --env SERENDITREE_STAGE=$_ST_STAGE $_container_ref
-
-    sc_image_commit "$_image" "$_tag" "$_container_ref"
+    sc_image_commit "$_image" "$_tag" "$_reference" "$_platform_config"
 }
 export -f sc_image_config_commit
-
-# Maps target stages ($_ST_STAGE) to standard tag names.
-# $1: Tag to translate/map.
-function sc_translate_tag() {
-    local _tag=$1
-
-    case $_tag in
-    dev)
-        _tag=latest
-        ;;
-    test)
-        _tag=candidate
-        ;;
-    prod)
-        _tag=stable
-        ;;
-    esac
-
-    echo "$_tag"
-}
-export -f sc_translate_tag
 
 # Tags and pushes an image to $_ST_REGISTRY.
 # $1: Image identifier.
 # $2: Image tag.
-# $3: Target stage.
 function sc_push() {
     local -r _image=$1
     local -r _tag=$2
-    local -r _new_tag=$(sc_translate_tag "$3")
-
-    local -r _target="${_ST_REGISTRY}/${_image}:${_new_tag}"
+    local -r _target="${_ST_REGISTRY}/${_image}:${_tag}"
 
     if [[ -z "$_ST_CONTEXT_TKN" ]]; then
         # Copy using skopeo in local context.
@@ -165,7 +192,8 @@ function sc_push() {
         if [[ -z "$_ST_CONTEXT_OPENSHIFT" ]]; then
             local -r _buildah_args='--tls-verify=false'
         fi
-        buildah push $_buildah_args "$_target"
+        buildah push --digestfile /tmp/digestfile $_buildah_args "$_target"
+        echo "${_target}@$(</tmp/digestfile)" | tee -a "$_ST_BUILD_RESULTS_PATH"
     fi
 }
 export -f sc_push
@@ -179,50 +207,89 @@ function sc_push_plots() {
         local _tag=${_plot[3]}
         if [[ -n "${_image/-/}" ]]; then
             sc_heading 1 "Pushing ${_image}:${_tag} (${_ST_STAGE})"
-            [[ -z "$_ARG_DRYRUN" ]] && sc_push $_image $_tag $_ST_STAGE
+            [[ -z "$_ARG_DRYRUN" ]] && sc_push $_image $_tag
         fi
     done
 }
 export -f sc_push_plots
 
-# Inspect images in remote registries.
+# Inspects images in remote registries.
 # $1: Pattern to select images.
 function sc_registry_inspect() {
     # Serenditree images
     sc_plots "$1" |
        cut -d' ' -f3 |
        grep serenditree |
-       xargs -I{} bash -c "sc_heading 1 {} && skopeo inspect ${_ARG_VERBOSE//on/--config} docker://quay.io/{} | jq"
+       xargs -I{} bash -c "sc_heading 1 {} && skopeo inspect ${_ARG_VERBOSE//1/--config} docker://quay.io/{} | jq"
     # Base images
-    env | grep -E '^_ST_FROM' | grep -E "$1" | cut -d'=' -f2 | while read -r _image; do
+    while read -r _image; do
         sc_heading 1 "$_image"
-        skopeo inspect ${_ARG_VERBOSE//on/--config} docker://${_image} | jq 'del(.RepoTags)'
+        skopeo inspect ${_ARG_VERBOSE//1/--config} docker://${_image} | jq 'del(.RepoTags)'
         [[ -n "${_ARG_VERBOSE}" ]] && sc_heading 2 Tags && skopeo inspect docker://${_image} |
             jq -r '.RepoTags[]' |
             cut -d'.' -f1,2 |
             cut -d'-' -f1 |
             sort -Vu |
             sed '/latest/,$d'
-    done
+    done < <(env | grep -E '^_ST_FROM' | grep -E "$1" | cut -d'=' -f2)
 }
 
-# Upgrades images.
-# $1: Package manager.
-# $2: Container reference.
-function sc_distro_sync() {
-    local -r _pkg_mgr=$1
-    local -r _container_ref=$2
+# Shows scan results of images in remote registries.
+# $1: Pattern to select images.
+function sc_registry_scan() {
+    local -r _endpoint=https://quay.io/api/v1/repository
+    while read -r _repo; do
+        sc_heading $(( 2 - _ARG_VERBOSE )) "${_repo}"
+        local _manifest=$(curl -s "${_endpoint}/${_repo}/tag/?onlyActiveTags=true" | jq -r '.tags[].manifest_digest')
+        local _result=$(curl -s "${_endpoint}/${_repo}/manifest/${_manifest}/security?vulnerabilities=true")
 
-    if [[ $_pkg_mgr =~ dnf ]]; then
-        buildah run --user 0:0 $_container_ref -- $_pkg_mgr distro-sync --assumeyes --noplugins
-    else
-        buildah run --user 0:0 $_container_ref -- yum upgrade --assumeyes --noplugins
-    fi
-    buildah run --user 0:0 $_container_ref -- $_pkg_mgr clean all --noplugins
+        if [[ "$(jq -r '.status' <<<"$_result")" == "scanned" ]]; then
+            # Select packages with vulnerabilities
+            _result=$(
+                jq '.data.Layer.Features[] | select(.Vulnerabilities | length > 0)' <<<"$_result"
+            )
+            if [[ -n "$_result" ]]; then
+                if [[ -n "$_ARG_VERBOSE" ]]; then
+                    if [[ $_ARG_VERBOSE -eq 1 ]]; then
+                        # Select only packages with vulnerabilities "Critical" or "High"
+                        _result=$(
+                            echo "$_result" |
+                                jq -s '.[] | .Vulnerabilities |= map(select(.Severity | IN("Critical", "High")))' |
+                                jq -s  '.[] | select(.Vulnerabilities | length > 0)'
+                        )
+                    fi
+                    jq '{Name, Vulnerabilities} | del(.Vulnerabilities[].Metadata)' <<<"$_result"
+                else
+                    echo "$_result" |
+                        jq -r '.Vulnerabilities[].Severity' |
+                        sort |
+                        uniq -c |
+                        sed -E 's/^ +//' |
+                        sed -e 's/Critical/\0 0/' \
+                            -e 's/High/\0 1/' \
+                            -e 's/Medium/\0 2/' \
+                            -e 's/Low/\0 3/' \
+                            -e 's/Unknown/\0 4/' |
+                        sort -nk3 |
+                        cut -d' ' -f1-2 |
+                        column -t
+                fi
+            else
+                echo "None Detected"
+            fi
+        else
+            echo "Queued"
+        fi
+    done < <(sc_plots | awk '{print $3}' | grep -E "$1")
 }
-export -f sc_distro_sync
 
-# Updates base images.
-function sc_update_base_images() {
-    env | grep "_ST_FROM_" | cut -d'=' -f2 | xargs podman pull
+# Prints the age of images in remote registries.
+function sc_registry_age {
+    local -r _endpoint='https://quay.io/api/v1/repository?namespace=serenditree&public=true&last_modified=true'
+    local -r _now=$(date +%s)
+    while read -r _repo _date; do
+        echo "$_repo $(( (_now - _date) / 86400 ))"
+    done < <(curl -s "$_endpoint"  | jq -r '.repositories[] | "\(.name) \(.last_modified)"') |
+        sort -nk2 |
+        column -tN REPO,DAYS
 }

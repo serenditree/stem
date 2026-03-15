@@ -1,0 +1,31 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: seed-backup-setup
+  labels:
+    {{- include "st-default-labels" . }}
+spec:
+  template:
+    metadata:
+      labels:
+        serenditree.io/policy: fence-root-seed
+    spec:
+      containers:
+        - name: seed-backup-setup
+          image: docker.io/curlimages/curl:latest
+          env:
+            - name: SNAPSHOT_REPOSITORY
+              value: {{ .Values.rootSeed.backup.endpoint }}
+          command:
+            - /bin/sh
+            - -c
+            - |
+              until curl \
+                --request PUT "$SNAPSHOT_REPOSITORY" \
+                --header 'Content-Type: application/json' \
+                --data '{"type":"s3","settings":{"bucket":"serenditree-backup-seed","base_path":"data"}}'
+              do
+                sleep 10s
+              done
+      restartPolicy: OnFailure

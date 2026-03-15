@@ -3,18 +3,15 @@
 # ROOT-SEED
 ########################################################################################################################
 _SERVICE=root-seed
-_ORDINAL="13"
+_ORDINAL=9
 
 _IMAGE=serenditree/root-seed
-_VERSION=latest
+_VERSION=${_ST_STAGE//dev/latest}
 _TAG=$_VERSION
-
 _CONTAINER=$_SERVICE
-
 _VOLUME_SRC=root-seed
-_VOLUME_DST=/bitnami/mongodb
-
-_EXPOSE=27017/tcp
+_VOLUME_DST=/bitnami/opensearch/data
+_EXPOSE=9200/tcp
 
 if [[ " $* " =~ " info " ]] || [[ -n "$_ARG_DRYRUN" ]]; then
     echo "${_ORDINAL} ${_SERVICE} ${_IMAGE} ${_TAG} $(realpath $0)"
@@ -27,64 +24,50 @@ if [[ " $* " =~ " build " ]]; then
     [[ -n "$_ARG_DRYRUN" ]] && exit 0
     _CONTAINER_REF=$(buildah from $_ST_FROM_ROOT_SEED)
 
-    buildah add --chown 1001:0 $_CONTAINER_REF ./charts/app/resources/0.0.1-init.js /docker-entrypoint-initdb.d/
+    buildah config \
+        --volume $_VOLUME_DST \
+        --port $_EXPOSE \
+        $_CONTAINER_REF
 
-    buildah config --volume $_VOLUME_DST $_CONTAINER_REF
-    buildah config --port $_EXPOSE $_CONTAINER_REF
-
-    sc_env_rm $_CONTAINER_REF
+    # sc_env_rm $_CONTAINER_REF
     sc_label_rm $_ST_FROM_ROOT_SEED $_CONTAINER_REF
     sc_image_config_commit "$_SERVICE" "$_IMAGE" "$_VERSION" "$_TAG" "$_ORDINAL" "$_CONTAINER_REF"
 ########################################################################################################################
 # UP
 ########################################################################################################################
-elif [[ " $* " =~ " up " ]]; then
-    if  [[ -z "$_ST_CONTEXT_CLUSTER" ]]; then
-        sc_heading 1 "Starting ${_SERVICE}:${_TAG}"
-        sc_container_rm $_CONTAINER
+elif [[ " $* " =~ " up " ]] && [[ -z "$_ST_CONTEXT_CLUSTER" ]]; then
+    sc_heading 1 "Starting ${_SERVICE}:${_TAG}"
+    sc_container_rm ${_CONTAINER}
 
-        podman run \
-            --log-level $_ST_LOG_LEVEL \
-            --pod serenditree \
-            --name $_CONTAINER \
-            --env-file ./plot.env \
-            --volume ${_VOLUME_SRC}:${_VOLUME_DST}:Z \
-            --health-cmd "mongo --disableImplicitSessions --eval 'db.hello().isWritablePrimary' | grep -q true" \
-            --health-interval 3s \
-            --health-retries 1 \
-            --ulimit nproc=64000 \
-            --ulimit nofile=64000 \
-            --detach \
-            ${_IMAGE}:${_TAG}
-    elif [[ -n "$_ARG_SETUP" ]]; then
-        sc_heading 1 "Setting up ${_SERVICE}"
-        #helm dependency update rc
+    # shellcheck disable=SC2046
+    podman run \
+        --log-level $_ST_LOG_LEVEL \
+        --pod $_ST_POD \
+        --name ${_CONTAINER} \
+        --env-file ./plot.env \
+        --env S3_ACCESS_KEY="$(pass serenditree/iam/backup-seed@exoscale.com.access)" \
+        --env S3_SECRET_KEY="$(pass serenditree/iam/backup-seed@exoscale.com.secret)" \
+        --volume ./rc/init.sh:/docker-entrypoint-initdb.d/init.sh:Z \
+        $([[ -z "$_ARG_INTEGRATION" ]] && echo --volume ${_VOLUME_SRC}:${_VOLUME_DST}:Z) \
+        --health-cmd "curl http://localhost:9200/_cluster/health?wait_for_status=yellow&timeout=1s" \
+        --health-interval 3s \
+        --health-retries 1 \
+        --ulimit nproc=$(ulimit -u) \
+        --ulimit nofile=$(ulimit -n) \
+        --detach \
+        ${_IMAGE}:${_TAG}
 
-        _CREDENTIALS=$(pass serenditree/root.seed)
-        _CREDENTIALS_ROOT=$(pass serenditree/root.seed.root)
-
-        [[ -z "$_ARG_DRYRUN" ]] && _ST_HELM_NAME=root-seed
-        helm $_ST_HELM_CMD $_ST_HELM_NAME ./charts/cd \
-            --set "global.context=$_ST_CONTEXT" \
-            --set "clusterDomain=$_ST_CLUSTER_DOMAIN" \
-            --set "auth.usernames=${_CREDENTIALS%%:*}" \
-            --set "auth.passwords=${_CREDENTIALS#*:}" \
-            --set "auth.rootPassword=$_CREDENTIALS_ROOT" | $_ST_HELM_PIPE
-
-        if [[ -z "$_ARG_DRYRUN" ]]; then
-            argocd app sync root-seed
-            argocd app set root-seed --parameter rootSeed.mongodb=true
-            argocd app sync root-seed
-            argocd app wait root-seed --health
-        fi
-    fi
-########################################################################################################################
-# DOWN
-########################################################################################################################
-elif [[ " $* " =~ " down " ]] && [[ -n "$_ST_CONTEXT_CLUSTER" ]]; then
-    if [[ -n "$_ARG_DELETE" ]]; then
-        sc_heading 1 "Deleting ${_SERVICE}"
-        argocd app delete --yes $_SERVICE && echo "App deleted."
-        helm uninstall $_SERVICE && echo "Release uninstalled."
-    fi
+    sc_container_rm ${_CONTAINER}-dash
+    podman run \
+        --log-level $_ST_LOG_LEVEL \
+        --pod $_ST_POD \
+        --name ${_CONTAINER}-dash \
+        --env-file ./plot.env \
+        --label serenditree.io/service=dashboards \
+        --volume root-seed-dash:/bitnami/opensearch-dashboards \
+        --health-cmd "curl http://localhost:5601/api/status" \
+        --health-interval 3s \
+        --health-retries 1 \
+        --detach \
+        "$_ST_FROM_ROOT_SEED_DASH"
 fi

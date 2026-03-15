@@ -1,0 +1,202 @@
+########################################################################################################################
+# Global
+########################################################################################################################
+global:
+  context: ~
+  clusterDomain: ~
+  host: ~
+  issuer: ~
+  stage: ~
+  zone: ~
+  revision: "dev"
+  cdNamespace: "terra-argocd"
+  destinationServer: "https://kubernetes.default.svc"
+  repository: "git@github.com:serenditree/stem.git"
+  terraPath: "charts/terra"
+  terraPrefix: "terra-"
+  rootPath: "charts/root"
+  rootPrefix: "root-"
+  path: "charts"
+  automated:
+    prune: true
+    selfHeal: true
+  retry:
+    limit: -1
+    backoff:
+      duration: 1s
+      factor: 2
+      maxDuration: 30s
+########################################################################################################################
+# Serenditree
+########################################################################################################################
+serenditree:
+  wave: 0
+  name: serenditree
+########################################################################################################################
+# Terra
+########################################################################################################################
+terraArgocd:
+  wave: 1
+  name: terra-argocd
+  namespace: terra-argocd
+terraCerts:
+  enabled: true
+  wave: 2
+  name: terra-certs
+  namespace: terra-certs
+  parameters:
+    email: ~
+    dns:
+      key: ~
+      secret: ~
+terraStreams:
+  enabled: true
+  wave: 3
+  name: terra-streams
+  namespace: terra-streams
+  parameters:
+    kafdrop:
+      enabled: false
+terraScope:
+  enabled: true
+  wave: 4
+  name: terra-scope
+  namespace: terra-scope
+  parameters:
+    webhook: ~
+    password: ~
+terraCilium:
+  enabled: true
+  wave: 5
+  name: terra-cilium
+  namespace: kube-system
+  parameters:
+    cluster:
+      name: ~
+    k8sServiceHost: ~
+terraTraces:
+  enabled: true
+  wave: 6
+  name: terra-traces
+  namespace: terra-traces
+  parameters:
+    postgresql:
+      auth:
+        postgresPassword: ~
+        username: ~
+        password: ~
+    quickwit:
+      config:
+        storage:
+          s3:
+            access_key_id: ~
+            secret_access_key: ~
+        default_index_root_uri: ~
+terraCollect:
+  enabled: true
+  wave: 7
+  name: terra-collect
+  namespace: terra-collect
+terraCache:
+  wave: 8
+  name: terra-cache
+  namespace: terra-cache
+terraGateway:
+  enabled: true
+  wave: 9
+  name: terra-gateway
+  namespace: terra-gateway
+terraTekton:
+  enabled: false
+  wave: 10
+  name: terra-tekton
+  namespace: terra-tekton
+  parameters:
+    webhook: ~
+    basic:
+      github: ~
+      quay: ~
+      redhat: ~
+terraScale:
+  enabled: false
+  wave: 100
+  name: terra-scale
+  namespace: kube-system
+  parameters:
+    minSize: 3
+    maxSize: 5
+    apikey: ~
+    secret: ~
+    autoscalingGroupNames: []
+    autoscalingGroups: []
+########################################################################################################################
+# Root
+########################################################################################################################
+rootMap:
+  enabled: true
+  wave: 11
+  name: root-map
+  namespace: serenditree
+  parameters:
+    data:
+      apikey: ~
+      secret: ~
+rootSeed:
+  enabled: true
+  wave: 12
+  name: root-seed
+  namespace: serenditree
+  parameters:
+    backup:
+      accessKey: tmp
+      accessSecret: tmp
+    auth:
+      usernames: ~
+      passwords: ~
+      rootPassword: ~
+rootUser:
+  enabled: true
+  wave: 13
+  name: root-user
+  namespace: serenditree
+  parameters:
+    db:
+      user: ~
+      password: ~
+    rootUser:
+      password: ~
+    backup:
+      apikey: ~
+      secret: ~
+rootWind:
+  enabled: true
+  wave: 14
+  name: root-wind
+  namespace: serenditree
+########################################################################################################################
+# Branch
+########################################################################################################################
+branch:
+  enabled: true
+  wave: 15
+  name: branch
+  namespace: serenditree
+  parameters:
+    jsonWebKey: ~
+    logLevel: INFO
+    oidc:
+      - country: ~
+        idRef: ~
+        id: ~
+        secretRef: ~
+        secret: ~
+        urlRef: ~
+        url: ~
+########################################################################################################################
+# Leaf
+########################################################################################################################
+leaf:
+  enabled: true
+  wave: 16
+  name: leaf
+  namespace: serenditree

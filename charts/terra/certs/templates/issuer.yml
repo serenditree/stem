@@ -1,0 +1,38 @@
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: lets-encrypt-{{ .Values.letsencrypt.issuer }}
+  annotations:
+    "helm.sh/hook": post-install
+spec:
+  acme:
+    {{- if eq .Values.letsencrypt.issuer "staging" }}
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    {{- else }}
+    server: https://acme-v02.api.letsencrypt.org/directory
+    {{- end }}
+    email: {{ .Values.letsencrypt.email }}
+    privateKeySecretRef:
+      name: lets-encrypt-{{ .Values.letsencrypt.issuer }}
+    solvers:
+      {{- if .Values.letsencrypt.dns.enabled }}
+      - dns01:
+          webhook:
+            groupName: acme.exoscale.com
+            solverName: exoscale
+            config:
+              apiKeyRef:
+                key: EXOSCALE_API_KEY
+                name: {{ .Values.letsencrypt.dns.secretName }}
+              apiSecretRef:
+                key: EXOSCALE_API_SECRET
+                name: {{ .Values.letsencrypt.dns.secretName }}
+      {{- else }}
+      - http01:
+          gatewayHTTPRoute:
+            parentRefs:
+              - kind: Gateway
+                name: serenditree
+                namespace: terra-gateway
+      {{- end }}

@@ -1,0 +1,37 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Values.rootUser.name }}
+  namespace: {{ .Values.global.cdNamespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: {{ .Values.rootUser.wave | quote }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: {{ .Values.global.repository | quote }}
+    path: "{{ .Values.global.rootPath }}/{{ trimPrefix .Values.global.rootPrefix .Values.rootUser.name }}"
+    targetRevision: {{ .Values.rootUser.revision | default .Values.global.revision | quote }}
+    helm:
+      parameters:
+        - name: global.context
+          value: {{ .Values.global.context }}
+        - name: rootUser.db.user
+          value: {{ .Values.rootUser.parameters.db.user }}
+        - name: rootUser.db.password
+          value: {{ .Values.rootUser.parameters.db.password }}
+        - name: rootUser.rootUser.password
+          value: {{ .Values.rootUser.parameters.rootUser.password }}
+        - name: rootUser.backup.apikey
+          value: {{ .Values.rootUser.parameters.backup.apikey }}
+        - name: rootUser.backup.secret
+          value: {{ .Values.rootUser.parameters.backup.secret }}
+  destination:
+    server: {{ .Values.global.destinationServer }}
+    namespace: {{ .Values.rootUser.namespace }}
+  syncPolicy:
+    automated: {{ .Values.global.automated | toYaml | nindent 6 }}
+    retry: {{ .Values.global.retry | toYaml | nindent 6  }}
+    syncOptions:
+      - CreateNamespace=true

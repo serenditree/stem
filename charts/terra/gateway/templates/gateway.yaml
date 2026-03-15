@@ -1,0 +1,59 @@
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
+metadata:
+  name: {{ .Values.terraGateway.name }}
+spec:
+  controllerName: gateway.envoyproxy.io/gatewayclass-controller
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: {{ .Values.terraGateway.name }}
+  annotations:
+    cert-manager.io/cluster-issuer: lets-encrypt-{{ .Values.global.issuer }}
+spec:
+  gatewayClassName: {{ .Values.terraGateway.name }}
+  infrastructure:
+    parametersRef:
+      group: gateway.envoyproxy.io
+      kind: EnvoyProxy
+      name: {{ .Values.terraGateway.config }}
+  listeners:
+    - name: https
+      protocol: HTTPS
+      hostname: {{ .Values.global.host }}
+      port: 443
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - group: ''
+            kind: Secret
+            name: lets-encrypt-{{ .Values.global.issuer }}
+      allowedRoutes:
+        kinds:
+          - group: gateway.networking.k8s.io
+            kind: HTTPRoute
+        namespaces:
+          from: Selector
+          selector:
+            matchLabels:
+              kubernetes.io/metadata.name: serenditree
+{{/*    - name: https-www*/}}
+{{/*      protocol: HTTPS*/}}
+{{/*      hostname: www.{{ .Values.global.host }}*/}}
+{{/*      port: 443*/}}
+{{/*      tls:*/}}
+{{/*        mode: Terminate*/}}
+{{/*        certificateRefs:*/}}
+{{/*          - group: ''*/}}
+{{/*            kind: Secret*/}}
+{{/*            name: lets-encrypt-{{ .Values.global.issuer }}*/}}
+    - name: http
+      protocol: HTTP
+      hostname: {{ .Values.global.host }}
+      port: 80
+{{/*    - name: http-www*/}}
+{{/*      protocol: HTTP*/}}
+{{/*      hostname: www.{{ .Values.global.host }}*/}}
+{{/*      port: 80*/}}

@@ -1,0 +1,20 @@
+global:
+  context: ~
+  host: ~
+  issuer: ~
+  stage: ~
+rootMap:
+  minReplicas: 1
+  maxReplicas: 3
+  volumeSize: 10Gi
+  cacheVolume: root-map-cache
+  dataVolume: root-map-data
+  dataVolumeRWX: false
+  dataMountPath: "/serenditree/data"
+  secret: root-map
+  config: root-map
+  data:
+    apikey: ~
+    secret: ~
+  otlp:
+    host: ~

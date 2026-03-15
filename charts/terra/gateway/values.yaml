@@ -1,0 +1,44 @@
+global:
+  context: ~
+  host: ~
+  issuer: ~
+terraGateway:
+  name: serenditree
+  config: serenditree-gateway-config
+  redirects: []
+#    - http
+#    - http-www
+#    - https-www
+  otelHost: ~
+gateway-helm:
+  deployment:
+    replicas: 1
+    pod:
+      labels:
+        serenditree.io/otel: gateway
+  podDisruptionBudget:
+    minAvailable: 1
+  hpa:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 6
+    metrics:
+      - type: Resource
+        resource:
+          name: cpu
+          target:
+            type: Utilization
+            averageUtilization: 75
+      - type: Resource
+        resource:
+          name: memory
+          target:
+            type: Utilization
+            averageUtilization: 75
+  config:
+    envoyGateway:
+      rateLimit:
+        backend:
+          type: Redis
+          redis:
+            url: ~

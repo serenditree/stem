@@ -1,0 +1,31 @@
+cluster:
+  name: ~
+k8sServiceHost: ~
+kubeProxyReplacement: true
+k8sServicePort: 443
+routingMode: tunnel
+tunnelProtocol: vxlan
+encryption:
+  enabled: true
+  type: ipsec
+  ipsec:
+    secretName: cilium-ipsec-key
+    keyFile: key
+envoy:
+  enabled: true
+hubble:
+  enabled: true
+  relay:
+    enabled: true
+  ui:
+    enabled: true
+  metrics:
+    enableOpenMetrics: true
+    enabled:
+      - httpV2:exemplars=true;labelsContext=source_namespace,source_app,source_ip,destination_namespace,destination_app,destination_ip,traffic_direction
+      - dns
+      - drop
+      - tcp
+      - flow
+      - port-distribution
+      - icmp

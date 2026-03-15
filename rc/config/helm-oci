@@ -1,0 +1,3 @@
+oci://docker.io/envoyproxy;docker://envoyproxy/gateway-helm
+oci://quay.io/serenditree/charts;docker://quay.io/serenditree/charts/commons
+oci://quay.io/tanwald/charts;docker://quay.io/tanwald/charts/exoscale-webhook

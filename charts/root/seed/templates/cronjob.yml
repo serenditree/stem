@@ -1,0 +1,57 @@
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ .Values.rootSeed.backup.cronjob }}
+  labels:
+    {{- include "st-default-labels" . }}
+spec:
+  schedule: "0 1 * * *"
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            serenditree.io/policy: fence-root-seed
+        spec:
+          containers:
+            - name: seed-backup
+              image: docker.io/curlimages/curl:latest
+              args:
+                - --request
+                - PUT
+                - '{{ .Values.rootSeed.backup.endpoint }}/%3Cseed-backup-%7Bnow%2Fs%7ByyyyMMdd-HHmmss%7D%7D%3E'
+          restartPolicy: OnFailure
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ .Values.rootSeed.backup.retention }}
+  labels:
+    {{- include "st-default-labels" . }}
+spec:
+  schedule: "0 2 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: snapshot-retention
+              image: docker.io/python:latest
+              env:
+                - name: SNAPSHOT_REPOSITORY
+                  value: {{ .Values.rootSeed.backup.endpoint }}
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  pip install --root-user-action ignore requests
+                  python /scripts/retention.py
+              volumeMounts:
+                - name: scripts
+                  mountPath: /scripts
+          volumes:
+            - name: scripts
+              configMap:
+                name: {{ .Values.rootSeed.backup.retention }}
+          restartPolicy: OnFailure
