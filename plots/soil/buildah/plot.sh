@@ -3,10 +3,10 @@
 # BUILDAH
 ########################################################################################################################
 _SERVICE=soil-buildah
-_ORDINAL="11"
+_ORDINAL=7
 
 _IMAGE=serenditree/buildah
-_VERSION=latest
+_VERSION=${_ST_STAGE//dev/latest}
 _TAG=$_VERSION
 
 if [[ " $* " =~ " info " ]] || [[ -n "$_ARG_DRYRUN" ]]; then
@@ -18,11 +18,10 @@ fi
 if [[ " $* " =~ " build " ]]; then
     sc_heading 1 "Building buildah:${_TAG}"
     [[ -n "$_ARG_DRYRUN" ]] && exit 0
-
     _DESCRIPTION="Buildah image including findutils and jq."
     _CONTAINER_REF=$(buildah from quay.io/buildah/stable)
 
-    sc_distro_sync dnf $_CONTAINER_REF
+    sc_image_upgrade dnf $_CONTAINER_REF
 
     buildah run $_CONTAINER_REF -- dnf install findutils jq $_ST_DNF_OPTS
     buildah run $_CONTAINER_REF -- dnf clean all

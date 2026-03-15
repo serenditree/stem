@@ -1,3 +1,5 @@
 #!/usr/bin/env bash
-
-${KAFKA_PATH}/bin/kafka-topics.sh --list --bootstrap-server 127.0.0.1:${KAFKA_PORT} >/dev/null && echo "Kafka is up..."
+# shellcheck disable=SC2086
+${KAFKA_PATH}/bin/kafka-topics.sh \
+    --bootstrap-server "127.0.0.1:${KAFKA_PORT}" \
+    --list

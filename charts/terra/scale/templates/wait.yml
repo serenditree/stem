@@ -1,0 +1,3 @@
+{{- if and .Values.global.wait .Values.terraScale.clusterAutoscaler }}
+{{- include "st-wait" . -}}
+{{- end }}

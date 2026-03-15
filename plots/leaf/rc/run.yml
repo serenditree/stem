@@ -1,0 +1,25 @@
+---
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  generateName: leaf-
+  labels:
+    app.kubernetes.io/component: tekton
+spec:
+  pipelineRef:
+    name: leaf
+  taskRunTemplate:
+    serviceAccountName: pipelines
+  params:
+    - name: config
+      value: tekton-leaf
+    - name: image
+      value: leaf
+    - name: repo-url
+      value: https://github.com/serenditree/leaf.git
+    - name: repo-branch
+      value: dev
+  workspaces:
+    - name: pipeline
+      persistentVolumeClaim:
+        claimName: tekton-leaf-workspace

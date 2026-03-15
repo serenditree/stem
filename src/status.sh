@@ -7,38 +7,47 @@
 # Checks required applications.
 function sc_status_required_applications() {
     echo -n "Required applications..."
-    local _required="argbash|argocd|podman|buildah|terraform|helm|exo|openshift-install|tkn|skopeo|oc|kubectl|crc|git|"
-    local _required+="jq|pass"
+    local -r _required="$(tr '\n' '|' <"${_ST_HOME_STEM}/rc/config/required-apps")"
     local -r _missing=$(
-        cat <(compgen -c | grep -E "^($_required)$") <(echo -e "${_required//|/\\n}") |
+        cat <(compgen -c | grep -E "^(${_required%|})$") <(echo -e "${_required//|/\\n}") |
             sort |
             uniq -u
     )
     if [[ -n "$_missing" ]]; then
-        echo "${_BOLD}warning:${_NORMAL} $_missing not found" | xargs echo
+        echo "${_BOLD}warning:${_NORMAL} $_missing not found" | xargs
     else
         echo "${_BOLD}ok${_NORMAL}"
-    fi
-}
-
-# Checks required repositories.
-function sc_status_repositories() {
-    echo -n "Required repositories..."
-    if [[ -e /etc/yum.repos.d/yarn.repo ]]; then
-        echo "${_BOLD}ok${_NORMAL}"
-    else
-        echo "${_BOLD}warning:${_NORMAL} yarn repository not found."
-        echo "Installation: 'sudo curl -L https://dl.yarnpkg.com/rpm/yarn.repo -o /etc/yum.repos.d/yarn.repo'"
     fi
 }
 
 # Checks required files and folders.
 function sc_status_required_files() {
-    echo -n "Required files and folders..."
-    if [[ -e ~/.m2 ]]; then
+    echo -n "Required files..."
+    if [[ -f "$_ST_GIT_SSH" ]]; then
         echo "${_BOLD}ok${_NORMAL}"
     else
-        echo "${_BOLD}warning:${_NORMAL} local maven repository at ~/.m2 does not exits."
+        echo "${_BOLD}warning:${_NORMAL} ssh private key for argocd github access does not exits."
+    fi
+    echo -n "Required folders..."
+    if [[ -d ~/.m2/repository ]]; then
+        echo "${_BOLD}ok${_NORMAL}"
+    else
+        echo "${_BOLD}warning:${_NORMAL} local maven repository at ~/.m2/repository does not exits."
+    fi
+}
+
+# Checks if the repository for custom node versions exists.
+function sc_status_build_node() {
+    echo -n "Checking nodejs repository..."
+    local -r _node_repo=/etc/yum.repos.d/nodesource-nodejs.repo
+    if [[ -f $_node_repo ]]; then
+        echo "${_BOLD}ok${_NORMAL}"
+    else
+        echo " nodejs repository does not exists."
+        sc_trap "sudo rm -f ${_node_repo//nodejs/*}" EXIT
+        sc_prompt "Temporarily install custom nodjs repository" &&
+            curl -fsSL "https://rpm.nodesource.com/setup_${_ST_VERSION_NODE}" |
+            sudo bash -
     fi
 }
 
@@ -48,13 +57,19 @@ function sc_status_os() {
     if [[ -e /etc/fedora-release ]]; then
         echo "${_BOLD}ok${_NORMAL}"
     else
-        echo "${_BOLD}error:${_NORMAL} only tested on fedora"
+        echo "${_BOLD}error:${_NORMAL} image building only tested on fedora"
     fi
     echo -n "Checking uid..."
     if [[ $(id -u) -eq 1000 ]]; then
         echo "${_BOLD}ok${_NORMAL}"
     else
         echo "${_BOLD}warning:${_NORMAL} your uid ($(id -u), not 1000) might lead to troubles."
+    fi
+    echo -n "Checking nofiles..."
+    if [[ $(ulimit -n) -ge 65535 ]]; then
+        echo "${_BOLD}ok${_NORMAL}"
+    else
+        echo "${_BOLD}warning:${_NORMAL} nofiles ($(ulimit -n)) is lower than 65535."
     fi
 }
 
@@ -75,53 +90,116 @@ function sc_status_registries() {
 # Prints global environment variables based on context.
 function sc_status_env() {
     env | grep '^_ST_' | sed -E -e 's/=/#/' -e 's/\s+/ /g' | sort | column -ts'#' | cut -c 1-200
-    # Environment variables which have to be defined externally:
-    [[ -n "$_ST_TERRA_API_KEY" ]] || echo "${_BOLD}Warning:${_NORMAL} _ST_TERRA_API_KEY not set"
-    [[ -n "$_ST_TERRA_API_SECRET" ]] || echo "${_BOLD}Warning:${_NORMAL} _ST_TERRA_API_SECRET not set"
-    [[ -n "$_ST_TERRA_PULL_SECRET" ]] || echo "${_BOLD}Warning:${_NORMAL} _ST_TERRA_PULL_SECRET not set"
-    [[ -n "$_ST_TERRA_SSH_KEY" ]] || echo "${_BOLD}Warning:${_NORMAL} _ST_TERRA_SSH_KEY not set"
+}
+
+# Prints cli and java config.
+function sc_status_config() {
+    sc_heading 1 "Environment"
+    sc_status_env
+
+    for _branch in seed user poll; do
+        sc_heading 1 "Branch-${_branch^}"
+        # shellcheck disable=SC2038,SC2016
+        find "${_ST_HOME_BRANCH}/leaves" \
+            -regextype posix-extended -regex ".*/leaf-${_branch}/src/.*/(serenditree|branch).yml" |
+            xargs yq eval-all '. as $item ireduce ({}; . * $item) | ... comments=""'
+    done
+}
+
+# Prints the number of log- and trace-records per service.
+function sc_status_cluster_signal_stats() {
+    if ! netstat -4tlnp 2>&1 | grep -q '9100'; then
+        kubectl port-forward --namespace terra-traces svc/traces-searcher 9100:7280 &>/dev/null &
+        local -r _pid=$!
+        sleep 1s
+    fi
+    sc_heading 2 "Logs"
+    curl \
+        --request POST 'http://localhost:9100/api/v1/otel-logs-v0_7/search' \
+        --header 'Content-Type: application/json' \
+        --data '{"query":"*","max_hits":0,"aggs":{"logs":{"terms":{"field":"resource_attributes.serenditree.io/otel"}}}}' \
+        --silent |
+        jq -r '.aggregations.logs.buckets[] | "\(.key) \(.doc_count)"' |
+        column -t
+    sc_heading 2 "Traces"
+    curl \
+        --request POST 'http://localhost:9100/api/v1/otel-traces-v0_7/search' \
+        --header 'Content-Type: application/json' \
+        --data '{"query":"*","max_hits":0,"aggs":{"traces":{"terms":{"field":"service_name"}}}}' \
+        --silent |
+        jq -r '.aggregations.traces.buckets[] | "\(.key) \(.doc_count)"' |
+        sed -E 's/serenditree.//' |
+        column -t
+    [[ -n "$_pid" ]] && kill $_pid
+}
+
+# Prints cluster status information.
+function sc_status_cluster() {
+    sc_heading 1 "Context"
+    sc_context && local -r _ready=on
+    [[ -n "$_ST_CONTEXT" ]] && echo &&
+        { kubectl version 2>/dev/null | sed -E -e '/Kustomize/d' -e 's/v([0-9])/\1/' &&
+        echo "Defined Version: ${_ST_VERSION_KUBERNETES}" &&
+        echo "Available Versions: $(exo compute sks versions --output-format text | xargs)" &&
+        echo "Cluster Domain: $(sc_context_cluster_domain)"; } | column -ts':' &&
+
+    sc_heading 1 "Balance"
+    sc_cluster_balance
+
+    if [[ -n "$_ready" ]];then
+        sc_heading 1 "Pods"
+        kubectl get pods --all-namespaces --output wide --no-headers | grep -Ev "Running|Completed" || echo "No issues"
+        sc_heading 1 Apps
+        echo -n "ArgoCD login..."
+        if argocd version --request-timeout 1s &>/dev/null || sc_login argocd >/dev/null; then
+            sc_heading 2 "ok"
+            argocd app list | sed '1d' | grep -v Healthy || echo "No issues"
+        else
+            sc_heading 2 "error"
+        fi
+        sc_heading 1 "Signals"
+        sc_status_cluster_signal_stats
+    fi
+
+    sc_heading 1 "Storage"
+    local _head=7
+    [[ -n "$_ARG_VERBOSE" ]] && _head=9999
+    exo storage ls --use-account serenditree | sort -k6 | column -t && echo
+    exo storage ls --use-account serenditree --versions sos://serenditree-backup-user/ |
+        head -n $_head |
+        column -t &&
+        echo
+    exo storage ls --use-account serenditree --versions sos://serenditree-backup-seed/ |
+        grep 'index.latest' |
+        head -n $_head |
+        column -t
+
+    if [[ -n "${_ST_CONTEXT_KUBERNETES_LOCAL}${_ST_CONTEXT_OPENSHIFT_LOCAL}" ]]; then
+        sc_heading 1 "Local"
+        if [[ -n "${_ST_CONTEXT_KUBERNETES_LOCAL}" ]]; then
+            minikube config view
+        elif [[ -n "${_ST_CONTEXT_OPENSHIFT_LOCAL}" ]]; then
+            crc config view
+        fi
+    fi
 }
 
 # Prints an overview of the development environment.
 function sc_status() {
-    sc_heading 1 "Cluster Context"
-    sc_context && local -r _authenticated=on
+    sc_heading 1 "Environment"
+    sc_status_env
+    sc_heading 1 "System"
+    sc_status_os
+    sc_status_required_applications
+    sc_status_required_files
 
-    sc_heading 1 n "Cluster"
-    if [[ -n "${_ST_CONTEXT_KUBERNETES}${_ST_CONTEXT_KUBERNETES_LOCAL}" ]]; then
-        minikube config view
-    else
-        crc config view
-    fi
-    if [[ -n "$_authenticated" ]];then
-        echo && sc_heading 2 Pods
-        kubectl get pods --output wide
-        echo && sc_heading 2 Apps
-        argocd app list 2>/dev/null || echo "not logged in"
-    fi
+    sc_heading 1 "Authentications"
+    sc_status_registries
+
+    sc_heading 1 "Pod"
+    sc_pod_list
 
     if [[ -n "$_ARG_ALL" ]]; then
-        sc_heading 1 n "System"
-        sc_status_os
-        sc_status_repositories
-        sc_status_required_applications
-        sc_status_required_files
-
-        sc_heading 1 n "Registry Authentications"
-        sc_status_registries
-
-        sc_heading 1 n "Environment"
-        sc_status_env
-    fi
-
-    sc_heading 1 n "Plots"
-    sc_plots_inspect
-
-    sc_heading 1 n "Local Pod"
-    if podman pod exists serenditree; then
-        sc_pod_list
-    else
-        echo "down"
+        sc_status_cluster
     fi
 }
-export -f sc_status

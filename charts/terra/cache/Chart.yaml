@@ -1,0 +1,20 @@
+#file: noinspection HelmChartUnknownValues
+apiVersion: v2
+type: application
+name: terra-cache
+description: Valkey resources.
+version: 0.0.1
+appVersion: 0.0.1
+dependencies:
+  - name: valkey
+    repository: https://valkey.io/valkey-helm
+    version: 0.9.3
+    condition: terraCache.valkey
+  - name: dragonfly
+    repository: oci://ghcr.io/dragonflydb/dragonfly/helm
+    version: v1.37.0
+    condition: terraCache.dragonfly
+  - name: commons
+    repository: oci://quay.io/serenditree/charts
+    version: 0.0.1
+    condition: global.wait
