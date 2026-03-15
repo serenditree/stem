@@ -1,0 +1,7 @@
+global:
+  context: ~
+webhook: ~
+basic:
+  github: ~
+  quay: ~
+  redhat: ~

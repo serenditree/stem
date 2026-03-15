@@ -1,0 +1,37 @@
+{{- if not (hasSuffix "-local" .Values.global.context) }}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Values.terraIngress.name }}
+  namespace: {{ .Values.global.cdNamespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: {{ .Values.terraIngress.wave | quote }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: {{ .Values.global.repository | quote }}
+    path: "{{ .Values.global.terraPath }}/{{ trimPrefix .Values.global.terraPrefix .Values.terraIngress.name }}"
+    targetRevision: {{ .Values.terraIngress.revision | default .Values.global.revision | quote }}
+    helm:
+      parameters:
+        - name: ingress-nginx.controller.config.global-rate-limit-memcached-host
+          value: "{{ .Values.terraCache.name }}-memcached.{{ .Values.terraCache.namespace }}.svc.{{ .Values.global.clusterDomain }}"
+        - name: ingress-nginx.controller.config.enable-opentelemetry
+          value: {{ .Values.terraCollect.enabled | quote }}
+        - name: ingress-nginx.controller.config.otel-service-name
+          value: {{ .Values.terraIngress.name | quote }}
+        - name: ingress-nginx.controller.config.otlp-collector-host
+          value: "{{ .Values.terraCollect.name }}-opentelemetry-collector.{{ .Values.terraCollect.namespace }}.svc.{{ .Values.global.clusterDomain }}"
+  destination:
+    server: {{ .Values.global.destinationServer }}
+    namespace: {{ .Values.terraIngress.namespace }}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+{{- end }}

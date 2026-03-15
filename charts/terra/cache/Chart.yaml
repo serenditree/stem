@@ -1,0 +1,10 @@
+apiVersion: v2
+type: application
+name: terra-cache
+description: "Memcached resources."
+version: 0.0.1
+appVersion: 0.0.1
+dependencies:
+  - name: memcached
+    repository: https://charts.bitnami.com/bitnami
+    version: 7.6.3

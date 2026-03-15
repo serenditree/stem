@@ -1,0 +1,39 @@
+{{- if eq "serenditree-kubernetes" .Values.global.context }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: branch
+  labels:
+    {{- include "st-default-labels" . }}
+  annotations:
+    nginx.ingress.kubernetes.io/from-to-www-redirect: "true"
+    nginx.ingress.kubernetes.io/global-rate-limit: "1"
+    nginx.ingress.kubernetes.io/global-rate-limit-window: "1s"
+    nginx.ingress.kubernetes.io/global-rate-limit-key: "${remote_addr}-${$request_uri}"
+    cert-manager.io/cluster-issuer: "lets-encrypt-{{ .Values.global.issuer }}"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - www.{{ .Values.global.host }}
+        - {{ .Values.global.host }}
+      secretName: serenditree-tls-{{ .Values.global.issuer }}
+  rules:
+    - host: {{ .Values.global.host }}
+      http:
+        paths:
+          {{- range .Values.branch.branches }}
+          - path: /api/v1/{{ . }}
+            pathType: Prefix
+            backend:
+              service:
+                {{- if eq "garden" . }}
+                name: branch-seed
+                {{- else }}
+                name: branch-{{ . }}
+                {{- end }}
+                port:
+                  number: 8080
+          {{- end }}
+{{- end }}

@@ -1,0 +1,32 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: quickwit-retention
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+spec:
+  template:
+    spec:
+      volumes:
+        - name: quickwit-retention
+          configMap:
+            name: quickwit-retention
+      restartPolicy: Never
+      containers:
+        - name: postgres
+          image: quay.io/serenditree/root-user:latest
+          command:
+            - psql
+          args:
+            - $(QW_METASTORE_URI)
+            - --file=/metastore/retention.sql
+            - --no-password
+          env:
+            - name: QW_METASTORE_URI
+              valueFrom:
+                secretKeyRef:
+                  name: quickwit-metastore
+                  key: QW_METASTORE_URI
+          volumeMounts:
+            - mountPath: "/metastore"
+              name: quickwit-retention

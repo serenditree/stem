@@ -1,0 +1,10 @@
+apiVersion: v2
+type: application
+name: root-user
+description: PostgreSQL resources
+version: 0.0.1
+appVersion: 0.0.1
+dependencies:
+  - name: postgresql-ha
+    repository: https://charts.bitnami.com/bitnami
+    version: 15.1.7

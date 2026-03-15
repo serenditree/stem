@@ -1,0 +1,13 @@
+global:
+  zone: ~
+terraScale:
+  minSize: 3
+  maxSize: 1
+  apikey: ~
+  secret: ~
+cluster-autoscaler:
+  replicaCount: 1
+  autoscalingGroups: []
+  cloudProvider: exoscale
+  autoDiscovery:
+    clusterName: cluster.local

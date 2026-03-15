@@ -1,0 +1,42 @@
+
+postgresql:
+  fullnameOverride: metastore
+  auth:
+    postgresPassword: ~
+    username: ~
+    password: ~
+    database: metastore
+  shmVolume:
+    enabled: false
+  primary:
+    resourcesPreset: none
+    persistence:
+      enabled: false
+  readReplicas:
+    replicaCount: 0
+quickwit:
+  searcher:
+    replicaCount: 1
+  indexer:
+    replicaCount: 2
+  metastore:
+    replicaCount: 1
+    extraEnvFrom:
+      - secretRef:
+          name: quickwit-metastore
+  janitor:
+    enabled: true
+  control_plane:
+    enabled: true
+  environment:
+    NO_COLOR: 1
+  config:
+    storage:
+      s3:
+        region: at-vie-1
+        endpoint: https://sos-at-vie-1.exo.io
+        access_key_id: ~
+        secret_access_key: ~
+    indexer:
+      enable_otlp_endpoint: true
+    default_index_root_uri: ~

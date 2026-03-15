@@ -1,0 +1,6 @@
+cert-manager:
+  crds:
+    enabled: true
+letsencrypt:
+  issuer: ~
+  email: ~

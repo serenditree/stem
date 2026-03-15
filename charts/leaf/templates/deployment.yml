@@ -1,0 +1,38 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: leaf
+  labels:
+    {{- include "st-default-labels" . }}
+spec:
+  revisionHistoryLimit: 1
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      name: leaf
+  template:
+    metadata:
+      labels:
+        {{- include "st-default-labels" . | indent 4 }}
+        name: leaf
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: leaf
+          image: "quay.io/serenditree/leaf:latest"
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          env:
+            - name: OTEL_HOST
+              value: {{ .Values.leaf.otelHost | quote }}
+          resources:
+            requests:
+              cpu: 500m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi

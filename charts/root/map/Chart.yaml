@@ -1,0 +1,6 @@
+apiVersion: v2
+type: application
+name: root-map
+description: "Resources for root-map."
+version: 0.0.1
+appVersion: 0.0.1

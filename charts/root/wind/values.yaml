@@ -1,0 +1,14 @@
+global:
+  context: ~
+kafka:
+  name: root-wind
+  replicas: 3
+  topics: 2
+  partitions: 4
+  replicationFactor: 2
+  storage: 20
+  logRetentionHours: 12
+  messageMaxBytes: 1000000
+  messageBatchFactor: 1
+  requestTimeoutMs: 1000
+  compressionType: uncompressed

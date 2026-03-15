@@ -1,0 +1,48 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Values.branch.name }}
+  namespace: {{ .Values.global.cdNamespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: {{ .Values.branch.wave | quote }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: {{ .Values.global.repository | quote }}
+    path: "{{ .Values.global.path }}/{{ .Values.branch.name }}"
+    targetRevision: {{ .Values.branch.revision | default .Values.global.revision | quote }}
+    helm:
+      parameters:
+        - name: global.context
+          value: {{ .Values.global.context }}
+        - name: global.stage
+          value: {{ .Values.global.stage }}
+        - name: global.issuer
+          value: {{ .Values.global.issuer }}
+        - name: global.host
+          value: {{ .Values.global.host }}
+        - name: branch.jsonWebKey
+          value: {{ .Values.branch.parameters.jsonWebKey }}
+        - name: branch.logLevel
+          value: {{ .Values.branch.parameters.logLevel }}
+        - name: branch.otlp.endpoint
+          value: "http://{{ .Values.terraCollect.name }}-opentelemetry-collector.{{ .Values.terraCollect.namespace }}.svc.{{ .Values.global.clusterDomain }}:4317"
+        {{- $index := 0 }}
+        {{- range .Values.branch.parameters.oidc }}
+          {{- range $key, $value := . }}
+        - name: branch.oidc[{{ $index }}].{{ $key }}
+          value: {{ $value }}
+          {{- end }}
+          {{- $index = add1 $index }}
+        {{- end }}
+  destination:
+    server: {{ .Values.global.destinationServer }}
+    namespace: {{ .Values.branch.namespace }}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
