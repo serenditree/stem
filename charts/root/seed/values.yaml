@@ -1,0 +1,42 @@
+global:
+  context: ~
+rootSeed:
+  snapshot:
+    accessKey: ~
+    accessSecret: ~
+opensearch:
+  clusterDomain: cluster.local
+  fullnameOverride: root-seed
+  clusterName: serenditree
+  plugins: repository-s3
+  useIstioLabels: false
+  security:
+    enabled: false
+  master:
+    replicaCount: 3
+    masterOnly: false
+    extraRoles:
+      - data
+    resourcesPreset: none
+    persistence:
+      enabled: true
+      size: 10Gi
+    persistentVolumeClaimRetentionPolicy:
+      enabled: true
+    containerSecurityContext:
+      readOnlyRootFilesystem: false
+  data:
+    replicaCount: 0
+  coordinating:
+    replicaCount: 0
+  ingest:
+    replicaCount: 0
+  extraConfig:
+    s3:
+      client:
+        default:
+          endpoint: https://sos-at-vie-1.exo.io
+          region: at-vie-1
+  initScriptsCM: root-seed-init
+  extraEnvVarsSecret: root-seed
+

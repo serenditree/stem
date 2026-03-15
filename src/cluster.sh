@@ -3,31 +3,26 @@
 # CLUSTER FUNCTIONS
 # Functions for the interaction with kubernetes clusters.
 ########################################################################################################################
+# shellcheck disable=SC2155
 
+# Deploys the latest versions of branch and leaf.
 function sc_cluster_deploy() {
+    local -r _args=$1
     local _apps
+    sc_login argocd
     for _app in branch leaf; do
-        if sc_prompt "Deploy ${_app}?" argocd app actions run --all --kind Deployment $_app restart; then
-            echo "Deployment of $_app started..."
-            _apps+=" $_app"
+        if [[ "$_app" =~ $_args ]]; then
+            if sc_prompt "Deploy ${_app}?"; then
+                sc_heading 2 "Deployment of $_app started..."
+                argocd app actions run --all --kind Deployment $_app restart
+                _apps+=" $_app"
+            fi
         fi
     done
     [[ -n "$_apps" ]] && argocd app wait $_apps --health
 }
 
-function sc_cluster_dashboard() {
-    local -r _host=localhost:8001
-    echo "Opening dashboard..."
-    if curl $_host &>/dev/null; then
-        xdg-open \
-            http://${_host}/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/login
-    else
-        nohup minikube dashboard \
-            --profile "$_ST_CONTEXT_KUBERNETES_LOCAL" \
-            --port ${_host#*:} &>/dev/null &
-    fi
-}
-
+# Displays and returns status of control plane and worker nodes.
 function sc_cluster_status() {
     if [[ -n "${_ST_CONTEXT_OPENSHIFT_LOCAL}${_ST_CONTEXT_KUBERNETES_LOCAL}" ]]; then
         local -r _request_timeout='--request-timeout=400ms'
@@ -35,66 +30,140 @@ function sc_cluster_status() {
         local -r _request_timeout='--request-timeout=800ms'
     fi
 
-    echo -en "\nChecking status..."
-    local -r _status="$(kubectl api-resources $_request_timeout 2>&1 | grep -Eom1 'true')"
-    if [[ "$_status" == "true" ]]; then
+    echo -en "\nChecking control plane..."
+    if kubectl --context $_ST_CONTEXT api-resources $_request_timeout 2>&1 | grep -qm1 'true'; then
         sc_heading 2 "up"
-        local -r _authenticated=0
+
+        echo -en "Checking nodes..."
+        local -r _nodes=$(kubectl get node --no-headers | wc -l)
+        local -r _ready=$(kubectl get node --no-headers | grep -c ' Ready ')
+        if [[ -n "$_ARG_SETUP" ]] && [[ $_nodes -gt 0 ]]; then
+            sc_heading 2 "up"
+        elif [[ $_nodes -eq $_ready ]]; then
+            sc_heading 2 "up"
+            local -r _cluster_ready=0
+        else
+            echo "${_BOLD}warning:${_NORMAL} ${_ready}/${_nodes} nodes ready"
+            local -r _cluster_ready=1
+        fi
     else
         sc_heading 2 "down"
-        local -r _authenticated=1
+        local -r _cluster_ready=1
     fi
 
-    return $_authenticated
+    return $_cluster_ready
 }
 export -f sc_cluster_status
 
-# Applies predefined patches to cluster resources.
-# $1: Patch to apply.
-function sc_cluster_patch() {
-    case $1 in
-    nginx-ingress)
-        # See https://github.com/exoscale/exoscale-cloud-controller-manager/blob/master/docs/service-loadbalancer.md
-        kubectl annotate svc ingress-nginx-controller \
-            --namespace ingress-nginx \
-            --overwrite \
-            service.beta.kubernetes.io/exoscale-loadbalancer-service-strategy=round-robin
-        ;;
-    osm-data)
-        if [[ -n "$_ARG_DATA" ]]; then
-            echo "Setting SERENDITREE_DATA_URL to ${_ARG_DATA}..."
-            kubectl set env deploy/root-map SERENDITREE_DATA_URL="$_ARG_DATA"
-        else
-            kubectl set env deploy/root-map SERENDITREE_DATA_URL-
-        fi
-        ;;
-    argocd-cm)
-        kubectl patch cm argocd-cm \
-            --patch-file="${_ST_HOME_STEM}/rc/patches/argocd-cm.yaml" \
-            --namespace argocd
-        ;;
-    recreate)
-        # Patch deployment strategy for low performance environments.
-        kubectl get deploy --namespace serenditree --no-headers --selector app.kubernetes.io/part-of=serenditree |
-            cut -d' ' -f1 |
-            xargs -I{} kubectl patch deploy {} --patch-file="${_ST_HOME_STEM}/rc/patches/global-recreate.yaml"
-        ;;
-    esac
+# Waits for all pods to become ready.
+# $1: Timeout.
+function sc_cluster_wait() {
+    local -r _timeout="$1"
+    kubectl wait --for condition=ready --all pod \
+        --field-selector status.phase==Running \
+        --all-namespaces \
+        --timeout "$_timeout"
+
+    sc_heading 2 "Running pods:"
+    kubectl get pod --all-namespaces --output wide
 }
-export -f sc_cluster_patch
+
+# Creates a secret for backup/restore-jobs.
+function sc_cluster_backup_restore_secret() {
+    sc_trap 'rm -f /tmp/exoscale.toml' EXIT
+    local -r _secret="/tmp/exoscale.toml"
+    if ! kubectl get secret exoscale-backup --namespace serenditree &>/dev/null; then
+        export _KEY_SUBST="$(pass serenditree/iam/backup@exoscale.com.access)"
+        export _SECRET_SUBST="$(pass serenditree/iam/backup@exoscale.com.secret)"
+        envsubst '$_KEY_SUBST $_SECRET_SUBST $_ST_ZONE' <"${_ST_HOME_STEM}/rc/templates/exoscale.toml" >"$_secret"
+        kubectl create secret generic exoscale-backup --namespace serenditree --from-file="$_secret"
+    fi
+}
+
+# Restores databases.
+function sc_cluster_restore() {
+    sc_cluster_backup_restore_secret
+    # Get latest snapshot
+    kubectl port-forward --namespace serenditree svc/root-seed 9200:9200 &
+    local -r _pid=$!
+    sleep 1s
+    local -r _latest="$(
+        curl -s 'http://localhost:9200/_snapshot/seed-backup/_all?size=1&order=desc' |
+            jq -r '.snapshots[0].snapshot'
+    )"
+    for _comp in user seed; do
+        _latest_snapshot=$_latest envsubst '$_latest_snapshot' <"${_ST_HOME_STEM}/rc/jobs/${_comp}-restore.yml" |
+            kubectl create --namespace serenditree --filename -
+    done
+    kill $_pid
+}
+
+# Creates cronjobs or jobs for database backups.
+function sc_cluster_backup() {
+    sc_cluster_backup_restore_secret
+    for _comp in user seed; do
+        if [[ -n "$_ARG_SETUP" ]]; then
+            kubectl apply --filename "${_ST_HOME_STEM}/rc/jobs/${_comp}-backup.yml" --namespace serenditree
+        else
+            kubectl create job "${_comp}-backup-$(date +%Y%m%d-%H%M%S)" \
+                --from=cronjob/${_comp}-backup \
+                --namespace serenditree
+        fi
+    done
+}
 
 # Prints and follows logs of the given service.
 function sc_cluster_logs() {
     kubectl get pods --no-headers -l name=$1 | cut -d' ' -f1 | xargs kubectl logs -f
 }
 
-# Prints all resources of interest (more than 'get all').
+# Prints resource allocations.
 function sc_cluster_resources() {
-    local _resources='sa,pv,pvc,cm,secrets,sts,deploy,svc,po,clustertasks,tasks,pipelines,k,kt'
-    if [[ -n "${_ST_CONTEXT_IS_OPENSHIFT}" ]]; then
-        _resources+=',dc,is,istag'
+    local -r _csv=$1
+    local -r _tmp=/tmp/serenditree-nodes
+    sc_heading 1 "Cluster resource allocation"
+    if [[ "$_csv" == "csv" ]]; then
+        local _pipe="tee"
+    else
+        local _pipe="column -ts ';'"
     fi
-    kubectl get --namespace serenditree $_resources
+    kubectl describe node >$_tmp
+    cat \
+        <(echo "NAMESPACE;NAME;CPU REQUESTS;CPU LIMITS;MEMORY REQUESTS;MEMORY LIMITS") \
+        <(sed -n '/Non-terminated Pods/,/Allocated resources/p' $_tmp |
+              sed '0,/--/{/--/d;}' |
+              sed -E -e '/(Allocated|Non|Namespace)/d' \
+                  -e 's/([0-9]+)(m|Mi)/\1/g' \
+                  -e 's/([0-9]+)Gi/\1000/g' \
+                  -e 's/\s([1-9])\s/ \1000 /g' \
+                  -e 's/\([^)]+\)//g' \
+                  -e 's/\s\w+$//' \
+                  -e 's/\s+$//' \
+                  -e 's/^\s+//' \
+                  -e 's/--+.*/;;;;;/' \
+                  -e 's/\s+/;/g') |
+        $_pipe
+
+    sc_heading 1 "Cluster resource allocation summary"
+    cat \
+        <(echo "RESOURCE;REQUESTS;PERCENT;LIMITS;PERCENT") \
+        <(sed -n '/Allocated resources/,/Events:/p' $_tmp |
+            sed -En '/(cpu|memory)/p' |
+            sed -E  -e 's/[()]//g' -e 's/\s+$//' -e 's/^\s+//' -e 's/\s+/;/g' |
+            awk 'NR % 2 == 1 {print} NR % 2 == 0 {print $0 "\n;;;;"}') |
+        head -n -1 |
+        $_pipe
+
+    sc_heading 1 "Cluster cpu and memory"
+    cat \
+        <(echo "CPU;MEMORY;") \
+        <(paste \
+            <(sed -En 's/\s+cpu:\s+(\S+)/\1/p' $_tmp) \
+            <(sed -En 's/\s+memory:\s+([0-9]+).*/\1/p' $_tmp | awk '{print $1 / 1000}') |
+                sed -E  -e 's/\s+$//' -e 's/^\s+//' -e 's/\s+/;/g' |
+                awk 'NR % 2 == 1 {print $0 "Mi;capacity"} NR % 2 == 0 {print $0 "Mi;allocatable\n;;"}') |
+        head -n -1 |
+        $_pipe
 }
 
 # Prints certificate information.
@@ -120,8 +189,31 @@ function sc_cluster_certificate() {
 
 # Deletes dispensable resources.
 function sc_cluster_clean() {
-    kubectl delete pod --namespace serenditree --field-selector status.phase==Succeeded
-    kubectl get rs | grep -E '(0\s+){3}' | cut -d' ' -f1 | xargs kubectl delete rs
+    # Failed pods
+    kubectl get pod \
+        --all-namespaces \
+        --field-selector="status.phase==Failed" \
+        --output=custom-columns='namespace:metadata.namespace,name:metadata.name' \
+        --no-headers |
+        xargs --no-run-if-empty -n2 bash -c 'kubectl --namespace $0 delete pod $1'
+    # Completed pods except the two most recent ones.
+    kubectl get pod \
+        --namespace serenditree \
+        --field-selector='status.phase==Succeeded' \
+        --sort-by '{.metadata.creationTimestamp}' \
+        --output=custom-columns='name:.metadata.name' \
+        --no-headers |
+        head -n -2 |
+        xargs --no-run-if-empty kubectl --namespace serenditree delete pod
+    # Orphaned replica sets.
+    kubectl get rs \
+        --namespace serenditree \
+        --output=jsonpath='{.items[?(@.spec.replicas==0)].metadata.name}' |
+        xargs --no-run-if-empty kubectl --namespace serenditree delete rs
+    if kubectl get ns terra-tekton &>/dev/null; then
+        # Pipeline runs except the two most recent ones.
+        tkn pipelinerun delete --keep 2 --namespace terra-tekton
+    fi
 }
 
 # Inspects all or defined images of the OpenShift registry.
@@ -142,39 +234,74 @@ function sc_cluster_expose() {
     local -r _pattern=$1
     local _used_ports
 
-    _used_ports="$(netstat --inet -tlnp 2>&1 |
-        sed -En 's/.*127.0.0.1:([0-9]+).*kubectl/\1/p' |
-        xargs echo |
-        tr ' ' '|')"
+    _used_ports="$(netstat -4tlnp 2>&1 | sed -En 's/.*127.0.0.1:([0-9]+).*kubectl/\1/p' | xargs echo | tr ' ' '|')"
     [[ -n "$_used_ports" ]] || _used_ports='none'
-    echo "kubectl listening on ports: $_used_ports" | tr '|' ' '
+    echo -e "kubectl listening on ports: $_used_ports\n" | tr '|' ' '
 
-    local -r _logs=/tmp/nohup-port-fwd.log
-    for _svc in argocd/svc/argocd-server~9098:443 \
-        strimzi/svc/kafdrop~9000:9000 \
-        tekton-pipelines/svc/tekton-dashboard~9097:9097 \
-        longhorn-system/svc/longhorn-frontend~8000:80; do
-        if [[ $_svc =~ $_pattern ]]; then
-            local _ports="${_svc#*~}"
-            local _path="${_svc%~*}"
-            local _namespace="${_path%%/*}"
-            local _svc="${_path#*/}"
+    local -r _logs=/tmp/nohup-expose.log
+    { while IFS=";" read -r _name _namespace _svc _ports; do
+        if [[ $_name =~ $_pattern ]]; then
+            _svc="svc/${_svc}"
             if [[ -n "$_ARG_DELETE" ]]; then
-                netstat --inet -tlnp 2>&1 |
+                # Terminate port-forwarding
+                netstat -4tlnp 2>&1 |
                     sed -En "s/.*127.0.0.1:${_ports%:*}.* ([0-9]+)\/kubectl/\1/p" |
-                    xargs kill &>/dev/null && echo "${_svc} terminated"
+                    xargs kill &>/dev/null && echo "${_name};${_BOLD}terminated${_NORMAL}"
             elif [[ ${_ports%:*} =~ $_used_ports ]]; then
-                echo "${_svc} up"
+                # Port-forwarding already started
+                echo "${_name};http://localhost:${_ports%:*}"
             else
-                if kubectl get namespace $_namespace &>/dev/null; then
-                    echo "Port-forwarding ${_svc}..."
+                # Start port-forwarding
+                if kubectl get --namespace $_namespace $_svc &>/dev/null; then
+                    echo "${_name};http://localhost:${_ports%:*}"
                     nohup kubectl port-forward $_svc $_ports --namespace $_namespace &>$_logs &
                     _used_ports+="${_ports%:*}"
                 else
-                    echo "$_path unavailable."
+                    echo "${_name};${_BOLD}unavailable${_NORMAL}"
                 fi
             fi
         fi
+    done <"${_ST_HOME_STEM}/rc/plain/cluster-expose"; } |
+        column -ts';' |
+        tr ' ' '.'
+    echo -e "\nCheck logs in ${_logs}!"
+}
+export -f sc_cluster_expose
+
+# Starts or stops all nodes of the cluster.
+# $1: start or stop
+function sc_cluster_toggle() {
+    local -r _toggle=$1
+
+    for _instance in $(exo compute instance list --zone "$_ST_ZONE" --output-template '{{.ID}}'); do
+        exo compute instance "$_toggle" "$_instance" --force --output-format json | jq
     done
-    [[ "$_used_ports" != "none" ]] && echo "Check logs in ${_logs}!"
+}
+
+# Starts all nodes of the cluster.
+function sc_cluster_up() {
+    sc_heading 2 "Starting nodes..."
+    sc_cluster_toggle start
+
+    sc_heading 2 "Waiting for pods to become ready..."
+    sc_cluster_wait 10m
+
+    local -r _scaler=terra-scale-exoscale-cluster-autoscaler
+    if kubectl get deployment $_scaler --namespace kube-system &>/dev/null; then
+        sc_prompt "Enable autoscaler?" && kubectl scale deployment $_scaler --replicas 1 --namespace kube-system
+    fi
+}
+
+# Stops all nodes of the cluster.
+function sc_cluster_down() {
+    local -r _scaler=terra-scale-exoscale-cluster-autoscaler
+    if kubectl get deployment $_scaler --namespace kube-system &>/dev/null; then
+        sc_heading 2 "Disabling autoscaler..."
+        kubectl scale deployment $_scaler --replicas 0 --namespace kube-system
+    fi
+
+    sc_heading 2 "Stopping nodes..."
+    sc_cluster_toggle stop
+    sc_heading 2 "Removing traces..."
+    exo storage rm --recursive --force sos://serenditree-traces
 }

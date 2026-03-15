@@ -1,0 +1,10 @@
+apiVersion: v2
+type: application
+name: terra-scope
+description: "Strimzi resources."
+version: 0.0.1
+appVersion: 0.0.1
+dependencies:
+  - name: strimzi-kafka-operator
+    repository: https://strimzi.io/charts
+    version: 0.45.0

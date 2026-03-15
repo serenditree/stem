@@ -1,0 +1,7 @@
+defaultaccount = 'serenditree'
+
+[[accounts]]
+name = 'serenditree'
+defaultZone = '$_ST_ZONE'
+key = '$_KEY_SUBST'
+secret = '$_SECRET_SUBST'

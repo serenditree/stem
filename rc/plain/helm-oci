@@ -1,0 +1,2 @@
+oci://docker.io/envoyproxy;docker://envoyproxy/gateway-helm
+oci://quay.io/serenditree/charts;docker://quay.io/serenditree/charts/commons

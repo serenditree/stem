@@ -1,0 +1,47 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: ClusterTask
+metadata:
+  name: serenditree-finally
+  annotations:
+    "helm.sh/hook": post-install
+  labels:
+    app.kubernetes.io/component: tekton
+spec:
+  description: 'Task to react to and notify about pipeline completion.'
+  params:
+    - name: pipeline
+      type: string
+      description: 'Name of the pipeline.'
+    - name: start
+      type: string
+      description: 'Start time in seconds since the Epoch.'
+    - name: git-sha
+      type: string
+      description: 'SHA of the latest commit.'
+    - name: image-sha
+      type: string
+      description: 'ID of the created container image.'
+    - name: run
+      type: string
+      default: undefined
+      description: 'ID of the pipeline run.'
+    - name: status
+      type: string
+      description: 'Aggregated status of the pipeline.'
+    - name: details
+      type: array
+      description: 'Array of task:status pairs.'
+  steps:
+    - name: notify
+      image: alpine/curl
+      env:
+        - name: WEBHOOK
+          valueFrom:
+            secretKeyRef:
+              name: webhook
+              key: webhook
+      args:
+        - $(params.details)
+      script: |
+{{ .Files.Get "resources/finally.sh" | indent 8 }}

@@ -1,0 +1,16 @@
+global:
+  context: ~
+  host: ~
+  issuer: ~
+terraGateway:
+  name: serenditree
+  config: serenditree-gateway-config
+  otelHost: ~
+gateway-helm:
+  config:
+    envoyGateway:
+      rateLimit:
+        backend:
+          type: Redis
+          redis:
+            url: ~

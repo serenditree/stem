@@ -1,0 +1,28 @@
+{{- with .Values.kafka }}
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaNodePool
+metadata:
+  name: {{ .name }}
+  labels:
+    strimzi.io/cluster: {{ .name }}
+spec:
+  replicas: {{ .replicas }}
+  roles:
+    - controller
+    - broker
+  storage:
+    type: jbod
+    volumes:
+      - id: 0
+        type: persistent-claim
+        size: {{ .storage }}Gi
+        deleteClaim: false
+        kraftMetadata: shared
+  template:
+    persistentVolumeClaim:
+      metadata:
+        annotations:
+          argocd.argoproj.io/compare-options: IgnoreExtraneous
+          argocd.argoproj.io/sync-options: Prune=false
+{{- end }}

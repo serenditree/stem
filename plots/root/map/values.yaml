@@ -1,5 +1,0 @@
-global:
-  context: ~
-rootMap:
-  cd: false
-  app: false

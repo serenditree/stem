@@ -1,0 +1,40 @@
+{{- if not (hasSuffix "-local" .Values.global.context) }}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Values.terraGateway.name }}
+  namespace: {{ .Values.global.cdNamespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: {{ .Values.terraGateway.wave | quote }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: {{ .Values.global.repository | quote }}
+    path: "{{ .Values.global.terraPath }}/{{ trimPrefix .Values.global.terraPrefix .Values.terraGateway.name }}"
+    targetRevision: {{ .Values.terraGateway.revision | default .Values.global.revision | quote }}
+    helm:
+      parameters:
+        - name: global.context
+          value: {{ .Values.global.context }}
+        - name: global.issuer
+          value: {{ .Values.global.issuer }}
+        - name: global.host
+          value: {{ .Values.global.host }}
+        - name: terraGateway.otelHost
+          value: "collect.{{ .Values.terraCollect.namespace }}.svc.{{ .Values.global.clusterDomain }}"
+        - name: gateway-helm.config.envoyGateway.rateLimit.backend.redis.url
+          value: "cache-primary.{{ .Values.terraCache.namespace }}.svc.{{ .Values.global.clusterDomain }}:6379"
+  destination:
+    server: {{ .Values.global.destinationServer }}
+    namespace: {{ .Values.terraGateway.namespace }}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+{{- end }}

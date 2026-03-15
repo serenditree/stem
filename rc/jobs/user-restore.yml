@@ -1,0 +1,58 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: user-restore
+spec:
+  template:
+    spec:
+      volumes:
+        - name: user-backup
+          emptyDir: { }
+        - name: exoscale-config
+          secret:
+            secretName: exoscale-backup
+      restartPolicy: Never
+      initContainers:
+        - name: exo
+          image: docker.io/exoscale/cli:1.82
+          args:
+            - --use-account=serenditree
+            - storage
+            - download
+            - sos://serenditree-backup/user-backup/user-backup.gz
+            - /user-backup/user-backup.gz
+          env:
+            - name: EXOSCALE_CONFIG
+              value: /exoscale-config/exoscale.toml
+          volumeMounts:
+            - mountPath: "/user-backup"
+              name: user-backup
+            - mountPath: "/exoscale-config"
+              name: exoscale-config
+      containers:
+        - name: postgres
+          image: quay.io/serenditree/root-user:latest
+          command:
+            - /bin/sh
+            - -c
+          args:
+            - >-
+              gunzip < /user-backup/user-backup.gz |
+              psql --no-password
+          env:
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: root-user
+                  key: postgres-password
+            - name: PGDATABASE
+              value: "serenditree"
+            - name: PGUSER
+              value: "postgres"
+            - name: PGHOST
+              value: "root-user-pgpool"
+            - name: PGPORT
+              value: "5432"
+          volumeMounts:
+            - mountPath: "/user-backup"
+              name: user-backup

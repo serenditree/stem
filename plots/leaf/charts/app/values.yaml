@@ -1,6 +1,0 @@
-leaf:
-  replicas: 1
-  stage: dev
-ingress:
-  letsencrypt:
-    issuer: prod

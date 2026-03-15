@@ -1,0 +1,10 @@
+apiVersion: v2
+type: application
+name: terra-certs
+description: "Cert-manager resources"
+version: 0.0.1
+appVersion: 0.0.1
+dependencies:
+  - name: cert-manager
+    repository: https://charts.jetstack.io
+    version: v1.17.1
