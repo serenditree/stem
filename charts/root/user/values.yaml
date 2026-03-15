@@ -1,0 +1,34 @@
+global:
+  context: ~
+rootUser:
+  clusterDomain: ~
+  db:
+    name: serenditree
+    user: ~
+    password: ~
+  rootUser:
+    password: ~
+postgresql-ha:
+  clusterDomain: cluster.local
+  fullnameOverride: root-user
+  namespaceOverride: serenditree
+  persistence:
+    size: 10Gi
+  postgresql:
+    replicaCount: 3
+    resourcesPreset: none
+    initdbScriptsCM: root-user-init
+    username: serenditree
+    database: serenditree
+    existingSecret: root-user
+    extraEnvVars:
+      - name: REPMGR_START_OPTIONS
+        value: "--no-pid-file"
+  pgpool:
+    replicaCount: 1
+    resourcesPreset: none
+    existingSecret: root-user
+    customUsersSecret: root-user
+    extraEnvVars:
+      - name: PGPOOL_DISCARD_STATUS
+        value: "true"

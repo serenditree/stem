@@ -1,0 +1,11 @@
+apiVersion: v2
+type: application
+name: terra-cache
+description: "Valkey resources."
+version: 0.0.1
+appVersion: "0.0.1"
+
+dependencies:
+  - name: valkey
+    repository: https://charts.bitnami.com/bitnami
+    version: 2.4.7

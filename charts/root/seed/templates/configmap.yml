@@ -1,0 +1,9 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.elasticsearch.initScriptsCM }}
+  labels:
+    {{- include "st-default-labels-component" . }}
+data:
+{{- (.Files.Glob "resources/*").AsConfig | nindent 4 }}

@@ -1,0 +1,13 @@
+apiVersion: v2
+type: application
+name: root-seed
+description: Elasticsearch resources
+version: 0.0.1
+appVersion: 0.0.1
+dependencies:
+  - name: elasticsearch
+    repository: https://charts.bitnami.com/bitnami
+    version: 21.4.9
+  - name: commons
+    repository: oci://quay.io/serenditree/charts
+    version: 0.0.1

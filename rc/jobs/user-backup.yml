@@ -1,0 +1,64 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: user-backup
+spec:
+  schedule: "0 1 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          volumes:
+            - name: user-backup
+              emptyDir: { }
+            - name: exoscale-config
+              secret:
+                secretName: exoscale-backup
+          restartPolicy: OnFailure
+          initContainers:
+            - name: postgres
+              image: quay.io/serenditree/root-user:latest
+              command:
+                - /bin/sh
+                - -c
+              args:
+               - >-
+                 pg_dump
+                 --data-only
+                 --load-via-partition-root 
+                 --quote-all-identifiers
+                 --no-password | gzip > /user-backup/user-backup.gz
+              env:
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: root-user
+                      key: postgres-password
+                - name: PGDATABASE
+                  value: "serenditree"
+                - name: PGUSER
+                  value: "postgres"
+                - name: PGHOST
+                  value: "root-user-pgpool"
+                - name: PGPORT
+                  value: "5432"
+              volumeMounts:
+                - mountPath: "/user-backup"
+                  name: user-backup
+          containers:
+            - name: exo
+              image: docker.io/exoscale/cli:1.82
+              args:
+                - --use-account=serenditree
+                - storage
+                - upload
+                - /user-backup/user-backup.gz
+                - sos://serenditree-backup/user-backup/user-backup.gz
+              env:
+                - name: EXOSCALE_CONFIG
+                  value: /exoscale-config/exoscale.toml
+              volumeMounts:
+                - mountPath: "/user-backup"
+                  name: user-backup
+                - mountPath: "/exoscale-config"
+                  name: exoscale-config

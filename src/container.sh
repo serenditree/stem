@@ -31,10 +31,12 @@ export -f sc_label_rm
 function sc_env_rm() {
     local -r _container_ref=$1
     echo "Removing inherited environment variables..."
-    buildah config --env SUMMARY- $_container_ref
-    buildah config --env DESCRIPTION- $_container_ref
-    buildah config --env STI_SCRIPTS_URL- $_container_ref
-    buildah config --env STI_SCRIPTS_PATH- $_container_ref
+    buildah config \
+        --env SUMMARY- \
+        --env DESCRIPTION- \
+        --env STI_SCRIPTS_URL- \
+        --env STI_SCRIPTS_PATH- \
+        $_container_ref
 }
 export -f sc_env_rm
 
@@ -52,18 +54,11 @@ export -f sc_env_get
 # $*: Optional list of images to build. Images are selected by grep pattern matching.
 function sc_build() {
     local -r _plots="$(sc_args_to_pattern "$*")"
-
-    if [[ -z "$_ST_CONTEXT_TKN" ]] && [[ "$_ST_FROM" == "rhel" ]]; then
-        sc_heading 1 "Checking base images..."
-        sc_login redhat
-        local -r _pulled=$(
-            env | grep "_ST_FROM_" | cut -d'=' -f2 |
-                xargs -I{} bash -c "podman image exists {} || podman pull {}" |
-                wc -l
-        )
-        [[ $_pulled -eq 0 ]] && echo "All set!"
+    if [[ -z "$_ST_CONTEXT_TKN" ]] && [[ "java node nginx" =~ $_plots ]]; then
+        sc_heading 1 "Checking preconditions"
+        [[ "java node nginx" =~ $_plots ]] && sc_status_build_repos
+        [[ "node" =~ $_plots ]] && sc_status_build_node
     fi
-
     sc_plots_do "${_plots}" build
 }
 
@@ -71,16 +66,31 @@ function sc_build() {
 # $1: Image identifier.
 # $2: Image tag.
 # $3: Reference to the temporary container.
+# $4: Flag to add platform config.
 function sc_image_commit() {
     local -r _image=$1
     local -r _tag=$2
     local -r _container_ref=$3
+    local -r _platform_config=$4
 
-    # buildah config --author "$(git config --get user.email)" $_container_ref
+    if [[ "$_platform_config" == "on" ]]; then
+        _OS_NAME="linux"
+        _OS_VERSION="$(uname -r)"
+        _PLATFORM_ARCH="amd64"
+        buildah config \
+            --os "$_OS_NAME" \
+            --os-version "$_OS_VERSION" \
+            --arch "$_PLATFORM_ARCH" \
+            --env OS_NAME="$_OS_NAME" \
+            --env OS_VERSION="$_OS_VERSION" \
+            --env PLATFORM_ARCH="$_PLATFORM_ARCH" \
+            $_container_ref
+    fi
 
     buildah commit --format oci $_container_ref ${_image}:${_tag}
 
     buildah inspect $_container_ref | jq '.OCIv1.config'
+    buildah umount $_container_ref &>/dev/null
     buildah rm $_container_ref
 }
 export -f sc_image_commit
@@ -93,6 +103,7 @@ export -f sc_image_commit
 # $4: Image tag.
 # $5: Ordinal for sorting and build/deployment order.
 # $6: Reference to the temporary container.
+# $7: Flag to add platform config.
 function sc_image_config_commit() {
     local -r _service=$1
     local -r _image=$2
@@ -100,18 +111,20 @@ function sc_image_config_commit() {
     local -r _tag=$4
     local -r _ordinal=$5
     local -r _container_ref=$6
+    local -r _platform_config=$7
 
-    buildah config --label serenditree.io/service=$_service $_container_ref
-    buildah config --label serenditree.io/version=$_version $_container_ref
-    buildah config --label serenditree.io/ordinal=$_ordinal $_container_ref
-    buildah config --label serenditree.io/stage=$_ST_STAGE $_container_ref
+    buildah config \
+        --label serenditree.io/service=$_service \
+        --label serenditree.io/version=$_version \
+        --label serenditree.io/ordinal=$_ordinal \
+        --label serenditree.io/stage=$_ST_STAGE \
+        --env SERENDITREE_SERVICE=$_service \
+        --env SERENDITREE_VERSION=$_version \
+        --env SERENDITREE_ORDINAL=$_ordinal \
+        --env SERENDITREE_STAGE=$_ST_STAGE \
+        $_container_ref
 
-    buildah config --env SERENDITREE_SERVICE=$_service $_container_ref
-    buildah config --env SERENDITREE_VERSION=$_version $_container_ref
-    buildah config --env SERENDITREE_ORDINAL=$_ordinal $_container_ref
-    buildah config --env SERENDITREE_STAGE=$_ST_STAGE $_container_ref
-
-    sc_image_commit "$_image" "$_tag" "$_container_ref"
+    sc_image_commit "$_image" "$_tag" "$_container_ref" "$_platform_config"
 }
 export -f sc_image_config_commit
 
@@ -165,7 +178,8 @@ function sc_push() {
         if [[ -z "$_ST_CONTEXT_OPENSHIFT" ]]; then
             local -r _buildah_args='--tls-verify=false'
         fi
-        buildah push $_buildah_args "$_target"
+        buildah push --digestfile /tmp/digestfile $_buildah_args "$_target"
+        echo "${_target}@$(</tmp/digestfile)" | tee -a "$_ST_BUILD_RESULTS_PATH"
     fi
 }
 export -f sc_push
@@ -221,8 +235,3 @@ function sc_distro_sync() {
     buildah run --user 0:0 $_container_ref -- $_pkg_mgr clean all --noplugins
 }
 export -f sc_distro_sync
-
-# Updates base images.
-function sc_update_base_images() {
-    env | grep "_ST_FROM_" | cut -d'=' -f2 | xargs podman pull
-}

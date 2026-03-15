@@ -36,5 +36,15 @@ override.tf.json
 .terraformrc
 terraform.rc
 
+# Plans
+*.tfplan
+
 ### Helm ###
 Chart.lock
+
+### Custom ###
+kubeconfig
+*.iam
+.terraform.lock.hcl
+generated/
+k6

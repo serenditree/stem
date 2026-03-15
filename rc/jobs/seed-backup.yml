@@ -1,0 +1,18 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: seed-backup
+spec:
+  schedule: "0 2 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: seed-backup
+              image: docker.io/curlimages/curl:latest
+              args:
+                - --request
+                - PUT
+                - 'http://root-seed:9200/_snapshot/seed-backup/%3Cseed-backup-%7Bnow%2Fd%7Byyyy-MM-dd%7D%7D%3E'

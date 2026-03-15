@@ -1,0 +1,11 @@
+argo;https://argoproj.github.io/argo-helm
+autoscaler;https://kubernetes.github.io/autoscaler
+bitnami;https://charts.bitnami.com/bitnami
+cert-manager;https://charts.jetstack.io
+cilium;https://helm.cilium.io
+ingress-nginx;https://kubernetes.github.io/ingress-nginx
+open-telemetry;https://open-telemetry.github.io/opentelemetry-helm-charts
+prometheus;https://prometheus-community.github.io/helm-charts
+quickwit;https://helm.quickwit.io
+strimzi;https://strimzi.io/charts
+tekton;https://cdfoundation.github.io/tekton-helm-chart

@@ -1,0 +1,26 @@
+global:
+  context: ~
+  host: ~
+  issuer: ~
+  stage: ~
+branch:
+  branches:
+    - user
+    - seed
+    - garden
+    - poll
+  minReplicas: 1
+  maxReplicas: 3
+  waterRetention: 21
+  jsonWebKey: ~
+  logLevel: INFO
+  otlp:
+    endpoint: ~
+  oidc:
+    - country: ~
+      id: ~
+      idRef: ~
+      secret: ~
+      secretRef: ~
+      url: ~
+      urlRef: ~
