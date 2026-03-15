@@ -1,0 +1,27 @@
+{{- if or .Values.terraCollect.enabled }}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Values.terraCollect.name }}
+  namespace: {{ .Values.global.cdNamespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: {{ .Values.terraCollect.wave | quote }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: {{ .Values.global.repository | quote }}
+    path: "{{ .Values.global.terraPath }}/{{ trimPrefix .Values.global.terraPrefix .Values.terraCollect.name }}"
+    targetRevision: {{ .Values.terraCollect.revision | default .Values.global.revision | quote }}
+  destination:
+    server: {{ .Values.global.destinationServer }}
+    namespace: {{ .Values.terraCollect.namespace }}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+{{- end }}

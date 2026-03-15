@@ -1,0 +1,12 @@
+apiVersion: v2
+type: application
+name: terra-traces
+version: 0.0.1
+appVersion: 0.0.1
+dependencies:
+  - name: postgresql
+    repository: https://charts.bitnami.com/bitnami
+    version: 16.6.0
+  - name: quickwit
+    repository: https://helm.quickwit.io
+    version: 0.7.15

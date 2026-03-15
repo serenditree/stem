@@ -1,0 +1,12 @@
+global:
+  context: ~
+  host: ~
+  issuer: ~
+  stage: ~
+rootMap:
+  minReplicas: 1
+  maxReplicas: 3
+  dataMountPath: "/serenditree/data"
+  data:
+    apikey: ~
+    secret: ~

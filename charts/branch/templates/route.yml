@@ -1,0 +1,50 @@
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: branch
+  labels:
+    {{- include "st-default-labels" . }}
+spec:
+  parentRefs:
+    - name: serenditree
+      namespace: terra-gateway
+  hostnames:
+    - www.{{ .Values.global.host }}
+    - {{ .Values.global.host }}
+  rules:
+    {{- range .Values.branch.branches }}
+    - backendRefs:
+        - group: ""
+          kind: Service
+          {{- if eq "garden" . }}
+          name: branch-seed
+          {{- else }}
+          name: branch-{{ . }}
+          {{- end }}
+          port: 8080
+          weight: 1
+      matches:
+        - path:
+            type: PathPrefix
+            value: /api/v1/{{ . }}
+    {{- end }}
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: BackendTrafficPolicy
+metadata:
+  name: branch
+  labels:
+    {{- include "st-default-labels" . }}
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: branch
+  rateLimit:
+    type: Global
+    global:
+      rules:
+        - limit:
+            requests: 10
+            unit: Second
