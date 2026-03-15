@@ -1,0 +1,15 @@
+#file: noinspection HelmChartUnknownValues
+apiVersion: v2
+type: application
+name: terra-gateway
+description: Envoy Gateway resources.
+version: 0.0.1
+appVersion: 0.0.1
+dependencies:
+  - name: gateway-helm
+    repository: oci://docker.io/envoyproxy
+    version: v1.6.0
+  - name: commons
+    repository: oci://quay.io/serenditree/charts
+    version: 0.0.1
+    condition: global.wait

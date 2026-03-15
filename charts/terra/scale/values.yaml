@@ -1,0 +1,19 @@
+global:
+  zone:
+    compute1: ~
+  wait: ~
+  wave: ~
+terraScale:
+  karpenter: ~
+  clusterAutoscaler: ~
+  securityGroup: undefined
+  privateNetwork: undefined
+  antiAffinityGroup: undefined
+  minSize: 3
+  maxSize: 1
+cluster-autoscaler:
+  replicaCount: 1
+  autoscalingGroups: []
+  cloudProvider: exoscale
+  autoDiscovery:
+    clusterName: cluster.local

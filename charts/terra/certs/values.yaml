@@ -1,0 +1,41 @@
+global:
+  host: ~
+  wait: ~
+  wave: ~
+cert-manager:
+  resources:
+    requests:
+      cpu: 20m
+      memory: 40Mi
+    limits:
+      cpu: 20m
+      memory: 40Mi
+  crds:
+    enabled: true
+  startupapicheck:
+    enabled: false
+  webhook:
+    resources:
+      requests:
+        cpu: 10m
+        memory: 30Mi
+      limits:
+        cpu: 10m
+        memory: 30Mi
+  cainjector:
+    resources:
+      requests:
+        cpu: 20m
+        memory: 100Mi
+      limits:
+        cpu: 50m
+        memory: 100Mi
+  extraArgs:
+    - --enable-gateway-api
+exoscale-webhook:
+  certManager:
+    namespace: terra-certs
+    serviceAccountName: terra-certs-cert-manager
+letsencrypt:
+  issuer: ~
+  email: ~

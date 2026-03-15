@@ -1,0 +1,25 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: {{ .Values.metastore.database }}
+spec:
+  instances: 1
+  resources:
+    requests:
+      cpu: 100m
+      memory: 250Mi
+    limits:
+      cpu: 200m
+      memory: 300Mi
+  storage:
+    size: 10Gi
+#  walStorage:
+#    size: 20Gi
+  enablePDB: true
+  bootstrap:
+    initdb:
+      database: {{ .Values.metastore.database }}
+      owner: {{ .Values.metastore.username }}
+      secret:
+        name: {{ .Values.metastore.secretRef }}

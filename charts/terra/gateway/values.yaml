@@ -1,0 +1,42 @@
+global:
+  context: ~
+  host: ~
+  issuer: ~
+  wait: ~
+  wave: ~
+terraGateway:
+  name: serenditree
+  proxyName: serenditree-proxy
+  loadBalancerID: ~
+  otelHost: ~
+gateway-helm:
+  deployment:
+    envoyGateway:
+      resources:
+        requests:
+          cpu: 100m
+          memory: 500Mi
+        limits:
+          memory: 1Gi
+    pod:
+      labels:
+        serenditree.io/otel: gateway
+  config:
+    envoyGateway:
+      provider:
+        type: Kubernetes
+        kubernetes:
+          rateLimitDeployment:
+            replicas: 1
+            container:
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 500Mi
+                limits:
+                  memory: 1Gi
+      rateLimit:
+        backend:
+          type: Redis
+          redis:
+            url: ~

@@ -1,0 +1,66 @@
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
+metadata:
+  name: {{ .Values.terraGateway.name }}
+spec:
+  controllerName: gateway.envoyproxy.io/gatewayclass-controller
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: {{ .Values.terraGateway.name }}
+  annotations:
+    cert-manager.io/cluster-issuer: lets-encrypt-{{ .Values.global.issuer }}
+    service.beta.kubernetes.io/exoscale-loadbalancer-service-strategy: 'round-robin'
+    service.beta.kubernetes.io/exoscale-loadbalancer-external: 'true'
+    service.beta.kubernetes.io/exoscale-loadbalancer-id: {{ .Values.terraGateway.loadBalancerID }}
+spec:
+  gatewayClassName: {{ .Values.terraGateway.name }}
+  infrastructure:
+    parametersRef:
+      group: gateway.envoyproxy.io
+      kind: EnvoyProxy
+      name: {{ .Values.terraGateway.proxyName }}
+  listeners:
+    # HTTP-Redirect
+    - name: http
+      protocol: HTTP
+      port: 80
+    # WWW-Redirect
+    - name: www
+      protocol: HTTPS
+      port: 443
+      hostname: www.{{ .Values.global.host }}
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - group: ''
+            kind: Secret
+            name: lets-encrypt-{{ .Values.global.issuer }}
+      allowedRoutes:
+        kinds:
+          - group: gateway.networking.k8s.io
+            kind: HTTPRoute
+        namespaces:
+          from: Same
+    # Serenditree.io
+    - name: https
+      protocol: HTTPS
+      port: 443
+      hostname: {{ .Values.global.host }}
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - group: ''
+            kind: Secret
+            name: lets-encrypt-{{ .Values.global.issuer }}
+      allowedRoutes:
+        kinds:
+          - group: gateway.networking.k8s.io
+            kind: HTTPRoute
+        namespaces:
+          from: Selector
+          selector:
+            matchLabels:
+              kubernetes.io/metadata.name: serenditree

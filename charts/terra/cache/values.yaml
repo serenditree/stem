@@ -1,0 +1,12 @@
+global:
+  wait: ~
+  wave: ~
+terraCache:
+  valkey: true
+  dragonfly: false
+valkey:
+  fullnameOverride: terra-cache
+  replicaCount: 3
+dragonfly:
+  fullnameOverride: terra-cache
+  replicaCount: 3

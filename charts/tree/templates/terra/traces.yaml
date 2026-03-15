@@ -1,0 +1,38 @@
+{{- if .Values.terraTraces.enabled }}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Values.terraTraces.name }}
+  namespace: {{ .Values.global.argocdNamespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: {{ .Values.terraTraces.wave | quote }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: {{ .Values.global.repository | quote }}
+    path: "{{ .Values.global.terraPath }}/{{ trimPrefix .Values.global.terraPrefix .Values.terraTraces.name }}"
+    targetRevision: {{ .Values.terraTraces.revision | default .Values.global.revision | quote }}
+    helm:
+      parameters:
+        - name: global.wait
+          value: {{ .Values.global.wait | quote }}
+        - name: global.wave
+          value: {{ .Values.terraTraces.wave | quote }}
+        - name: quickwit.config.storage.s3.endpoint
+          value: {{ .Values.terraTraces.parameters.quickwit.config.storage.s3.endpoint }}
+        - name: quickwit.config.storage.s3.region
+          value: {{ .Values.terraTraces.parameters.quickwit.config.storage.s3.region }}
+        - name: quickwit.config.default_index_root_uri
+          value: {{ .Values.terraTraces.parameters.quickwit.config.default_index_root_uri }}
+  destination:
+    server: {{ .Values.global.destinationServer }}
+    namespace: {{ .Values.terraTraces.namespace }}
+  syncPolicy:
+    automated: {{ .Values.global.automated | toYaml | nindent 6 }}
+    retry: {{ .Values.global.retry | toYaml | nindent 6  }}
+    syncOptions:
+      - CreateNamespace=true
+{{- end }}
