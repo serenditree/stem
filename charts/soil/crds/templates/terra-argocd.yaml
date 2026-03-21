@@ -4,6 +4,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     "helm.sh/resource-policy": keep
+    argocd.argoproj.io/sync-options: ServerSideApply=true
     meta.helm.sh/release-name: terra-argocd
     meta.helm.sh/release-namespace: terra-argocd
   labels:
@@ -5796,6 +5797,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     "helm.sh/resource-policy": keep
+    argocd.argoproj.io/sync-options: ServerSideApply=true
     meta.helm.sh/release-name: terra-argocd
     meta.helm.sh/release-namespace: terra-argocd
   labels:
@@ -28962,12 +28964,13 @@ spec:
       subresources:
         status: {}
 ---
-# Source: terra-argocd/charts/argo-cd/templates/crds/crd-project.yaml
+# Source: terra-argocd/charts/argo-cd/templates/crds/crd-appproject.yaml
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
     "helm.sh/resource-policy": keep
+    argocd.argoproj.io/sync-options: ServerSideApply=true
     meta.helm.sh/release-name: terra-argocd
     meta.helm.sh/release-namespace: terra-argocd
   labels:
