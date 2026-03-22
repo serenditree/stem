@@ -207,7 +207,7 @@ function sc_update_maven() {
         echo "Updating dependencies..."
         mvn validate -Pupdate
         if [[ -n "$(git status --porcelain)" ]]; then
-            mvn clean install
+            mvn clean install --activate-profiles integration
         fi
     else
         if [[ -n "$_ARG_VERBOSE" ]]; then
