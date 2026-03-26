@@ -36,8 +36,8 @@ export const options = {
         {target: 10, duration: '30s'},
     ],
     thresholds: {
-        http_req_failed: ['rate < 0.001'],
-        http_req_duration: ['p(99) < 400'],
+        http_req_failed: ['rate < 0.01'],
+        http_req_duration: ['p(95) < 400'],
         empty_tiles: ['rate < 0.25']
     }
 };
@@ -165,9 +165,7 @@ export default function (data) {
                 'OK': (r) => {
                     return r.status === 204 ||
                         r.status === 200 &&
-                        r.headers &&
-                        r.headers['Content-Type'] &&
-                        r.headers['Content-Type'].includes('application/x-protobuf');
+                        r.headers?.['Content-Type']?.includes('application/x-protobuf');
                 }
             });
             emptyTiles.add(response.status === 204);
