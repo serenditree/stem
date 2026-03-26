@@ -36,6 +36,8 @@ spec:
             - configMapRef:
                 name: branch
           env:
+            - name: JAVA_TOOL_OPTIONS
+              value: "-XX:InitialRAMPercentage=75.0 -XX:MaxRAMPercentage=75.0 -XX:MinRAMPercentage=75.0"
             - name: SERENDITREE_JWK_SIGNATURE
               valueFrom:
                 secretKeyRef:
