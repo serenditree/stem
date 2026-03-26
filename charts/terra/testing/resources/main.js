@@ -29,6 +29,9 @@ const mapClient = new Httpx({
 
 const emptyTiles = new Rate('empty_tiles');
 
+const SIGN_UP_EXPECTED_STATUS = 201;
+const SIGN_UP_MAX_RETRIES = 2;
+
 export const options = {
     stages: [
         {target: 10, duration: '30s'},
@@ -53,15 +56,28 @@ function statusCheck(response, status) {
     check(response, {'OK': r => r.status === status});
 }
 
+function signUp(user) {
+    let signUpResponse = userClient.post('/sign-up', null, user);
+    let retryCount = 0;
+
+    while (signUpResponse.status !== SIGN_UP_EXPECTED_STATUS && retryCount++ < SIGN_UP_MAX_RETRIES) {
+        console.error(`Sign up failed with status [${signUpResponse.status}]. Retrying...`);
+        sleep(1);
+        signUpResponse = userClient.post('/sign-up', null, user);
+    }
+
+    return signUpResponse;
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // SETUP
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 export function setup() {
     const user = randomUser();
-    const signUpResponse = userClient.post('/sign-up', null, user);
+    const signUpResponse = signUp(user);
 
-    if (signUpResponse.status !== 201) {
-        fail('Setup failed');
+    if (signUpResponse.status !== SIGN_UP_EXPECTED_STATUS) {
+        fail(`Setup failed with status [${signUpResponse.status}]. Aborting...`);
     }
 
     const userId = signUpResponse.headers[ST_HEADERS.id];
