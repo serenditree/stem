@@ -90,7 +90,7 @@ export _ST_VERSION_POSTGRESQL=18
 export _ST_VERSION_KAFKA=4.0.0
 export _ST_VERSION_KAFKA_SCALA=2.13
 
-export _ST_VERSION_FIXED_HELM=cert-manager # chart[|chart]
+#export _ST_VERSION_FIXED_HELM=cert-manager # chart[|chart]
 ########################################################################################################################
 # BUILD
 ########################################################################################################################
