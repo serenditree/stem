@@ -186,12 +186,11 @@ function sc_cluster_resources() {
 # Unseals the cluster's vault.
 function sc_cluster_unseal() {
     echo "Unsealing vault..."
-    local -r _unseal_key_1=$(pass serenditree/vault | jq -r '.unseal_keys_b64[0]')
-    local -r _unseal_key_2=$(pass serenditree/vault | jq -r '.unseal_keys_b64[1]')
-    local -r _unseal_key_3=$(pass serenditree/vault | jq -r '.unseal_keys_b64[2]')
-    kubectl exec --namespace terra-vault vault-0 -- bao operator unseal "$_unseal_key_1"
-    kubectl exec --namespace terra-vault vault-0 -- bao operator unseal "$_unseal_key_2"
-    kubectl exec --namespace terra-vault vault-0 -- bao operator unseal "$_unseal_key_3"
+    local _unseal_key
+    for _key in $(seq 0 2); do
+        _unseal_key=$(pass serenditree/vault | jq -r ".unseal_keys_b64[${_key}]")
+        kubectl exec --namespace terra-vault vault-0 -- bao operator unseal "$_unseal_key"
+    done
 }
 
 # Prints certificate information.
