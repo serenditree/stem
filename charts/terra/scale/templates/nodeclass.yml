@@ -7,10 +7,10 @@ spec:
   imageTemplateSelector:
     variant: "standard"
   diskSize: 64
-  securityGroups:
-    - {{ .Values.terraScale.securityGroup }}
-  privateNetworks:
-    - {{ .Values.terraScale.privateNetwork }}
-  antiAffinityGroups:
-    - {{ .Values.terraScale.antiAffinityGroup }}
+  securityGroupSelectorTerms:
+    - id: {{ .Values.terraScale.securityGroup }}
+  privateNetworkSelectorTerms:
+    - id: {{ .Values.terraScale.privateNetwork }}
+  antiAffinityGroupSelectorTerms:
+    - id: {{ .Values.terraScale.antiAffinityGroup }}
 {{- end }}

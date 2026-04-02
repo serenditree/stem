@@ -26,12 +26,13 @@ spec:
           effect: NoExecute
   disruption:
     consolidationPolicy: WhenEmptyOrUnderutilized
-    consolidateAfter: 10m
+    consolidateAfter: 20m
     budgets:
       - nodes: "20%"
   limits:
     cpu: 20
     memory: 40Gi
+{{- if .Values.terraScale.karpenterReplicas }}
 ---
 apiVersion: karpenter.sh/v1
 kind: NodePool
@@ -64,9 +65,10 @@ spec:
           effect: NoExecute
   disruption:
     consolidationPolicy: WhenEmptyOrUnderutilized
-    consolidateAfter: 10m
+    consolidateAfter: 20m
     budgets:
       - nodes: "20%"
   limits:
     nodes: 4
+{{- end }}
 {{- end }}
