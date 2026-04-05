@@ -12,7 +12,7 @@ terraScale:
   privateNetwork: ~
   antiAffinityGroup: ~
   minSize: 3
-  maxSize: 1
+  maxSize: 6
 cluster-autoscaler:
   replicaCount: 1
   autoscalingGroups: []
