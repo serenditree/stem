@@ -183,6 +183,24 @@ function sc_cluster_resources() {
         $_pipe
 }
 
+# Lists all v2 keys in the cluster's vault.
+function sc_cluster_keys() {
+    local -r _token=$(pass serenditree/vault | jq -r '.root_token')
+    kubectl exec --namespace terra-vault vault-0 -- sh -c "
+        export BAO_TOKEN=$_token
+        list_keys() {
+            bao kv list serenditree/\$1 2>/dev/null | tail -n+3 | while read -r _key; do
+                if [[ \"\$_key\" =~ /$ ]]; then
+                    list_keys \"\$1\$_key\"
+                else
+                    bao kv get -format=pretty serenditree/\$1\$_key && echo
+                fi
+            done
+        }
+        list_keys
+    "
+}
+
 # Unseals the cluster's vault.
 function sc_cluster_unseal() {
     echo "Unsealing vault..."

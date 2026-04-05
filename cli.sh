@@ -550,6 +550,7 @@ function sc_help() {
     printf '\t%-20s%s\n' "database <db>:" "Open database console. {user|seed}"
     printf '\t%-20s%s\n' "deploy:" "Deploys new images."
     printf '\t%-20s%s\n' "expose:" "Port-forward operation-services. [--reset|--delete]"
+    printf '\t%-20s%s\n' "keys:" "List all keys in the cluster's vault."
     printf '\t%-20s%s\n' "login:" "Login to OpenShift and its internal registry."
     printf '\t%-20s%s\n' "logs <svc>:" "Prints logs of the given pod(s)."
     printf '\t%-20s%s\n' "proxy:" "Proxy kubernetes services."
@@ -848,6 +849,9 @@ cluster)
             unset _ARG_DELETE
         fi
         sc_cluster_expose "$(sc_args_to_pattern ${_ARG_LEFTOVERS[*]})"
+        ;;
+    key*)
+        sc_cluster_keys
         ;;
     login)
         if [[ -n "$_ST_CONTEXT_OPENSHIFT" ]]; then
