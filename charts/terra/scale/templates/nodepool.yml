@@ -19,6 +19,7 @@ spec:
           operator: In
           values:
             - "standard.medium"
+            - "standard.large"
       expireAfter: Never
       startupTaints:
         - key: node.cilium.io/agent-not-ready
