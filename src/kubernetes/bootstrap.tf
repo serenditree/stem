@@ -27,12 +27,12 @@ resource "terraform_data" "pre_bootstrap" {
 resource "helm_release" "terra_scale" {
   count = var.auto_scaler == "karpenter" ? 1 : 0
 
-  name             = "terra-scale"
-  chart            = "${var.charts}/terra/scale"
-  namespace        = "kube-system"
-  atomic           = true
-  wait             = true
-  wait_for_jobs    = true
+  name          = "terra-scale"
+  chart         = "${var.charts}/terra/scale"
+  namespace     = "kube-system"
+  atomic        = true
+  wait          = true
+  wait_for_jobs = true
 
   depends_on = [terraform_data.pre_bootstrap]
 
@@ -114,6 +114,36 @@ resource "terraform_data" "post_argocd" {
   }
 }
 ########################################################################################################################
+# Cert-Manager
+########################################################################################################################
+resource "helm_release" "terra_certs" {
+  name             = "terra-certs"
+  chart            = "${var.charts}/terra/certs"
+  namespace        = "terra-certs"
+  atomic           = true
+  wait             = true
+  wait_for_jobs    = true
+  create_namespace = true
+  timeout          = 300
+
+  depends_on = [terraform_data.post_argocd]
+
+  set = [
+    {
+      name  = "global.host"
+      value = var.host
+    },
+    {
+      name  = "letsencrypt.issuer"
+      value = var.issuer
+    },
+    {
+      name  = "letsencrypt.email"
+      value = var.email
+    }
+  ]
+}
+########################################################################################################################
 # Vault
 ########################################################################################################################
 resource "helm_release" "terra_vault" {
@@ -126,7 +156,7 @@ resource "helm_release" "terra_vault" {
   create_namespace = true
   timeout          = 300
 
-  depends_on = [terraform_data.post_argocd]
+  depends_on = [helm_release.terra_certs]
 }
 ########################################################################################################################
 # Post vault
