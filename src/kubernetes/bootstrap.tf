@@ -96,6 +96,7 @@ resource "helm_release" "terra_argocd" {
   wait             = true
   wait_for_jobs    = true
   create_namespace = true
+  timeout          = 600
 
   depends_on = [helm_release.terra_cilium]
 }
@@ -123,7 +124,7 @@ resource "helm_release" "terra_vault" {
   wait             = true
   wait_for_jobs    = true
   create_namespace = true
-  timeout          = 360
+  timeout          = 300
 
   depends_on = [terraform_data.post_argocd]
 }

@@ -136,12 +136,14 @@ terraScale:
   namespace: kube-system
   parameters:
     karpenter: ~
+    karpenterInstanceTypes:
+      - "standard.large"
     clusterAutoscaler: ~
     securityGroup: ~
     privateNetwork: ~
     antiAffinityGroup: ~
     minSize: 3
-    maxSize: 5
+    maxSize: 6
     autoscalingGroupNames: []
     autoscalingGroups: []
 ########################################################################################################################

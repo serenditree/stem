@@ -7,6 +7,8 @@ terraScale:
   enabled: ~
   karpenter: ~
   karpenterReplicas: false
+  karpenterInstanceTypes:
+    - "standard.large"
   clusterAutoscaler: ~
   securityGroup: ~
   privateNetwork: ~

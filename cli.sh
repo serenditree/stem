@@ -557,6 +557,7 @@ function sc_help() {
     printf '\t%-20s%s\n' "registry [img]:" "Inspects the OpenShift image registry."
     printf '\t%-20s%s\n' "resources [csv]:" "Prints resource allocations. Optionally in CSV."
     printf '\t%-20s%s\n' "restore:" "Restore databases."
+    printf '\t%-20s%s\n' "scale [type]:" "Adds an instance type to the karpenter nodepool."
     printf '\t%-20s%s\n' "status:" "Prints cluster status information."
     printf '\t%-20s%s\n' "tekton [svc]:" "Triggers tekton runs for all or individual services."
     printf '\t%-20s%s\n' "test:" "Run tests using k6-operator. [--delete]"
@@ -874,6 +875,9 @@ cluster)
         ;;
     restore)
         time sc_cluster_restore
+        ;;
+    scale)
+        time sc_cluster_scale ${_ARG_LEFTOVERS[*]}
         ;;
     status)
         sc_status_cluster

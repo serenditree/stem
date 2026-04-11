@@ -211,6 +211,18 @@ function sc_cluster_unseal() {
     done
 }
 
+# Adds an instance type to the karpenter nodepool.
+# $1: instance type
+function sc_cluster_scale() {
+    local -r _type=$1
+
+    sc_login argocd
+    argocd app get terra-scale --output json |
+        jq '[ .spec.source.helm.parameters[] | select(.name | test("terraScale.karpenterInstanceTypes")) ] | length' |
+        xargs -I{} argocd app set serenditree --parameter terraScale.parameters.karpenterInstanceType[{}]="$_type"
+
+}
+
 # Prints certificate information.
 function sc_cluster_certificate() {
     local -r _cert="lets-encrypt-${_ST_ISSUER}"
