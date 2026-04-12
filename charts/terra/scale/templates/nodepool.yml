@@ -19,6 +19,8 @@ spec:
           operator: In
           values:
              {{- .Values.terraScale.karpenterInstanceTypes | toYaml | nindent 16 }}
+        - key: "topology.csi.exoscale.com/zone"
+          operator: Exists
       expireAfter: Never
       startupTaints:
         - key: node.cilium.io/agent-not-ready
