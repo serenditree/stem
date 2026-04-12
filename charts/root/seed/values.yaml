@@ -77,7 +77,7 @@ opensearch:
       - repository-s3
   keystore:
     - secretName: root-seed
-  antiAffinity: soft
+  antiAffinity: hard
   #nodeAffinity:
   #  requiredDuringSchedulingIgnoredDuringExecution:
   #    nodeSelectorTerms:
