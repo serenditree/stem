@@ -58,8 +58,8 @@ variable "auto_scaler" {
   type        = string
   default     = ""
   validation {
-    condition     = contains(["karpenter", "cluster-autoscaler", ""], var.auto_scaler)
-    error_message = "Valid values for auto_scaler: {karpenter, cluster-autoscaler, \"\"}."
+    condition     = contains(["karpenter", "autoscaler", ""], var.auto_scaler)
+    error_message = "Valid values for auto_scaler: {karpenter, autoscaler, \"\"}."
   }
 }
 

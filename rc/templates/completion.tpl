@@ -42,6 +42,9 @@ function _sc_completion() {
     registry)
         COMPREPLY=($(compgen -W "info scan age" -- "$_current"))
         ;;
+    --scale)
+        COMPREPLY=($(compgen -W "karpenter autoscaler" -- "$_current"))
+        ;;
     *)
         if [[ "$_previous" == "sc" ]]; then
             COMPREPLY=($(compgen -W "$_local cluster help $_long $_short" -- "$_current"))

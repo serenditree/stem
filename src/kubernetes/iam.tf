@@ -158,7 +158,7 @@ resource "terraform_data" "serenditree_traces" {
 # Scaler
 ########################################################################################################################
 resource "exoscale_iam_role" "serenditree_scaler" {
-  count = var.auto_scaler == "cluster-autoscaler" ? 1 : 0
+  count = var.auto_scaler == "autoscaler" ? 1 : 0
 
   name        = "serenditree-scaler"
   description = "Role that allows SKS autoscaling."
@@ -189,14 +189,14 @@ resource "exoscale_iam_role" "serenditree_scaler" {
 }
 
 resource "exoscale_iam_api_key" "serenditree_scaler" {
-  count = var.auto_scaler == "cluster-autoscaler" ? 1 : 0
+  count = var.auto_scaler == "autoscaler" ? 1 : 0
 
   name    = "serenditree-scaler"
   role_id = exoscale_iam_role.serenditree_scaler[count.index].id
 }
 
 resource "terraform_data" "serenditree_scaler" {
-  count = var.auto_scaler == "cluster-autoscaler" ? 1 : 0
+  count = var.auto_scaler == "autoscaler" ? 1 : 0
 
   provisioner "local-exec" {
     command = "./src/post-iam.sh"

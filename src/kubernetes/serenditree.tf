@@ -56,7 +56,7 @@ resource "helm_release" "serenditree" {
       },
       {
         name  = "terraScale.enabled"
-        value = contains(["karpenter", "cluster-autoscaler"], var.auto_scaler) ? "true" : "false"
+        value = contains(["karpenter", "autoscaler"], var.auto_scaler) ? "true" : "false"
       },
       {
         name  = "terraScale.parameters.karpenter"
@@ -64,7 +64,7 @@ resource "helm_release" "serenditree" {
       },
       {
         name  = "terraScale.parameters.clusterAutoscaler"
-        value = var.auto_scaler == "cluster-autoscaler" ? "true" : "false"
+        value = var.auto_scaler == "autoscaler" ? "true" : "false"
       },
       {
         name  = "terraScale.parameters.securityGroup"
