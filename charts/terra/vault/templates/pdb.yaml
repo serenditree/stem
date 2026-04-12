@@ -7,4 +7,4 @@ spec:
   minAvailable: 1 # Avoid sealing (karpenter)!
   selector:
     matchLabels:
-      app.kubernetes.io/name: openbao
+      app.kubernetes.io/instance: terra-vault
