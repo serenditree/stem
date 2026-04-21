@@ -43,7 +43,7 @@ function _sc_completion() {
         COMPREPLY=($(compgen -W "info scan age" -- "$_current"))
         ;;
     --scale)
-        COMPREPLY=($(compgen -W "karpenter autoscaler" -- "$_current"))
+        COMPREPLY=($(compgen -W "karpenter karpenter-only autoscaler" -- "$_current"))
         ;;
     *)
         if [[ "$_previous" == "sc" ]]; then

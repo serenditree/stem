@@ -56,11 +56,11 @@ resource "helm_release" "serenditree" {
       },
       {
         name  = "terraScale.enabled"
-        value = contains(["karpenter", "autoscaler"], var.auto_scaler) ? "true" : "false"
+        value = contains(["karpenter", "karpenter-only", "autoscaler"], var.auto_scaler) ? "true" : "false"
       },
       {
         name  = "terraScale.parameters.karpenter"
-        value = var.auto_scaler == "karpenter" ? "true" : "false"
+        value = startswith(var.auto_scaler, "karpenter")
       },
       {
         name  = "terraScale.parameters.clusterAutoscaler"
@@ -115,7 +115,7 @@ resource "helm_release" "serenditree" {
         value = var.zone_storage_1
       }
     ],
-    var.auto_scaler == "karpenter" ? [] : [
+    var.auto_scaler != "autoscaler" ? [] : [
       for index, name in keys(var.compute_nodes) : {
         name  = "terraScale.parameters.autoscalingGroupNames[${index}]"
         value = exoscale_sks_nodepool.serenditree[name].id

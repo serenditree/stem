@@ -25,7 +25,7 @@ resource "terraform_data" "pre_bootstrap" {
 # Karpenter
 ########################################################################################################################
 resource "helm_release" "terra_scale" {
-  count = var.auto_scaler == "karpenter" ? 1 : 0
+  count = var.auto_scaler == "karpenter-only" ? 1 : 0
 
   name          = "terra-scale"
   chart         = "${var.charts}/terra/scale"
@@ -39,6 +39,10 @@ resource "helm_release" "terra_scale" {
   set = [
     {
       name  = "terraScale.karpenter"
+      value = "true"
+    },
+    {
+      name  = "terraScale.karpenterBaseline"
       value = "true"
     },
     {

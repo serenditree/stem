@@ -53,7 +53,7 @@ resource "exoscale_sks_cluster" "serenditree" {
   exoscale_ccm      = true
   metrics_server    = true
   enable_kube_proxy = var.cni == "" ? false : true
-  enable_karpenter  = var.auto_scaler == "karpenter" ? true : false
+  enable_karpenter  = startswith(var.auto_scaler, "karpenter")
 }
 ########################################################################################################################
 # Kubeconfig
@@ -76,7 +76,7 @@ resource "local_sensitive_file" "serenditree_kubeconfig_file" {
 # Compute nodes
 ########################################################################################################################
 resource "exoscale_sks_nodepool" "serenditree" {
-  for_each = { for k, v in var.compute_nodes : k => v if var.auto_scaler != "karpenter" } # Keep type when empty
+  for_each = { for k, v in var.compute_nodes : k => v if var.auto_scaler != "karpenter-only" } # Keep type when empty
 
   zone            = var.zone_compute_1
   cluster_id      = exoscale_sks_cluster.serenditree.id

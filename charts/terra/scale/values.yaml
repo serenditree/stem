@@ -6,7 +6,7 @@ global:
 terraScale:
   enabled: ~
   karpenter: ~
-  karpenterBaseline: true
+  karpenterBaseline: false
   karpenterBaselineName: terra-scale-baseline
   karpenterReplicas: false
   karpenterInstanceTypes:
