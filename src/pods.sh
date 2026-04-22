@@ -120,24 +120,28 @@ function sc_pod_down_sub() {
 }
 export -f sc_pod_down_sub
 
-# Stops and removes all or defined containers/services. In case of "all", the pod will be removed too.
+# Stops and removes all or defined containers/services.
 # $*: Optional list of services.
 function sc_pod_down() {
     local -r _containers=$(sc_args_to_pattern "$*")
-
-    [[ -n "$_ARG_ALL" ]] && sc_heading 1 "Shutting pod down..."
 
     if podman pod exists $_ST_POD; then
         podman container ls --filter label=serenditree.io/service --all --format '{{.Names}}' |
             grep -E "${_containers}" |
             xargs -I{} -P0 bash -c 'sc_pod_down_sub {}'
 
-        if [ -z "$*" ]; then
+        if [[ -z "$*" ]]; then
             echo -n "Removing pod..."
             podman pod rm --force $_ST_POD >/dev/null && echo "${_BOLD}done${_NORMAL}"
         fi
     else
         echo "Nothing to shut down."
+    fi
+
+    local -r _container=opensearch-dashboards
+    if test -z "$*" && podman ps --filter label=serenditree.io/service=$_container | grep -q $_container; then
+        echo -n "Stopping ${_container}..."
+        podman container stop $_container >/dev/null && echo "${_BOLD}done${_NORMAL}"
     fi
 }
 

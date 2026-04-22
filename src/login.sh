@@ -74,7 +74,19 @@ function sc_login() {
 }
 export -f sc_login
 
-# Opens a database console
+# Opens a psql console
+# $1: connection string
+function sc_login_psql() {
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --network host \
+        "$_ST_FROM_ROOT_USER" \
+        psql "$1"
+}
+
+# Opens a database interface
 # $1: local or cluster context
 # $2: database
 function sc_login_db() {
@@ -87,28 +99,43 @@ function sc_login_db() {
             kubectl --namespace serenditree port-forward svc/root-user 5432:5432 &
             local -r _pid=$!
             if [[ -z "$_ARG_EXPOSE" ]]; then
-                local -r _username=$(pass serenditree/app/rootUser.parameters.db.user)
-                local -r _password=$(pass serenditree/app/rootUser.parameters.db.password)
-                psql "postgresql://${_username}:${_password}@localhost:5432/serenditree"
+                local -r _username=$(pass serenditree/app/rootUser.db.user)
+                local -r _password=$(pass serenditree/app/rootUser.db.password)
+                sc_login_psql "postgresql://${_username}:${_password}@localhost:5432/serenditree"
                 kill $_pid
             fi
         else
-            psql "postgresql://${_username}:${_password}@localhost:8085/serenditree"
+            sc_login_psql "postgresql://user:user@localhost:8085/serenditree"
         fi
         ;;
     seed)
         if [[ "$_ctx" == "cluster" ]]; then
-            kubectl --namespace serenditree port-forward svc/root-seed 9200:9200 &
+            kubectl --namespace serenditree port-forward svc/root-seed 9200:9200 &>/dev/null &
+            local -r _container=opensearch-dashboards
+            if podman container exists $_container; then
+                podman container start $_container
+            else
+                podman run \
+                    --detach \
+                    --name $_container \
+                    --network host \
+                    --label serenditree.io/service=$_container \
+                    --volume ${_container}:/usr/share/opensearch-dashboards/data \
+                    --env OPENSEARCH_HOSTS=http://localhost:9200 \
+                    --env DISABLE_SECURITY_DASHBOARDS_PLUGIN=true \
+                    docker.io/opensearchproject/${_container}:3
+            fi
+            echo "http://localhost:5601/app/dev_tools#/console"
         fi
         ;;
     trace*)
         if [[ "$_ctx" == "cluster" ]]; then
-            kubectl --namespace terra-traces port-forward svc/metastore 5433:5432 &
+            kubectl --namespace terra-traces port-forward svc/metastore-rw 5433:5432 &
             local -r _pid=$!
             if [[ -z "$_ARG_EXPOSE" ]]; then
                 local -r _username=$(pass serenditree/o11y/terraTraces.metastore.username)
                 local -r _password=$(pass serenditree/o11y/terraTraces.metastore.password)
-                psql "postgresql://${_username}:${_password}@localhost:5433/metastore"
+                sc_login_psql "postgresql://${_username}:${_password}@localhost:5433/metastore"
                 kill $_pid
             fi
         else
