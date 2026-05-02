@@ -15,6 +15,10 @@ spec:
         port: 9092
         type: internal
         tls: false
+    logging:
+      type: inline
+      loggers:
+        rootLogger.level: WARN
     jvmOptions:
       "-Xms": 500M
       "-Xmx": 500M
@@ -68,10 +72,6 @@ spec:
             value: "root"
             operator: Equal
             effect: NoSchedule
-  logging:
-    type: inline
-    loggers:
-      rootLogger.level: WARN
   entityOperator:
     topicOperator: { }
     userOperator: { }
