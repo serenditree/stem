@@ -8,11 +8,11 @@ appVersion: 0.0.1
 dependencies:
   - name: valkey
     repository: https://valkey.io/valkey-helm
-    version: 0.9.3
+    version: 0.9.4
     condition: terraCache.valkey
   - name: dragonfly
     repository: oci://ghcr.io/dragonflydb/dragonfly/helm
-    version: v1.37.2
+    version: v1.38.0
     condition: terraCache.dragonfly
   - name: commons
     repository: oci://quay.io/serenditree/charts

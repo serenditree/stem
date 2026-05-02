@@ -21,8 +21,8 @@ metadata:
   labels:
     app.kubernetes.io/instance: default
     app.kubernetes.io/part-of: tekton-pipelines
-    pipeline.tekton.dev/release: "v1.9.1"
-    version: "v1.9.1"
+    pipeline.tekton.dev/release: "v1.9.2"
+    version: "v1.9.2"
     app.kubernetes.io/managed-by: Helm
   annotations:
     meta.helm.sh/release-name: terra-tekton
@@ -860,8 +860,8 @@ metadata:
   labels:
     app.kubernetes.io/instance: default
     app.kubernetes.io/part-of: tekton-pipelines
-    pipeline.tekton.dev/release: "v1.9.1"
-    version: "v1.9.1"
+    pipeline.tekton.dev/release: "v1.9.2"
+    version: "v1.9.2"
     app.kubernetes.io/managed-by: Helm
   annotations:
     meta.helm.sh/release-name: terra-tekton
@@ -6077,8 +6077,8 @@ metadata:
   labels:
     app.kubernetes.io/instance: default
     app.kubernetes.io/part-of: tekton-pipelines
-    pipeline.tekton.dev/release: "v1.9.1"
-    version: "v1.9.1"
+    pipeline.tekton.dev/release: "v1.9.2"
+    version: "v1.9.2"
     app.kubernetes.io/managed-by: Helm
   annotations:
     meta.helm.sh/release-name: terra-tekton
@@ -7788,8 +7788,8 @@ metadata:
   labels:
     app.kubernetes.io/instance: default
     app.kubernetes.io/part-of: tekton-pipelines
-    pipeline.tekton.dev/release: "v1.9.1"
-    version: "v1.9.1"
+    pipeline.tekton.dev/release: "v1.9.2"
+    version: "v1.9.2"
     app.kubernetes.io/managed-by: Helm
   annotations:
     meta.helm.sh/release-name: terra-tekton
@@ -8871,8 +8871,8 @@ metadata:
   labels:
     app.kubernetes.io/instance: default
     app.kubernetes.io/part-of: tekton-pipelines
-    pipeline.tekton.dev/release: "v1.9.1"
-    version: "v1.9.1"
+    pipeline.tekton.dev/release: "v1.9.2"
+    version: "v1.9.2"
     app.kubernetes.io/managed-by: Helm
   annotations:
     meta.helm.sh/release-name: terra-tekton
@@ -15779,8 +15779,8 @@ metadata:
   labels:
     app.kubernetes.io/instance: default
     app.kubernetes.io/part-of: tekton-pipelines
-    pipeline.tekton.dev/release: "v1.9.1"
-    version: "v1.9.1"
+    pipeline.tekton.dev/release: "v1.9.2"
+    version: "v1.9.2"
     app.kubernetes.io/managed-by: Helm
   annotations:
     meta.helm.sh/release-name: terra-tekton
@@ -22736,8 +22736,8 @@ metadata:
   labels:
     app.kubernetes.io/instance: default
     app.kubernetes.io/part-of: tekton-pipelines
-    pipeline.tekton.dev/release: "v1.9.1"
-    version: "v1.9.1"
+    pipeline.tekton.dev/release: "v1.9.2"
+    version: "v1.9.2"
     app.kubernetes.io/managed-by: Helm
   annotations:
     meta.helm.sh/release-name: terra-tekton

@@ -1,6 +1,6 @@
 {{- with .Values.kafka }}
 ---
-apiVersion: kafka.strimzi.io/v1beta2
+apiVersion: kafka.strimzi.io/v1
 kind: KafkaNodePool
 metadata:
   name: {{ .name }}
@@ -17,8 +17,14 @@ spec:
       - id: 0
         type: persistent-claim
         size: {{ .storage }}Gi
-        deleteClaim: false
         kraftMetadata: shared
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+      cpu: 200m
+      memory: 512Mi
   template:
     persistentVolumeClaim:
       metadata:
