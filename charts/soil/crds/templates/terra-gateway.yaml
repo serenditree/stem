@@ -15066,6 +15066,9 @@ spec:
                                         - none
                                         - lax
                                         - strict
+                                        - None
+                                        - Lax
+                                        - Strict
                                       type: string
                                     secure:
                                       description: Secure defines whether the cookie can only be transmitted over an encrypted connection (i.e. HTTPS).
@@ -15987,6 +15990,9 @@ spec:
                                     - none
                                     - lax
                                     - strict
+                                    - None
+                                    - Lax
+                                    - Strict
                                   type: string
                                 secure:
                                   description: Secure defines whether the cookie can only be transmitted over an encrypted connection (i.e. HTTPS).
@@ -16107,7 +16113,10 @@ spec:
                           type: boolean
                       type: object
                     trustForwardHeader:
-                      description: 'TrustForwardHeader defines whether to trust (ie: forward) all X-Forwarded-* headers.'
+                      description: |-
+                        TrustForwardHeader defines whether to trust (ie: forward) all X-Forwarded-* headers.
+
+                        Deprecated: Use forwardedHeaders.trustedIPs at the EntryPoint level instead, and set trustForwardHeader to true on this middleware.
                       type: boolean
                   type: object
                 grpcWeb:
@@ -17570,6 +17579,9 @@ spec:
                                       - none
                                       - lax
                                       - strict
+                                      - None
+                                      - Lax
+                                      - Strict
                                     type: string
                                   secure:
                                     description: Secure defines whether the cookie can only be transmitted over an encrypted connection (i.e. HTTPS).
@@ -17872,6 +17884,9 @@ spec:
                                       - none
                                       - lax
                                       - strict
+                                      - None
+                                      - Lax
+                                      - Strict
                                     type: string
                                   secure:
                                     description: Secure defines whether the cookie can only be transmitted over an encrypted connection (i.e. HTTPS).
@@ -18010,6 +18025,9 @@ spec:
                                 - none
                                 - lax
                                 - strict
+                                - None
+                                - Lax
+                                - Strict
                               type: string
                             secure:
                               description: Secure defines whether the cookie can only be transmitted over an encrypted connection (i.e. HTTPS).
@@ -18224,6 +18242,9 @@ spec:
                                       - none
                                       - lax
                                       - strict
+                                      - None
+                                      - Lax
+                                      - Strict
                                     type: string
                                   secure:
                                     description: Secure defines whether the cookie can only be transmitted over an encrypted connection (i.e. HTTPS).
@@ -18291,6 +18312,9 @@ spec:
                                 - none
                                 - lax
                                 - strict
+                                - None
+                                - Lax
+                                - Strict
                               type: string
                             secure:
                               description: Secure defines whether the cookie can only be transmitted over an encrypted connection (i.e. HTTPS).
