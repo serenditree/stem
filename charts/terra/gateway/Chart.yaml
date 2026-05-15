@@ -8,11 +8,11 @@ appVersion: 0.0.1
 dependencies:
   - name: gateway-helm
     repository: oci://docker.io/envoyproxy
-    version: v1.7.2
+    version: v1.8.0
     condition: terraGateway.envoy
   - name: traefik
     repository: https://traefik.github.io/charts
-    version: 39.0.9
+    version: 40.2.0
     condition: terraGateway.traefik
   - name: commons
     repository: oci://quay.io/serenditree/charts
