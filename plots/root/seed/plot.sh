@@ -58,6 +58,7 @@ elif [[ " $* " =~ " up " ]] && [[ -z "$_ST_CONTEXT_CLUSTER" ]]; then
         --health-retries 1 \
         --ulimit nproc=$(ulimit -u) \
         --ulimit nofile=$(ulimit -n) \
+        --ulimit memlock=-1 \
         --detach \
         ${_IMAGE}:${_TAG}
 
