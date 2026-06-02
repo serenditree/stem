@@ -4,6 +4,12 @@ cilium:
   kubeProxyReplacement: true
   k8sServiceHost: ~
   k8sServicePort: 443
+  ipv6:
+    enabled: false
+  ipam:
+    operator:
+      clusterPoolIPv4PodCIDRList:
+        - "192.168.0.0/16"
   resources:
      requests:
        cpu: 100m
@@ -11,6 +17,8 @@ cilium:
      limits:
        cpu: 500m
        memory: 500Mi
+  cgroup:
+    hostRoot: /sys/fs/cgroup
   encryption:
     enabled: true
     type: ipsec
