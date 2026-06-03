@@ -63,6 +63,16 @@ resource "exoscale_security_group_rule" "cilium_vxlan" {
   end_port               = 8472
 }
 
+resource "exoscale_security_group_rule" "cilium_wireguard" {
+  count                  = var.cni == "cilium" || var.cni == "" ? 1 : 0
+  security_group_id      = exoscale_security_group.serenditree.id
+  user_security_group_id = exoscale_security_group.serenditree.id
+  type                   = "INGRESS"
+  protocol               = "UDP"
+  start_port             = 51871
+  end_port               = 51871
+}
+
 resource "exoscale_security_group_rule" "cilium_hubble" {
   count                  = var.cni == "cilium" || var.cni == "" ? 1 : 0
   security_group_id      = exoscale_security_group.serenditree.id

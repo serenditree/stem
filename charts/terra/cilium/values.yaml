@@ -1,6 +1,8 @@
 cilium:
   cluster:
     name: ~
+  routingMode: tunnel
+  tunnelProtocol: vxlan
   kubeProxyReplacement: true
   k8sServiceHost: ~
   k8sServicePort: 443
@@ -17,14 +19,17 @@ cilium:
      limits:
        cpu: 500m
        memory: 500Mi
-  cgroup:
-    hostRoot: /sys/fs/cgroup
   encryption:
     enabled: true
-    type: ipsec
-    ipsec:
-      secretName: cilium-ipsec-key
-      keyFile: key
+    type: wireguard
+    nodeEncryption: true
+    strictMode:
+      egress:
+        enabled: true
+        cidr: "192.168.0.0/16"
+        allowRemoteNodeIdentities: true
+      ingress:
+        enabled: true
   envoy:
     enabled: true
     resources:
