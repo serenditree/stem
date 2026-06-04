@@ -9,11 +9,5 @@ kubectl patch storageclass exoscale-sbs \
 # Install CRDs
 ########################################################################################################################
 kubectl apply --server-side --filename "$CRDS"
-########################################################################################################################
-# Create IPsec secret
-########################################################################################################################
-if [[ -z "$CNI" ]]; then
-    kubectl create secret generic cilium-ipsec-key \
-        --from-literal key="3+ rfc4106(gcm(aes)) $(openssl rand -hex 20) 128" \
-        --namespace kube-system
-fi
+kubectl apply --server-side --filename \
+    https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.5.0/standard-install.yaml
