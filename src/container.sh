@@ -148,6 +148,7 @@ function sc_image_config_commit() {
         --env SERENDITREE_VERSION=$_version \
         --env SERENDITREE_ORDINAL=$_ordinal \
         --env SERENDITREE_STAGE=$_ST_STAGE \
+        --env SERENDITREE_BUILD="$(date --iso-8601=seconds)" \
         $_reference
 
     sc_image_commit "$_image" "$_tag" "$_reference" "$_platform_config"
