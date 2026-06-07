@@ -20,8 +20,8 @@ spec:
       loggers:
         rootLogger.level: WARN
     jvmOptions:
-      "-Xms": 500M
-      "-Xmx": 500M
+      "-Xms": 512M
+      "-Xmx": 512M
     config:
       default.replication.factor: {{ .replicationFactor }}
       log.retention.bytes: {{ mulf (div (mul .storage 1000000000) (mul (len .topics) .partitions .replicationFactor)) 0.8 | int }}
