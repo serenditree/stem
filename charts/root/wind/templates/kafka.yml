@@ -18,7 +18,7 @@ spec:
     logging:
       type: inline
       loggers:
-        rootLogger.level: WARN
+        kafka.root.logger.level: WARN
     jvmOptions:
       "-Xms": 512M
       "-Xmx": 512M
@@ -73,6 +73,14 @@ spec:
             operator: Equal
             effect: NoSchedule
   entityOperator:
-    topicOperator: { }
-    userOperator: { }
+    topicOperator:
+      logging:
+        type: inline
+        loggers:
+          rootLogger.level: "WARN"
+    userOperator:
+      logging:
+        type: inline
+        loggers:
+          rootLogger.level: "WARN"
 {{- end }}
