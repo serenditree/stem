@@ -18,7 +18,13 @@ spec:
     logging:
       type: inline
       loggers:
-        kafka.root.logger.level: WARN
+        rootLogger.level: WARN
+        logger.kafka.level: WARN
+        logger.orgapachekafka.level: WARN
+        logger.controller.level: WARN
+        logger.logcleaner.level: WARN
+        logger.statechange.level: WARN
+        logger.authorizer.level: WARN
     jvmOptions:
       "-Xms": 512M
       "-Xmx": 512M
