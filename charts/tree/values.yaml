@@ -74,7 +74,7 @@ terraSQL:
     plugins:
       barman:
         repoUrl: https://github.com/cloudnative-pg/plugin-barman-cloud
-        targetRevision: v0.12.0
+        targetRevision: v0.13.0
 terraStreams:
   enabled: true
   wave: 2
