@@ -148,21 +148,21 @@ spec:
                           type: object
                         maxRetries:
                           default: 3
-                          description: MaxRetries defines the number of retries for introspection requests.
+                          description: MaxRetries defines the maximum number of retry attempts for failed requests.
                           type: integer
                         timeoutSeconds:
                           default: 5
                           description: TimeoutSeconds configures the maximum amount of seconds to wait before giving up on requests.
                           type: integer
                         tls:
-                          description: TLS configures TLS communication with the Authorization Server.
+                          description: TLS configures TLS for the HTTP client.
                           properties:
                             ca:
-                              description: CA sets the CA bundle used to sign the Authorization Server certificate.
+                              description: CA sets the CA bundle used to verify the server certificate.
                               type: string
                             insecureSkipVerify:
                               description: |-
-                                InsecureSkipVerify skips the Authorization Server certificate validation.
+                                InsecureSkipVerify skips the server certificate validation.
                                 For testing purposes only, do not use in production.
                               type: boolean
                           type: object
@@ -779,6 +779,30 @@ spec:
                         AppIDClaim is the name of the claim holding the identifier of the application.
                         This field is sometimes named `client_id`.
                       type: string
+                    clientConfig:
+                      description: ClientConfig configures the HTTP client used to fetch the JWKS from the JWKS URL or the trusted issuers.
+                      properties:
+                        maxRetries:
+                          default: 3
+                          description: MaxRetries defines the maximum number of retry attempts for failed requests.
+                          type: integer
+                        timeoutSeconds:
+                          default: 5
+                          description: TimeoutSeconds configures the maximum amount of seconds to wait before giving up on requests.
+                          type: integer
+                        tls:
+                          description: TLS configures TLS for the HTTP client.
+                          properties:
+                            ca:
+                              description: CA sets the CA bundle used to verify the server certificate.
+                              type: string
+                            insecureSkipVerify:
+                              description: |-
+                                InsecureSkipVerify skips the server certificate validation.
+                                For testing purposes only, do not use in production.
+                              type: boolean
+                          type: object
+                      type: object
                     forwardHeaders:
                       additionalProperties:
                         type: string
@@ -1816,6 +1840,30 @@ spec:
                       required:
                         - groups
                       type: object
+                    clientConfig:
+                      description: ClientConfig configures the HTTP client used to communicate with the OIDC provider.
+                      properties:
+                        maxRetries:
+                          default: 3
+                          description: MaxRetries defines the maximum number of retry attempts for failed requests.
+                          type: integer
+                        timeoutSeconds:
+                          default: 5
+                          description: TimeoutSeconds configures the maximum amount of seconds to wait before giving up on requests.
+                          type: integer
+                        tls:
+                          description: TLS configures TLS for the HTTP client.
+                          properties:
+                            ca:
+                              description: CA sets the CA bundle used to verify the server certificate.
+                              type: string
+                            insecureSkipVerify:
+                              description: |-
+                                InsecureSkipVerify skips the server certificate validation.
+                                For testing purposes only, do not use in production.
+                              type: boolean
+                          type: object
+                      type: object
                     issuerUrl:
                       description: IssuerURL is the OIDC provider issuer URL.
                       type: string
@@ -2471,6 +2519,10 @@ spec:
                           rule: self.startsWith('/')
                         - message: cannot contains '../'
                           rule: '!self.matches(r"""(\/\.\.\/)|(\/\.\.$)""")'
+                    refreshInterval:
+                      description: RefreshInterval defines the rate at which the OpenAPI specification is refreshed.
+                      format: duration
+                      type: string
                     url:
                       description: |-
                         URL is a Traefik Hub agent accessible URL for obtaining the OpenAPI specification.
@@ -2772,6 +2824,10 @@ spec:
                           rule: self.startsWith('/')
                         - message: cannot contains '../'
                           rule: '!self.matches(r"""(\/\.\.\/)|(\/\.\.$)""")'
+                    refreshInterval:
+                      description: RefreshInterval defines the rate at which the OpenAPI specification is refreshed.
+                      format: duration
+                      type: string
                     url:
                       description: |-
                         URL is a Traefik Hub agent accessible URL for obtaining the OpenAPI specification.

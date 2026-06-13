@@ -12,7 +12,7 @@ dependencies:
     condition: terraCache.valkey
   - name: dragonfly
     repository: oci://ghcr.io/dragonflydb/dragonfly/helm
-    version: v1.38.0
+    version: v1.39.0
     condition: terraCache.dragonfly
   - name: commons
     repository: oci://quay.io/serenditree/charts
