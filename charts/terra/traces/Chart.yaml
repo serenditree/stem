@@ -7,7 +7,7 @@ appVersion: 0.0.1
 dependencies:
   - name: quickwit
     repository: https://helm.quickwit.io
-    version: 0.8.4
+    version: 0.8.5
   - name: commons
     repository: oci://quay.io/serenditree/charts
     version: 0.0.1

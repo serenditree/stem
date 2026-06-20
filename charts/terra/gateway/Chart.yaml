@@ -12,7 +12,7 @@ dependencies:
     condition: terraGateway.envoy
   - name: traefik
     repository: https://traefik.github.io/charts
-    version: 40.3.0
+    version: 41.0.0
     condition: terraGateway.traefik
   - name: commons
     repository: oci://quay.io/serenditree/charts
