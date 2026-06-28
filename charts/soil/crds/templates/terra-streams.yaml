@@ -95,6 +95,7 @@ spec:
                             enum:
                               - internal
                               - route
+                              - tlsroute
                               - loadbalancer
                               - nodeport
                               - ingress
@@ -119,7 +120,7 @@ spec:
                                   - tls
                                   - scram-sha-512
                                   - custom
-                                description: "Authentication type. `oauth` type uses SASL OAUTHBEARER Authentication. `scram-sha-512` type uses SASL SCRAM-SHA-512 Authentication. `tls` type uses TLS Client Authentication. `tls` type is supported only on TLS listeners. `custom` type allows for any authentication type to be used. As of Strimzi 0.49.0, `oauth` type is deprecated and will be removed in the `v1` API version. Please use `custom` type instead."
+                                description: Authentication type. `scram-sha-512` type uses SASL SCRAM-SHA-512 Authentication. `tls` type uses TLS Client Authentication. `tls` type is supported only on TLS listeners. `custom` type allows for any authentication type to be used.
                             required:
                               - type
                             description: Authentication configuration for this listener.
@@ -309,6 +310,16 @@ spec:
                               publishNotReadyAddresses:
                                 type: boolean
                                 description: Configures whether the service endpoints are considered "ready" even if the Pods themselves are not. Defaults to `false`. This field can not be used with `internal` listeners.
+                              perBrokerAnnotationsTemplate:
+                                additionalProperties:
+                                  type: string
+                                type: object
+                                description: "Configures the template used to generate annotations for individual brokers. You can use the `{nodeId}` and `{nodePodName}` placeholders in annotation values. Templating applies only to annotation values."
+                              perBrokerLabelsTemplate:
+                                additionalProperties:
+                                  type: string
+                                type: object
+                                description: "Configures the template used to generate labels for individual brokers. You can use the `{nodeId}` and `{nodePodName}` placeholders in label values. Templating applies only to label values."
                               hostTemplate:
                                 type: string
                                 description: "Configures the template for generating the hostnames of the individual brokers. Valid placeholders that you can use in the template are `{nodeId}` and `{nodePodName}`."
@@ -324,6 +335,27 @@ spec:
                                   Configures whether to allocate NodePort automatically for the `Service` with type `LoadBalancer`.
                                   This is a one to one with the `spec.allocateLoadBalancerNodePorts` configuration in the `Service` type
                                   For `loadbalancer` listeners only.
+                              parentRefs:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    kind:
+                                      type: string
+                                    group:
+                                      type: string
+                                    name:
+                                      type: string
+                                    namespace:
+                                      type: string
+                                    port:
+                                      type: integer
+                                    sectionName:
+                                      type: string
+                                description: |-
+                                  For `tlsroute` listeners only.
+                                  Configures the Gateway API resource or resources that generated `TLSRoute` resources attach to.
+                                  Typically, this is a `Gateway` resource.
                             description: Additional listener configuration.
                           networkPolicyPeers:
                             type: array
@@ -409,7 +441,7 @@ spec:
                           enum:
                             - simple
                             - custom
-                          description: "Authorization type. Currently, the supported types are `simple`, `keycloak`, `opa` and `custom`. `simple` authorization type uses Kafka's built-in authorizer for authorization. `keycloak` authorization type uses Keycloak Authorization Services for authorization. `opa` authorization type uses Open Policy Agent based authorization. `custom` authorization type uses user-provided implementation for authorization. `opa` (as of Strimzi 0.46.0) and `keycloak` (as of Strimzi 0.49.0) types are deprecated and will be removed in the `v1` API version. Please use `custom` type instead."
+                          description: "Authorization type. Currently, the supported types are `simple` and `custom`. `simple` authorization type uses Kafka's built-in authorizer for authorization. `custom` authorization type uses user-provided implementation for authorization."
                       required:
                         - type
                       description: Authorization configuration for Kafka brokers.
@@ -5679,7 +5711,7 @@ spec:
                   description: The Kafka Connect version. Defaults to the latest version. Consult the user documentation to understand the process required to upgrade or downgrade the version.
                 replicas:
                   type: integer
-                  description: The number of pods in the Kafka Connect group. Required in the `v1` version of the Strimzi API. Defaults to `3` in the `v1beta2` version of the Strimzi API.
+                  description: The number of pods in the Kafka Connect group. Required in the `v1` version of the Strimzi API.
                 image:
                   type: string
                   description: "The container image used for Kafka Connect pods. If no image name is explicitly specified, it is determined based on the `spec.version` configuration. The image names are specifically mapped to corresponding versions in the Cluster Operator configuration."
@@ -5776,7 +5808,7 @@ spec:
                         - scram-sha-512
                         - plain
                         - custom
-                      description: "Specifies the authentication type. Supported types are `tls`, `scram-sha-256`, `scram-sha-512`, `plain`, 'oauth', and `custom`. `tls` uses TLS client authentication and is supported only over TLS connections. `scram-sha-256` and `scram-sha-512` use SASL SCRAM-SHA-256 and SASL SCRAM-SHA-512 authentication, respectively. `plain` uses SASL PLAIN authentication. `oauth` uses SASL OAUTHBEARER authentication. `custom` allows you to configure a custom authentication mechanism. As of Strimzi 0.49.0, `oauth` type is deprecated and will be removed in the `v1` API version. Please use `custom` type instead."
+                      description: "Specifies the authentication type. Supported types are `tls`, `scram-sha-256`, `scram-sha-512`, `plain`, and `custom`. `tls` uses TLS client authentication and is supported only over TLS connections. `scram-sha-256` and `scram-sha-512` use SASL SCRAM-SHA-256 and SASL SCRAM-SHA-512 authentication, respectively. `plain` uses SASL PLAIN authentication. `custom` allows you to configure a custom authentication mechanism."
                     username:
                       type: string
                       description: Username used for the authentication.
@@ -6012,7 +6044,7 @@ spec:
                       type: string
                       enum:
                         - opentelemetry
-                      description: "Type of the tracing used. Currently the only supported type is `opentelemetry` for OpenTelemetry tracing. As of Strimzi 0.37.0, `jaeger` type is not supported anymore and this option is ignored."
+                      description: Type of the tracing used. Currently the only supported type is `opentelemetry` for OpenTelemetry tracing.
                   required:
                     - type
                   description: The configuration of tracing in Kafka Connect.
@@ -7999,6 +8031,15 @@ spec:
                                 group:
                                   type: string
                                   description: Maven group id. Applicable to the `maven` artifact type only.
+                                includeScope:
+                                  type: string
+                                  enum:
+                                    - compile
+                                    - provided
+                                    - runtime
+                                    - test
+                                    - system
+                                  description: "Maven scope for including dependencies for the artifact. Valid values are `compile`, `provided`, `runtime`, `test`, and `system`. When not configured, no scope is set, and all dependencies are included. Applicable to the `maven` artifact type only."
                                 insecure:
                                   type: boolean
                                   description: "By default, connections using TLS are verified to check they are secure. The server certificate used must be valid, trusted, and contain the server name. By setting this option to `true`, all TLS verification is disabled and the artifact will be downloaded, even when the server is considered insecure."
@@ -8531,6 +8572,10 @@ spec:
                       required:
                         - valueFrom
                       description: "Specify the password for the user. If not set, a new password is generated by the User Operator."
+                    renewalDays:
+                      type: integer
+                      minimum: 1
+                      description: "Number of days before certificate expiration when the user certificate is renewed. Both this property and `validityDays` must be configured together.The value must be greater than 0 and less than `validityDays`.If not configured, the Clients CA configuration is used."
                     type:
                       type: string
                       enum:
@@ -8538,9 +8583,20 @@ spec:
                         - tls-external
                         - scram-sha-512
                       description: Authentication type.
+                    validityDays:
+                      type: integer
+                      minimum: 1
+                      description: "Number of days for which the user certificate is valid. Both this property and `renewalDays` must be configured together.The value must be greater than 0 and greater than `renewalDays`.If not configured, the Clients CA configuration is used."
                   required:
                     - type
                   description: "Authentication mechanism enabled for this Kafka user. The supported authentication mechanisms are `scram-sha-512`, `tls`, and `tls-external`. \n\n* `scram-sha-512` generates a secret with SASL SCRAM-SHA-512 credentials.\n* `tls` generates a secret with user certificate for mutual TLS authentication.\n* `tls-external` does not generate a user certificate.   But prepares the user for using mutual TLS authentication using a user certificate generated outside the User Operator.\n  ACLs and quotas set for this user are configured in the `CN=<username>` format.\n\nAuthentication is optional. If authentication is not configured, no credentials are generated. ACLs and quotas set for the user are configured in the `<username>` format suitable for SASL authentication."
+                  x-kubernetes-validations:
+                    - rule: self.type == 'tls' || (!has(self.validityDays) && !has(self.renewalDays))
+                      message: "'validityDays' and 'renewalDays' can be configured only with 'type: tls'"
+                    - rule: self.type != 'tls' || (has(self.renewalDays) == has(self.validityDays))
+                      message: "Both 'validityDays' and 'renewalDays' must be set together, or both must be unset."
+                    - rule: self.type != 'tls' || !has(self.renewalDays) || !has(self.validityDays) || self.renewalDays < self.validityDays
+                      message: '''renewalDays'' must be less than ''validityDays''.'
                 authorization:
                   type: object
                   properties:
@@ -10071,7 +10127,7 @@ spec:
                 replicas:
                   type: integer
                   minimum: 0
-                  description: The number of pods in the `Deployment`. Required in the `v1` version of the Strimzi API. Defaults to `1` in the `v1beta2` version of the Strimzi API.
+                  description: The number of pods in the `Deployment`. Required in the `v1` version of the Strimzi API.
                 image:
                   type: string
                   description: "The container image used for HTTP Bridge pods. If no image name is explicitly specified, the image name corresponds to the image specified in the Cluster Operator configuration. If an image name is not defined in the Cluster Operator configuration, a default value is used."
@@ -10156,7 +10212,7 @@ spec:
                         - scram-sha-512
                         - plain
                         - custom
-                      description: "Specifies the authentication type. Supported types are `tls`, `scram-sha-256`, `scram-sha-512`, `plain`, 'oauth', and `custom`. `tls` uses TLS client authentication and is supported only over TLS connections. `scram-sha-256` and `scram-sha-512` use SASL SCRAM-SHA-256 and SASL SCRAM-SHA-512 authentication, respectively. `plain` uses SASL PLAIN authentication. `oauth` uses SASL OAUTHBEARER authentication. `custom` allows you to configure a custom authentication mechanism. As of Strimzi 0.49.0, `oauth` type is deprecated and will be removed in the `v1` API version. Please use `custom` type instead."
+                      description: "Specifies the authentication type. Supported types are `tls`, `scram-sha-256`, `scram-sha-512`, `plain`, and `custom`. `tls` uses TLS client authentication and is supported only over TLS connections. `scram-sha-256` and `scram-sha-512` use SASL SCRAM-SHA-256 and SASL SCRAM-SHA-512 authentication, respectively. `plain` uses SASL PLAIN authentication. `custom` allows you to configure a custom authentication mechanism."
                     username:
                       type: string
                       description: Username used for the authentication.
@@ -11511,7 +11567,7 @@ spec:
                       type: string
                       enum:
                         - opentelemetry
-                      description: "Type of the tracing used. Currently the only supported type is `opentelemetry` for OpenTelemetry tracing. As of Strimzi 0.37.0, `jaeger` type is not supported anymore and this option is ignored."
+                      description: Type of the tracing used. Currently the only supported type is `opentelemetry` for OpenTelemetry tracing.
                   required:
                     - type
                   description: The configuration of tracing in HTTP Bridge.
@@ -11809,7 +11865,7 @@ spec:
                   description: The Kafka Connect version. Defaults to the latest version. Consult the user documentation to understand the process required to upgrade or downgrade the version.
                 replicas:
                   type: integer
-                  description: The number of pods in the Kafka Connect group. Required in the `v1` version of the Strimzi API. Defaults to `3` in the `v1beta2` version of the Strimzi API.
+                  description: The number of pods in the Kafka Connect group. Required in the `v1` version of the Strimzi API.
                 image:
                   type: string
                   description: "The container image used for Kafka Connect pods. If no image name is explicitly specified, it is determined based on the `spec.version` configuration. The image names are specifically mapped to corresponding versions in the Cluster Operator configuration."
@@ -11913,7 +11969,7 @@ spec:
                             - scram-sha-512
                             - plain
                             - custom
-                          description: "Specifies the authentication type. Supported types are `tls`, `scram-sha-256`, `scram-sha-512`, `plain`, 'oauth', and `custom`. `tls` uses TLS client authentication and is supported only over TLS connections. `scram-sha-256` and `scram-sha-512` use SASL SCRAM-SHA-256 and SASL SCRAM-SHA-512 authentication, respectively. `plain` uses SASL PLAIN authentication. `oauth` uses SASL OAUTHBEARER authentication. `custom` allows you to configure a custom authentication mechanism. As of Strimzi 0.49.0, `oauth` type is deprecated and will be removed in the `v1` API version. Please use `custom` type instead."
+                          description: "Specifies the authentication type. Supported types are `tls`, `scram-sha-256`, `scram-sha-512`, `plain`, and `custom`. `tls` uses TLS client authentication and is supported only over TLS connections. `scram-sha-256` and `scram-sha-512` use SASL SCRAM-SHA-256 and SASL SCRAM-SHA-512 authentication, respectively. `plain` uses SASL PLAIN authentication. `custom` allows you to configure a custom authentication mechanism."
                         username:
                           type: string
                           description: Username used for the authentication.
@@ -12025,7 +12081,7 @@ spec:
                                   - scram-sha-512
                                   - plain
                                   - custom
-                                description: "Specifies the authentication type. Supported types are `tls`, `scram-sha-256`, `scram-sha-512`, `plain`, 'oauth', and `custom`. `tls` uses TLS client authentication and is supported only over TLS connections. `scram-sha-256` and `scram-sha-512` use SASL SCRAM-SHA-256 and SASL SCRAM-SHA-512 authentication, respectively. `plain` uses SASL PLAIN authentication. `oauth` uses SASL OAUTHBEARER authentication. `custom` allows you to configure a custom authentication mechanism. As of Strimzi 0.49.0, `oauth` type is deprecated and will be removed in the `v1` API version. Please use `custom` type instead."
+                                description: "Specifies the authentication type. Supported types are `tls`, `scram-sha-256`, `scram-sha-512`, `plain`, and `custom`. `tls` uses TLS client authentication and is supported only over TLS connections. `scram-sha-256` and `scram-sha-512` use SASL SCRAM-SHA-256 and SASL SCRAM-SHA-512 authentication, respectively. `plain` uses SASL PLAIN authentication. `custom` allows you to configure a custom authentication mechanism."
                               username:
                                 type: string
                                 description: Username used for the authentication.
@@ -12392,7 +12448,7 @@ spec:
                       type: string
                       enum:
                         - opentelemetry
-                      description: "Type of the tracing used. Currently the only supported type is `opentelemetry` for OpenTelemetry tracing. As of Strimzi 0.37.0, `jaeger` type is not supported anymore and this option is ignored."
+                      description: Type of the tracing used. Currently the only supported type is `opentelemetry` for OpenTelemetry tracing.
                   required:
                     - type
                   description: The configuration of tracing in Kafka Connect.

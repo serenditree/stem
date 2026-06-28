@@ -4,10 +4,10 @@ kind: CustomResourceDefinition
 metadata:
   labels:
     app.kubernetes.io/component: controller
-    helm.sh/chart: k6-operator-4.4.1
+    helm.sh/chart: k6-operator-4.5.0
     app.kubernetes.io/name: k6-operator
     app.kubernetes.io/instance: terra-testing
-    app.kubernetes.io/version: "1.4.0"
+    app.kubernetes.io/version: "1.5.0"
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/part-of: k6-operator
   annotations:
@@ -222,10 +222,10 @@ kind: CustomResourceDefinition
 metadata:
   labels:
     app.kubernetes.io/component: controller
-    helm.sh/chart: k6-operator-4.4.1
+    helm.sh/chart: k6-operator-4.5.0
     app.kubernetes.io/name: k6-operator
     app.kubernetes.io/instance: terra-testing
-    app.kubernetes.io/version: "1.4.0"
+    app.kubernetes.io/version: "1.5.0"
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/part-of: k6-operator
   annotations:
@@ -1306,6 +1306,8 @@ spec:
                             x-kubernetes-int-or-string: true
                           type: object
                       type: object
+                    schedulerName:
+                      type: string
                     securityContext:
                       properties:
                         appArmorProfile:
@@ -3344,6 +3346,8 @@ spec:
                             x-kubernetes-int-or-string: true
                           type: object
                       type: object
+                    schedulerName:
+                      type: string
                     securityContext:
                       properties:
                         appArmorProfile:
@@ -5403,6 +5407,8 @@ spec:
                             x-kubernetes-int-or-string: true
                           type: object
                       type: object
+                    schedulerName:
+                      type: string
                     securityContext:
                       properties:
                         appArmorProfile:
