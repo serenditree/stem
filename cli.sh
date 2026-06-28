@@ -734,9 +734,10 @@ update)
         sc_heading 2 "sc update <comp> [--yes] [--yes]"
         echo "Update components. Without specification, all components are updated or checked for latest versions."
         printf '\n\t%-20s%s\n' "helm" "Update chart versions."
+        printf '\n\t%-20s%s' "{image* | img}" "Update base images or check for upgrades."
         printf '\n\t%-20s%s\n' "kustomize" "Update additional kustomize deployments."
-        printf '\n\t%-20s%s' "{image*}" "Update base images or check for upgrades."
-        printf '\n\t%-20s%s' "{kubernetes | k}" "Update Kubernetes."
+        printf '\n\t%-20s%s' "kubernetes" "Update Kubernetes."
+        printf '\n\t%-20s%s' "{kafka}" "Update Kafka."
         printf '\n\t%-20s%s\n' "{maven | mvn | java}" "Update maven dependencies."
         printf '\n\t%-20s%s' "tile*" "Update Tileserver."
         printf '\n\t%-20s%s\n' "yarn" "Update node modules."
@@ -745,14 +746,17 @@ update)
         helm)
             sc_update_helm
             ;;
-        kustomize)
-            sc_update_kustomize
-            ;;
         img | image*)
             sc_update_image "$(sc_args_to_pattern "${_ARG_LEFTOVERS[*]:1}")"
             ;;
+        kustomize)
+            sc_update_kustomize
+            ;;
         kubernetes)
             sc_update_kubernetes
+            ;;
+        kafka)
+            sc_update_kafka
             ;;
         maven | mvn | java)
             sc_update_maven
@@ -766,12 +770,14 @@ update)
         "")
             sc_heading 1 helm
             sc_update_helm
-            sc_heading 1 kustomize
-            sc_update_kustomize
             sc_heading 1 images
             sc_update_image
+            sc_heading 1 kustomize
+            sc_update_kustomize
             sc_heading 1 kubernetes
             sc_update_kubernetes
+            sc_heading 1 kafka
+            sc_update_kafka
             sc_heading 1 maven
             sc_update_maven
             sc_heading 1 tileserver

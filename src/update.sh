@@ -131,27 +131,6 @@ function sc_update_helm() {
     fi
 }
 
-# Checks versions of kustomize deployments.
-function sc_update_kustomize() {
-    while read -r _repo _current; do
-        [[ -z "$_ARG_YES" ]] && sc_heading 2 "$_repo"
-        local _latest=$(
-            curl --silent "https://api.github.com/repos/${_repo//*.com\//}/releases/latest" | jq -r '.tag_name'
-        )
-        if [[ -z "$_ARG_YES" ]]; then
-             [[ "$_current" != "$_latest" ]] && echo -n "$_BOLD"
-            echo -e "current: ${_current}\nlatest: ${_latest}${_NORMAL}\n" | column -t
-        else
-            echo "Updating ${_repo} to ${_latest}."
-            sed -Ei "s/(.*targetRevision: )${_current}/\1${_latest}/" "${_ST_HOME_STEM}/charts/tree/values.yaml"
-        fi
-    done < <(sed -En 's/.*(repoUrl|targetRevision): (.*)/\2/p' "${_ST_HOME_STEM}/charts/tree/values.yaml" | xargs -n 2)
-    if [[ $_ARG_YES -gt 1 ]]; then
-        git -C "$_ST_HOME_STEM" commit -am 'Dependencies update;'
-        git -C "$_ST_HOME_STEM" push
-    fi
-}
-
 # Updates base images or checks for upgrades.
 # $1: Pattern for image selection.
 function sc_update_image() {
@@ -194,10 +173,58 @@ function sc_update_image() {
     fi
 }
 
+# Checks versions of kustomize deployments.
+function sc_update_kustomize() {
+    while read -r _repo _current; do
+        [[ -z "$_ARG_YES" ]] && sc_heading 2 "$_repo"
+        local _latest=$(
+            curl --silent "https://api.github.com/repos/${_repo//*.com\//}/releases/latest" | jq -r '.tag_name'
+        )
+        if [[ -z "$_ARG_YES" ]]; then
+             [[ "$_current" != "$_latest" ]] && echo -n "$_BOLD"
+            echo -e "current: ${_current}\nlatest: ${_latest}${_NORMAL}\n" | column -t
+        else
+            echo "Updating ${_repo} to ${_latest}."
+            sed -Ei "s/(.*targetRevision: )${_current}/\1${_latest}/" "${_ST_HOME_STEM}/charts/tree/values.yaml"
+        fi
+    done < <(sed -En 's/.*(repoUrl|targetRevision): (.*)/\2/p' "${_ST_HOME_STEM}/charts/tree/values.yaml" | xargs -n 2)
+    if [[ $_ARG_YES -gt 1 ]]; then
+        git -C "$_ST_HOME_STEM" commit -am 'Dependencies update;'
+        git -C "$_ST_HOME_STEM" push
+    fi
+}
+
 # Kubernetes update.
 function sc_update_kubernetes() {
     local -r _latest="$(exo compute sks versions --output-format text | sort -V | tail -n1)"
     sc_update_env "Kubernetes" "$_ST_VERSION_KUBERNETES" "$_latest"
+}
+
+# Checks or updates Kafka to the latest supported version.
+function sc_update_kafka() {
+    local -r _chart="${_ST_HOME_STEM}/charts/terra/streams/Chart.yaml"
+    local -r _kafka_yml="${_ST_HOME_STEM}/charts/root/wind/templates/kafka.yml"
+    local -r _strimzi_repo="https://raw.githubusercontent.com/strimzi/strimzi-kafka-operator"
+
+    local -r _strimzi_version="$(yq '.dependencies[] | select(.name == "strimzi-kafka-operator") | .version' "$_chart")"
+    local -r _kafka_versions="${_strimzi_repo}/${_strimzi_version}/kafka-versions.yaml"
+
+    local -r _supported="$(
+        curl --silent "$_kafka_versions" |
+        yq '.[] | select(.supported == true) | .version' |
+        sort -V
+    )"
+    local -r _latest="$(tail -n1 <<<"$_supported")"
+    local -r _current="$(sed -En 's/^\s+version: ([0-9.]+)$/\1/p' "$_kafka_yml")"
+
+    if [[ -n "$_ARG_YES" ]]; then
+        sed -i "s/version: ${_current}/version: ${_latest}/" "$_kafka_yml" &&
+            echo "Updated Kafka version from ${_current} to ${_latest}."
+    else
+        echo -e "strimzi: ${_strimzi_version}\nsupported: $(xargs <<<"$_supported" | tr ' ' '/')" | column -t
+        [[ "$_current" != "$_latest" ]] && echo -n "$_BOLD"
+        echo -e "current: ${_current}\nlatest: ${_latest}${_NORMAL}" | column -t
+    fi
 }
 
 # Updates maven dependencies or checks for updates.
