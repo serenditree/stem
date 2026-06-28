@@ -221,9 +221,11 @@ function sc_update_kafka() {
         sed -i "s/version: ${_current}/version: ${_latest}/" "$_kafka_yml" &&
             echo "Updated Kafka version from ${_current} to ${_latest}."
     else
-        echo -e "strimzi: ${_strimzi_version}\nsupported: $(xargs <<<"$_supported" | tr ' ' '/')" | column -t
-        [[ "$_current" != "$_latest" ]] && echo -n "$_BOLD"
-        echo -e "current: ${_current}\nlatest: ${_latest}${_NORMAL}" | column -t
+        {
+            echo -e "strimzi: ${_strimzi_version}\nsupported: $(xargs <<<"$_supported" | tr ' ' '/')"
+            [[ "$_current" != "$_latest" ]] && echo -n "$_BOLD"
+            echo -e "current: ${_current}\nlatest: ${_latest}${_NORMAL}"
+        } | column -t
     fi
 }
 
