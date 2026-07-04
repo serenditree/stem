@@ -13,4 +13,4 @@ strimzi;https://strimzi.io/charts
 tekton;https://cdfoundation.github.io/tekton-helm-chart
 traefik;https://traefik.github.io/charts
 valkey;https://valkey.io/valkey-helm
-victoriametrics;https://victoriametrics.github.io/helm-charts/
+victoria;https://victoriametrics.github.io/helm-charts
