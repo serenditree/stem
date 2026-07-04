@@ -237,14 +237,6 @@ function sc_terra_down_volumes() {
         </tmp/serenditree-pv
 }
 
-# Deletes all instances.
-function sc_terra_down_instances() {
-    kubectl delete nodepools.karpenter.sh --all &&
-        exo compute instance list --output-template '{{ .ID }}' |
-            xargs -I{} -P0 -r bash -c \
-                'echo "Deleting {}..." && exo compute instance delete --force --quiet {} && echo "Deleted {}"'
-}
-
 # Removes all resources that were create during setup.
 function sc_terra_down() {
     AWS_ACCESS_KEY_ID="$(pass serenditree/iam/serenditree.access)"
@@ -258,8 +250,6 @@ function sc_terra_down() {
         tofu -chdir="$_ST_CONTEXT_HOME" show -json serenditree.tfplan |
             jq -r ".configuration.root_module.resources[] | select(.type == \"helm_release\") | .address" |
             xargs tofu -chdir="$_ST_CONTEXT_HOME" state rm -var=zone_storage_1="${_ST_ZONE_STORAGE_1}"
-
-    sc_prompt "Delete node pools?" && sc_terra_down_instances
 
     if sc_prompt "Destroy terraform resources?"; then
         for _cmd in "destroy -compact-warnings -target=module.serenditree_gateway" "destroy"; do
