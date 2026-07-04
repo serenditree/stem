@@ -88,19 +88,6 @@ terraCollect:
   wave: 3
   name: terra-collect
   namespace: terra-collect
-terraTraces:
-  enabled: true
-  wave: 3
-  name: terra-traces
-  namespace: terra-traces
-  parameters:
-    quickwit:
-      config:
-        storage:
-          s3:
-            endpoint: ~
-            region: ~
-        default_index_root_uri: ~
 terraScope:
   enabled: true
   wave: 3

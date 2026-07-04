@@ -8,9 +8,9 @@ open-telemetry;https://open-telemetry.github.io/opentelemetry-helm-charts
 openbao;https://openbao.github.io/openbao-helm
 opensearch;https://opensearch-project.github.io/helm-charts
 prometheus;https://prometheus-community.github.io/helm-charts
-quickwit;https://helm.quickwit.io
 stakater;https://stakater.github.io/stakater-charts
 strimzi;https://strimzi.io/charts
 tekton;https://cdfoundation.github.io/tekton-helm-chart
 traefik;https://traefik.github.io/charts
 valkey;https://valkey.io/valkey-helm
+victoriametrics;https://victoriametrics.github.io/helm-charts/

@@ -128,19 +128,5 @@ function sc_login_db() {
             echo "http://localhost:5601/app/dev_tools#/console"
         fi
         ;;
-    trace*)
-        if [[ "$_ctx" == "cluster" ]]; then
-            kubectl --namespace terra-traces port-forward svc/metastore-rw 5433:5432 &
-            local -r _pid=$!
-            if [[ -z "$_ARG_EXPOSE" ]]; then
-                local -r _username=$(pass serenditree/o11y/terraTraces.metastore.username)
-                local -r _password=$(pass serenditree/o11y/terraTraces.metastore.password)
-                sc_login_psql "postgresql://${_username}:${_password}@localhost:5433/metastore"
-                kill $_pid
-            fi
-        else
-            echo "Quickwit is only available in cluster contexts."
-        fi
-        ;;
     esac
 }

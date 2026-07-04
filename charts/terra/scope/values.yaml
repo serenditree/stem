@@ -1,26 +1,14 @@
 global:
   wait: ~
   wave: ~
-kube-prometheus-stack:
+victoria-metrics-k8s-stack:
+  fullnameOverride: terra-scope
 ########################################################################################################################
-# Prometheus
+# VictoriaMetrics
 ########################################################################################################################
-  prometheusOperator:
-    enabled: true
-    admissionWebhooks:
-      enabled: false # Argo-CD race conditions
-    tls:
-      enabled: false
-  prometheus:
-    podDisruptionBudget:
-      enabled: true
-    prometheusSpec:
-      enableRemoteWriteReceiver: true
-      podMonitorSelectorNilUsesHelmValues: false
-      probeSelectorNilUsesHelmValues: false
-      ruleSelectorNilUsesHelmValues: false
-      scrapeConfigSelectorNilUsesHelmValues: false
-      serviceMonitorSelectorNilUsesHelmValues: false
+  vmsingle:
+    spec:
+      retentionPeriod: "3"
       resources:
         requests:
           cpu: 100m
@@ -28,15 +16,13 @@ kube-prometheus-stack:
         limits:
           cpu: 200m
           memory: 400Mi
-      storageSpec:
-        volumeClaimTemplate:
-          spec:
-            storageClassName: exoscale-sbs
-            accessModes:
-              - ReadWriteOnce
-            resources:
-              requests:
-                storage: 10Gi
+      storage:
+        storageClassName: exoscale-sbs
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi
   prometheus-node-exporter:
     resources:
      requests:
@@ -52,12 +38,52 @@ kube-prometheus-stack:
   kubeControllerManager:
     enabled: false
 ########################################################################################################################
+# VictoriaLogs
+########################################################################################################################
+  vlsingle:
+    enabled: true
+    spec:
+      retentionPeriod: "1d"
+      resources:
+        requests:
+          cpu: 100m
+          memory: 150Mi
+        limits:
+          cpu: 200m
+          memory: 150Mi
+      storage:
+        storageClassName: exoscale-sbs
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi
+########################################################################################################################
+# VictoriaTraces
+########################################################################################################################
+  vtsingle:
+    enabled: true
+    spec:
+      retentionPeriod: "1d"
+      resources:
+        requests:
+          cpu: 100m
+          memory: 150Mi
+        limits:
+          cpu: 200m
+          memory: 150Mi
+      storage:
+        storageClassName: exoscale-sbs
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi
+########################################################################################################################
 # Alertmanager
 ########################################################################################################################
   alertmanager:
-    podDisruptionBudget:
-      enabled: true
-    alertmanagerSpec:
+    spec:
       resources:
         requests:
           cpu: 100m
@@ -79,7 +105,7 @@ kube-prometheus-stack:
     config:
       global:
         resolve_timeout: 5m
-        slack_api_url_file: /etc/alertmanager/secrets/slack-api-url/slack-api-url
+        slack_api_url_file: /etc/vm/secrets/slack-api-url/slack-api-url
       route:
         receiver: slack
         group_by:
@@ -122,32 +148,4 @@ kube-prometheus-stack:
         - ReadWriteOnce
       size: 10Gi
     plugins:
-      - quickwit-quickwit-datasource
-    datasources:
-      datasources.yaml:
-        apiVersion: 1
-        datasources:
-          - name: "Quickwit Logs"
-            uid: "QuickwitLogs"
-            editable: false
-            isDefault: false
-            type: quickwit-quickwit-datasource
-            jsonData:
-              index: "otel-logs-v0_7"
-              logMessageField: "body.message"
-              logLevelField: "severity_number"
-            url: http://traces-searcher.terra-traces.svc.cluster.local:7280/api/v1
-          - name: "Quickwit Traces"
-            uid: "QuickwitTraces"
-            editable: false
-            isDefault: false
-            type: quickwit-quickwit-datasource
-            jsonData:
-              index: "otel-traces-v0_7"
-            url: http://traces-searcher.terra-traces.svc.cluster.local:7280/api/v1
-          - name: "Jaeger Traces"
-            uid: "JaegerTraces"
-            editable: false
-            isDefault: false
-            type: jaeger
-            url: http://traces-searcher.terra-traces.svc.cluster.local:7280/api/v1/otel-traces-v0_7/jaeger
+      - victoriametrics-logs-datasource

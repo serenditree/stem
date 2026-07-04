@@ -29,14 +29,10 @@ opentelemetry-collector:
         verbosity: detailed
         sampling_initial: 5
         sampling_thereafter: 10
-      otlp/logs:
-        endpoint: traces-indexer.terra-traces.svc.cluster.local:7281
-        tls:
-          insecure: true
-      otlp/traces:
-        endpoint: traces-indexer.terra-traces.svc.cluster.local:7281
-        tls:
-          insecure: true
+      otlphttp/logs:
+        logs_endpoint: http://vlsingle-terra-scope.terra-scope.svc.cluster.local:9428/insert/opentelemetry/v1/logs
+      otlphttp/traces:
+        traces_endpoint: http://vtsingle-terra-scope.terra-scope.svc.cluster.local:10428/insert/opentelemetry/v1/traces
     processors:
       filter/logs:
         error_mode: ignore
@@ -146,7 +142,7 @@ opentelemetry-collector:
       pipelines:
         logs:
           exporters:
-            - otlp/logs
+            - otlphttp/logs
           processors:
             - k8sattributes
             - resourcedetection/env
@@ -166,7 +162,7 @@ opentelemetry-collector:
             - otlp
         traces:
           exporters:
-            - otlp/traces
+            - otlphttp/traces
           processors:
             - k8sattributes
             - resourcedetection/env

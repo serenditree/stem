@@ -107,30 +107,13 @@ function sc_status_config() {
 }
 
 # Prints the number of log- and trace-records per service.
+# TODO: reimplement against VictoriaLogs/VictoriaTraces LogsQL (/select/logsql/query on
+# vlsingle-terra-scope:9428 and vtsingle-terra-scope:10428) now that terra-traces (Quickwit) is gone.
 function sc_status_cluster_signal_stats() {
-    if ! netstat -4tlnp 2>&1 | grep -q '9100'; then
-        kubectl port-forward --namespace terra-traces svc/traces-searcher 9100:7280 &>/dev/null &
-        local -r _pid=$!
-        sleep 1s
-    fi
     sc_heading 2 "Logs"
-    curl \
-        --request POST 'http://localhost:9100/api/v1/otel-logs-v0_7/search' \
-        --header 'Content-Type: application/json' \
-        --data '{"query":"*","max_hits":0,"aggs":{"logs":{"terms":{"field":"resource_attributes.serenditree.io/otel"}}}}' \
-        --silent |
-        jq -r '.aggregations.logs.buckets[] | "\(.key) \(.doc_count)"' |
-        column -t
+    echo "Not yet implemented for VictoriaLogs."
     sc_heading 2 "Traces"
-    curl \
-        --request POST 'http://localhost:9100/api/v1/otel-traces-v0_7/search' \
-        --header 'Content-Type: application/json' \
-        --data '{"query":"*","max_hits":0,"aggs":{"traces":{"terms":{"field":"service_name"}}}}' \
-        --silent |
-        jq -r '.aggregations.traces.buckets[] | "\(.key) \(.doc_count)"' |
-        sed -E 's/serenditree.//' |
-        column -t
-    [[ -n "$_pid" ]] && kill $_pid
+    echo "Not yet implemented for VictoriaTraces."
 }
 
 # Prints cluster status information.

@@ -2,5 +2,4 @@ kafdrop;terra-streams;kafdrop;9000:9000
 hubble;kube-system;hubble-ui;9096:80
 grafana;terra-scope;terra-scope-grafana;9097:80
 argocd;terra-argocd;terra-argocd-server;9098:443
-prometheus;terra-scope;terra-scope-kube-prometheu-prometheus;9099:9090
-quickwit;terra-traces;traces-searcher;9100:7280
+prometheus;terra-scope;vmsingle-terra-scope;9099:8428

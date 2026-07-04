@@ -52,15 +52,6 @@ spec:
         - name: terraStreams.parameters.kafdrop.enabled
           value: {{ .Values.terraStreams.parameters.kafdrop.enabled | quote }}
 ########################################################################################################################
-# TerraTraces
-########################################################################################################################
-        - name: terraTraces.parameters.quickwit.config.storage.s3.endpoint
-          value: {{ .Values.terraTraces.parameters.quickwit.config.storage.s3.endpoint }}
-        - name: terraTraces.parameters.quickwit.config.storage.s3.region
-          value: {{ .Values.terraTraces.parameters.quickwit.config.storage.s3.region }}
-        - name: terraTraces.parameters.quickwit.config.default_index_root_uri
-          value: {{ .Values.terraTraces.parameters.quickwit.config.default_index_root_uri }}
-########################################################################################################################
 # TerraGateway
 ########################################################################################################################
         - name: terraGateway.parameters.traefik
