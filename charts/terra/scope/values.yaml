@@ -8,7 +8,7 @@ victoria-metrics-k8s-stack:
 ########################################################################################################################
   vmsingle:
     spec:
-      retentionPeriod: "3"
+      retentionPeriod: 1w
       resources:
         requests:
           cpu: 100m
@@ -43,7 +43,7 @@ victoria-metrics-k8s-stack:
   vlsingle:
     enabled: true
     spec:
-      retentionPeriod: "1d"
+      retentionPeriod: 1w
       resources:
         requests:
           cpu: 100m
@@ -64,7 +64,7 @@ victoria-metrics-k8s-stack:
   vtsingle:
     enabled: true
     spec:
-      retentionPeriod: "1d"
+      retentionPeriod: 1w
       resources:
         requests:
           cpu: 100m

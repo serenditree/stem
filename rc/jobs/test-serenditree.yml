@@ -5,6 +5,7 @@ metadata:
   namespace: terra-testing
 spec:
   parallelism: 2
+  arguments: --tag testid=serenditree
   script:
     configMap:
       name: testing
@@ -14,6 +15,10 @@ spec:
     env:
       - name: K6_PROMETHEUS_RW_SERVER_URL
         value: 'http://vmsingle-terra-scope.terra-scope.svc.cluster.local:8428/api/v1/write'
+      - name: K6_PROMETHEUS_RW_TREND_STATS
+        value: 'count,sum,min,max,avg,med,p(95),p(99)'
+      - name: K6_PROMETHEUS_RW_TREND_AS_NATIVE_HISTOGRAM
+        value: 'false'
       - name: K6_OUT
         value: 'experimental-prometheus-rw'
       - name: K6_SUMMARY_MODE
