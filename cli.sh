@@ -23,6 +23,7 @@ _ST_HELP="Please type 'sc <help>' for a list of commands or $_ST_HELP_DETAIL"
 # ARG_OPTIONAL_BOOLEAN([openshift],[o],[Use openshift.])
 # ARG_OPTIONAL_BOOLEAN([prod],[P],[Sets the target stage to prod. (default is dev)])
 # ARG_OPTIONAL_BOOLEAN([reset],[],[Reset flag.])
+# ARG_OPTIONAL_BOOLEAN([restore],[],[Restore flag.])
 # ARG_OPTIONAL_BOOLEAN([setup],[],[Setup flag.])
 # ARG_OPTIONAL_BOOLEAN([test],[T],[Sets the target stage to test. (default is dev)])
 # ARG_OPTIONAL_BOOLEAN([upgrade],[],[Upgrade flag.])
@@ -87,6 +88,7 @@ _arg_open="off"
 _arg_openshift="off"
 _arg_prod="off"
 _arg_reset="off"
+_arg_restore="off"
 _arg_setup="off"
 _arg_test="off"
 _arg_upgrade="off"
@@ -100,7 +102,7 @@ _arg_resume=
 
 print_help()
 {
-    printf 'Usage: %s [-a|--all] [-c|--compose] [--delete] [-D|--dryrun] [-E|--expose] [-h|--help] [--init] [--insert] [--integration] [-k|--kubernetes] [-l|--local] [-n|--notify] [--open] [-o|--openshift] [-P|--prod] [--reset] [--setup] [-T|--test] [--upgrade] [-w|--wait] [-v|--verbose] [-y|--yes] [-x|--xissuer] [-s|--scale <arg>] [--resume <arg>] [--] <command> ... \n' " sc" && echo
+    printf 'Usage: %s [-a|--all] [-c|--compose] [--delete] [-D|--dryrun] [-E|--expose] [-h|--help] [--init] [--insert] [--integration] [-k|--kubernetes] [-l|--local] [-n|--notify] [--open] [-o|--openshift] [-P|--prod] [--reset] [--restore] [--setup] [-T|--test] [--upgrade] [-w|--wait] [-v|--verbose] [-y|--yes] [-x|--xissuer] [-s|--scale <arg>] [--resume <arg>] [--] <command> ... \n' " sc" && echo
     printf '\t%-20s%s\n' "<command>:" "Command to execute. Please type sc <help> for a list of commands!"
     printf '\t%-20s%s\n' "... :" "Other arguments passed to command."
     printf '\t%-20s%s\n' "-a, --all:" "All..."
@@ -119,6 +121,7 @@ print_help()
     printf '\t%-20s%s\n' "-o, --openshift:" "Use openshift."
     printf '\t%-20s%s\n' "-P, --prod:" "Sets the target stage to prod. (default is dev)"
     printf '\t%-20s%s\n' "--reset:" "Reset flag."
+    printf '\t%-20s%s\n' "--restore:" "Restore flag."
     printf '\t%-20s%s\n' "--setup:" "Setup flag."
     printf '\t%-20s%s\n' "-T, --test:" "Sets the target stage to test. (default is dev)"
     printf '\t%-20s%s\n' "--upgrade:" "Upgrade flag."
@@ -293,6 +296,10 @@ parse_commandline()
                 _arg_reset="on"
                 test "${1:0:5}" = "--no-" && _arg_reset="off"
                 ;;
+            --no-restore|--restore)
+                _arg_restore="on"
+                test "${1:0:5}" = "--no-" && _arg_restore="off"
+                ;;
             --no-setup|--setup)
                 _arg_setup="on"
                 test "${1:0:5}" = "--no-" && _arg_setup="off"
@@ -458,6 +465,7 @@ export _ARG_OPENSHIFT=${_arg_openshift/off/}
 export _ARG_DELETE=${_arg_delete/off/}
 export _ARG_INIT=${_arg_init/off/}
 export _ARG_RESET=${_arg_reset/off/}
+export _ARG_RESTORE=${_arg_restore/off/}
 export _ARG_RESUME=$_arg_resume
 export _ARG_SCALE=$_arg_scale
 export _ARG_SETUP=${_arg_setup/off/}

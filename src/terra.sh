@@ -224,6 +224,10 @@ function sc_terra_up() {
         sc_context_init_kube "${_ST_CONTEXT_HOME}/kubeconfig"
         sc_heading 1 "Waiting for Serenditree to become ready"
         sc_terra_up_wait
+        if [[ -n "${_ARG_RESTORE}" ]]; then
+            sc_heading 1 "Restoring databases from backup"
+            sc_cluster_restore
+        fi
     fi
 }
 ########################################################################################################################
