@@ -17,7 +17,6 @@ victoria-metrics-k8s-stack:
           cpu: 200m
           memory: 400Mi
       storage:
-        storageClassName: exoscale-sbs
         accessModes:
           - ReadWriteOnce
         resources:
@@ -52,7 +51,6 @@ victoria-metrics-k8s-stack:
           cpu: 200m
           memory: 150Mi
       storage:
-        storageClassName: exoscale-sbs
         accessModes:
           - ReadWriteOnce
         resources:
@@ -73,7 +71,6 @@ victoria-metrics-k8s-stack:
           cpu: 200m
           memory: 150Mi
       storage:
-        storageClassName: exoscale-sbs
         accessModes:
           - ReadWriteOnce
         resources:
@@ -94,7 +91,6 @@ victoria-metrics-k8s-stack:
       storage:
         volumeClaimTemplate:
           spec:
-            storageClassName: exoscale-sbs
             accessModes:
               - ReadWriteOnce
             resources:
