@@ -1051,6 +1051,8 @@ spec:
                   type: array
                 useDefaultResources:
                   type: boolean
+                useLegacyNaming:
+                  type: boolean
                 useStrictSecurity:
                   type: boolean
                 volumeMounts:
@@ -1082,6 +1084,144 @@ spec:
                     type: object
                     x-kubernetes-preserve-unknown-fields: true
                   type: array
+                vpa:
+                  properties:
+                    recommenders:
+                      items:
+                        properties:
+                          name:
+                            type: string
+                        required:
+                          - name
+                        type: object
+                      type: array
+                    resourcePolicy:
+                      properties:
+                        containerPolicies:
+                          items:
+                            properties:
+                              containerName:
+                                type: string
+                              controlledResources:
+                                items:
+                                  type: string
+                                type: array
+                              controlledValues:
+                                enum:
+                                  - RequestsAndLimits
+                                  - RequestsOnly
+                                type: string
+                              maxAllowed:
+                                additionalProperties:
+                                  anyOf:
+                                    - type: integer
+                                    - type: string
+                                  pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                  x-kubernetes-int-or-string: true
+                                type: object
+                              memoryAggregationIntervalCount:
+                                format: int64
+                                minimum: 1
+                                type: integer
+                              memoryAggregationIntervalSeconds:
+                                format: int32
+                                minimum: 1
+                                type: integer
+                              minAllowed:
+                                additionalProperties:
+                                  anyOf:
+                                    - type: integer
+                                    - type: string
+                                  pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                  x-kubernetes-int-or-string: true
+                                type: object
+                              mode:
+                                enum:
+                                  - Auto
+                                  - "Off"
+                                type: string
+                              oomBumpUpRatio:
+                                anyOf:
+                                  - type: integer
+                                  - type: string
+                                pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                x-kubernetes-int-or-string: true
+                              oomMinBumpUp:
+                                anyOf:
+                                  - type: integer
+                                  - type: string
+                                pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                x-kubernetes-int-or-string: true
+                              startupBoost:
+                                properties:
+                                  cpu:
+                                    properties:
+                                      durationSeconds:
+                                        format: int32
+                                        type: integer
+                                      factor:
+                                        format: int32
+                                        type: integer
+                                      quantity:
+                                        anyOf:
+                                          - type: integer
+                                          - type: string
+                                        pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                        x-kubernetes-int-or-string: true
+                                      type:
+                                        enum:
+                                          - Factor
+                                          - Quantity
+                                        type: string
+                                    required:
+                                      - type
+                                    type: object
+                                    x-kubernetes-validations:
+                                      - message: factor is required when type is Factor and forbidden otherwise
+                                        rule: (self.type == 'Factor') == has(self.factor)
+                                      - message: quantity is required when type is Quantity and forbidden otherwise
+                                        rule: (self.type == 'Quantity') == has(self.quantity)
+                                type: object
+                            type: object
+                          type: array
+                      type: object
+                    updatePolicy:
+                      properties:
+                        evictAfterOOMSeconds:
+                          format: int32
+                          minimum: 1
+                          type: integer
+                        evictionRequirements:
+                          items:
+                            properties:
+                              changeRequirement:
+                                enum:
+                                  - TargetHigherThanRequests
+                                  - TargetLowerThanRequests
+                                type: string
+                              resources:
+                                items:
+                                  type: string
+                                type: array
+                            required:
+                              - changeRequirement
+                              - resources
+                            type: object
+                          type: array
+                        minReplicas:
+                          format: int32
+                          type: integer
+                        updateMode:
+                          enum:
+                            - "Off"
+                            - Initial
+                            - Recreate
+                            - InPlaceOrRecreate
+                            - InPlace
+                            - Auto
+                          type: string
+                      type: object
+                  type: object
               required:
                 - remoteWrite
               type: object
@@ -1265,6 +1405,8 @@ spec:
                   type: object
                 serviceAccountName:
                   type: string
+                useLegacyNaming:
+                  type: boolean
                 useStrictSecurity:
                   type: boolean
                 vlinsert:
@@ -4063,6 +4205,8 @@ spec:
                   type: array
                 useDefaultResources:
                   type: boolean
+                useLegacyNaming:
+                  type: boolean
                 useStrictSecurity:
                   type: boolean
                 volumeMounts:
@@ -4094,6 +4238,144 @@ spec:
                     type: object
                     x-kubernetes-preserve-unknown-fields: true
                   type: array
+                vpa:
+                  properties:
+                    recommenders:
+                      items:
+                        properties:
+                          name:
+                            type: string
+                        required:
+                          - name
+                        type: object
+                      type: array
+                    resourcePolicy:
+                      properties:
+                        containerPolicies:
+                          items:
+                            properties:
+                              containerName:
+                                type: string
+                              controlledResources:
+                                items:
+                                  type: string
+                                type: array
+                              controlledValues:
+                                enum:
+                                  - RequestsAndLimits
+                                  - RequestsOnly
+                                type: string
+                              maxAllowed:
+                                additionalProperties:
+                                  anyOf:
+                                    - type: integer
+                                    - type: string
+                                  pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                  x-kubernetes-int-or-string: true
+                                type: object
+                              memoryAggregationIntervalCount:
+                                format: int64
+                                minimum: 1
+                                type: integer
+                              memoryAggregationIntervalSeconds:
+                                format: int32
+                                minimum: 1
+                                type: integer
+                              minAllowed:
+                                additionalProperties:
+                                  anyOf:
+                                    - type: integer
+                                    - type: string
+                                  pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                  x-kubernetes-int-or-string: true
+                                type: object
+                              mode:
+                                enum:
+                                  - Auto
+                                  - "Off"
+                                type: string
+                              oomBumpUpRatio:
+                                anyOf:
+                                  - type: integer
+                                  - type: string
+                                pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                x-kubernetes-int-or-string: true
+                              oomMinBumpUp:
+                                anyOf:
+                                  - type: integer
+                                  - type: string
+                                pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                x-kubernetes-int-or-string: true
+                              startupBoost:
+                                properties:
+                                  cpu:
+                                    properties:
+                                      durationSeconds:
+                                        format: int32
+                                        type: integer
+                                      factor:
+                                        format: int32
+                                        type: integer
+                                      quantity:
+                                        anyOf:
+                                          - type: integer
+                                          - type: string
+                                        pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                        x-kubernetes-int-or-string: true
+                                      type:
+                                        enum:
+                                          - Factor
+                                          - Quantity
+                                        type: string
+                                    required:
+                                      - type
+                                    type: object
+                                    x-kubernetes-validations:
+                                      - message: factor is required when type is Factor and forbidden otherwise
+                                        rule: (self.type == 'Factor') == has(self.factor)
+                                      - message: quantity is required when type is Quantity and forbidden otherwise
+                                        rule: (self.type == 'Quantity') == has(self.quantity)
+                                type: object
+                            type: object
+                          type: array
+                      type: object
+                    updatePolicy:
+                      properties:
+                        evictAfterOOMSeconds:
+                          format: int32
+                          minimum: 1
+                          type: integer
+                        evictionRequirements:
+                          items:
+                            properties:
+                              changeRequirement:
+                                enum:
+                                  - TargetHigherThanRequests
+                                  - TargetLowerThanRequests
+                                type: string
+                              resources:
+                                items:
+                                  type: string
+                                type: array
+                            required:
+                              - changeRequirement
+                              - resources
+                            type: object
+                          type: array
+                        minReplicas:
+                          format: int32
+                          type: integer
+                        updateMode:
+                          enum:
+                            - "Off"
+                            - Initial
+                            - Recreate
+                            - InPlaceOrRecreate
+                            - InPlace
+                            - Auto
+                          type: string
+                      type: object
+                  type: object
               type: object
             status:
               properties:
@@ -7159,6 +7441,8 @@ spec:
                   type: string
                 useDefaultResources:
                   type: boolean
+                useLegacyNaming:
+                  type: boolean
                 useStrictSecurity:
                   type: boolean
                 useVMConfigReloader:
@@ -7194,6 +7478,144 @@ spec:
                     type: object
                     x-kubernetes-preserve-unknown-fields: true
                   type: array
+                vpa:
+                  properties:
+                    recommenders:
+                      items:
+                        properties:
+                          name:
+                            type: string
+                        required:
+                          - name
+                        type: object
+                      type: array
+                    resourcePolicy:
+                      properties:
+                        containerPolicies:
+                          items:
+                            properties:
+                              containerName:
+                                type: string
+                              controlledResources:
+                                items:
+                                  type: string
+                                type: array
+                              controlledValues:
+                                enum:
+                                  - RequestsAndLimits
+                                  - RequestsOnly
+                                type: string
+                              maxAllowed:
+                                additionalProperties:
+                                  anyOf:
+                                    - type: integer
+                                    - type: string
+                                  pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                  x-kubernetes-int-or-string: true
+                                type: object
+                              memoryAggregationIntervalCount:
+                                format: int64
+                                minimum: 1
+                                type: integer
+                              memoryAggregationIntervalSeconds:
+                                format: int32
+                                minimum: 1
+                                type: integer
+                              minAllowed:
+                                additionalProperties:
+                                  anyOf:
+                                    - type: integer
+                                    - type: string
+                                  pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                  x-kubernetes-int-or-string: true
+                                type: object
+                              mode:
+                                enum:
+                                  - Auto
+                                  - "Off"
+                                type: string
+                              oomBumpUpRatio:
+                                anyOf:
+                                  - type: integer
+                                  - type: string
+                                pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                x-kubernetes-int-or-string: true
+                              oomMinBumpUp:
+                                anyOf:
+                                  - type: integer
+                                  - type: string
+                                pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                x-kubernetes-int-or-string: true
+                              startupBoost:
+                                properties:
+                                  cpu:
+                                    properties:
+                                      durationSeconds:
+                                        format: int32
+                                        type: integer
+                                      factor:
+                                        format: int32
+                                        type: integer
+                                      quantity:
+                                        anyOf:
+                                          - type: integer
+                                          - type: string
+                                        pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                        x-kubernetes-int-or-string: true
+                                      type:
+                                        enum:
+                                          - Factor
+                                          - Quantity
+                                        type: string
+                                    required:
+                                      - type
+                                    type: object
+                                    x-kubernetes-validations:
+                                      - message: factor is required when type is Factor and forbidden otherwise
+                                        rule: (self.type == 'Factor') == has(self.factor)
+                                      - message: quantity is required when type is Quantity and forbidden otherwise
+                                        rule: (self.type == 'Quantity') == has(self.quantity)
+                                type: object
+                            type: object
+                          type: array
+                      type: object
+                    updatePolicy:
+                      properties:
+                        evictAfterOOMSeconds:
+                          format: int32
+                          minimum: 1
+                          type: integer
+                        evictionRequirements:
+                          items:
+                            properties:
+                              changeRequirement:
+                                enum:
+                                  - TargetHigherThanRequests
+                                  - TargetLowerThanRequests
+                                type: string
+                              resources:
+                                items:
+                                  type: string
+                                type: array
+                            required:
+                              - changeRequirement
+                              - resources
+                            type: object
+                          type: array
+                        minReplicas:
+                          format: int32
+                          type: integer
+                        updateMode:
+                          enum:
+                            - "Off"
+                            - Initial
+                            - Recreate
+                            - InPlaceOrRecreate
+                            - InPlace
+                            - Auto
+                          type: string
+                      type: object
+                  type: object
               required:
                 - remoteWrite
               type: object
@@ -11072,6 +11494,8 @@ spec:
                   type: object
                 useDefaultResources:
                   type: boolean
+                useLegacyNaming:
+                  type: boolean
                 useStrictSecurity:
                   type: boolean
                 useVMConfigReloader:
@@ -11105,6 +11529,144 @@ spec:
                     type: object
                     x-kubernetes-preserve-unknown-fields: true
                   type: array
+                vpa:
+                  properties:
+                    recommenders:
+                      items:
+                        properties:
+                          name:
+                            type: string
+                        required:
+                          - name
+                        type: object
+                      type: array
+                    resourcePolicy:
+                      properties:
+                        containerPolicies:
+                          items:
+                            properties:
+                              containerName:
+                                type: string
+                              controlledResources:
+                                items:
+                                  type: string
+                                type: array
+                              controlledValues:
+                                enum:
+                                  - RequestsAndLimits
+                                  - RequestsOnly
+                                type: string
+                              maxAllowed:
+                                additionalProperties:
+                                  anyOf:
+                                    - type: integer
+                                    - type: string
+                                  pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                  x-kubernetes-int-or-string: true
+                                type: object
+                              memoryAggregationIntervalCount:
+                                format: int64
+                                minimum: 1
+                                type: integer
+                              memoryAggregationIntervalSeconds:
+                                format: int32
+                                minimum: 1
+                                type: integer
+                              minAllowed:
+                                additionalProperties:
+                                  anyOf:
+                                    - type: integer
+                                    - type: string
+                                  pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                  x-kubernetes-int-or-string: true
+                                type: object
+                              mode:
+                                enum:
+                                  - Auto
+                                  - "Off"
+                                type: string
+                              oomBumpUpRatio:
+                                anyOf:
+                                  - type: integer
+                                  - type: string
+                                pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                x-kubernetes-int-or-string: true
+                              oomMinBumpUp:
+                                anyOf:
+                                  - type: integer
+                                  - type: string
+                                pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                x-kubernetes-int-or-string: true
+                              startupBoost:
+                                properties:
+                                  cpu:
+                                    properties:
+                                      durationSeconds:
+                                        format: int32
+                                        type: integer
+                                      factor:
+                                        format: int32
+                                        type: integer
+                                      quantity:
+                                        anyOf:
+                                          - type: integer
+                                          - type: string
+                                        pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                        x-kubernetes-int-or-string: true
+                                      type:
+                                        enum:
+                                          - Factor
+                                          - Quantity
+                                        type: string
+                                    required:
+                                      - type
+                                    type: object
+                                    x-kubernetes-validations:
+                                      - message: factor is required when type is Factor and forbidden otherwise
+                                        rule: (self.type == 'Factor') == has(self.factor)
+                                      - message: quantity is required when type is Quantity and forbidden otherwise
+                                        rule: (self.type == 'Quantity') == has(self.quantity)
+                                type: object
+                            type: object
+                          type: array
+                      type: object
+                    updatePolicy:
+                      properties:
+                        evictAfterOOMSeconds:
+                          format: int32
+                          minimum: 1
+                          type: integer
+                        evictionRequirements:
+                          items:
+                            properties:
+                              changeRequirement:
+                                enum:
+                                  - TargetHigherThanRequests
+                                  - TargetLowerThanRequests
+                                type: string
+                              resources:
+                                items:
+                                  type: string
+                                type: array
+                            required:
+                              - changeRequirement
+                              - resources
+                            type: object
+                          type: array
+                        minReplicas:
+                          format: int32
+                          type: integer
+                        updateMode:
+                          enum:
+                            - "Off"
+                            - Initial
+                            - Recreate
+                            - InPlaceOrRecreate
+                            - InPlace
+                            - Auto
+                          type: string
+                      type: object
+                  type: object
                 webConfig:
                   properties:
                     basic_auth_users:
@@ -12242,6 +12804,8 @@ spec:
                   type: string
                 useDefaultResources:
                   type: boolean
+                useLegacyNaming:
+                  type: boolean
                 useStrictSecurity:
                   type: boolean
                 useVMConfigReloader:
@@ -12275,6 +12839,144 @@ spec:
                     type: object
                     x-kubernetes-preserve-unknown-fields: true
                   type: array
+                vpa:
+                  properties:
+                    recommenders:
+                      items:
+                        properties:
+                          name:
+                            type: string
+                        required:
+                          - name
+                        type: object
+                      type: array
+                    resourcePolicy:
+                      properties:
+                        containerPolicies:
+                          items:
+                            properties:
+                              containerName:
+                                type: string
+                              controlledResources:
+                                items:
+                                  type: string
+                                type: array
+                              controlledValues:
+                                enum:
+                                  - RequestsAndLimits
+                                  - RequestsOnly
+                                type: string
+                              maxAllowed:
+                                additionalProperties:
+                                  anyOf:
+                                    - type: integer
+                                    - type: string
+                                  pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                  x-kubernetes-int-or-string: true
+                                type: object
+                              memoryAggregationIntervalCount:
+                                format: int64
+                                minimum: 1
+                                type: integer
+                              memoryAggregationIntervalSeconds:
+                                format: int32
+                                minimum: 1
+                                type: integer
+                              minAllowed:
+                                additionalProperties:
+                                  anyOf:
+                                    - type: integer
+                                    - type: string
+                                  pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                  x-kubernetes-int-or-string: true
+                                type: object
+                              mode:
+                                enum:
+                                  - Auto
+                                  - "Off"
+                                type: string
+                              oomBumpUpRatio:
+                                anyOf:
+                                  - type: integer
+                                  - type: string
+                                pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                x-kubernetes-int-or-string: true
+                              oomMinBumpUp:
+                                anyOf:
+                                  - type: integer
+                                  - type: string
+                                pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                x-kubernetes-int-or-string: true
+                              startupBoost:
+                                properties:
+                                  cpu:
+                                    properties:
+                                      durationSeconds:
+                                        format: int32
+                                        type: integer
+                                      factor:
+                                        format: int32
+                                        type: integer
+                                      quantity:
+                                        anyOf:
+                                          - type: integer
+                                          - type: string
+                                        pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                        x-kubernetes-int-or-string: true
+                                      type:
+                                        enum:
+                                          - Factor
+                                          - Quantity
+                                        type: string
+                                    required:
+                                      - type
+                                    type: object
+                                    x-kubernetes-validations:
+                                      - message: factor is required when type is Factor and forbidden otherwise
+                                        rule: (self.type == 'Factor') == has(self.factor)
+                                      - message: quantity is required when type is Quantity and forbidden otherwise
+                                        rule: (self.type == 'Quantity') == has(self.quantity)
+                                type: object
+                            type: object
+                          type: array
+                      type: object
+                    updatePolicy:
+                      properties:
+                        evictAfterOOMSeconds:
+                          format: int32
+                          minimum: 1
+                          type: integer
+                        evictionRequirements:
+                          items:
+                            properties:
+                              changeRequirement:
+                                enum:
+                                  - TargetHigherThanRequests
+                                  - TargetLowerThanRequests
+                                type: string
+                              resources:
+                                items:
+                                  type: string
+                                type: array
+                            required:
+                              - changeRequirement
+                              - resources
+                            type: object
+                          type: array
+                        minReplicas:
+                          format: int32
+                          type: integer
+                        updateMode:
+                          enum:
+                            - "Off"
+                            - Initial
+                            - Recreate
+                            - InPlaceOrRecreate
+                            - InPlace
+                            - Auto
+                          type: string
+                      type: object
+                  type: object
               required:
                 - datasource
               type: object
@@ -13505,6 +14207,8 @@ spec:
                   type: array
                 useDefaultResources:
                   type: boolean
+                useLegacyNaming:
+                  type: boolean
                 useStrictSecurity:
                   type: boolean
                 volumeMounts:
@@ -13536,6 +14240,144 @@ spec:
                     type: object
                     x-kubernetes-preserve-unknown-fields: true
                   type: array
+                vpa:
+                  properties:
+                    recommenders:
+                      items:
+                        properties:
+                          name:
+                            type: string
+                        required:
+                          - name
+                        type: object
+                      type: array
+                    resourcePolicy:
+                      properties:
+                        containerPolicies:
+                          items:
+                            properties:
+                              containerName:
+                                type: string
+                              controlledResources:
+                                items:
+                                  type: string
+                                type: array
+                              controlledValues:
+                                enum:
+                                  - RequestsAndLimits
+                                  - RequestsOnly
+                                type: string
+                              maxAllowed:
+                                additionalProperties:
+                                  anyOf:
+                                    - type: integer
+                                    - type: string
+                                  pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                  x-kubernetes-int-or-string: true
+                                type: object
+                              memoryAggregationIntervalCount:
+                                format: int64
+                                minimum: 1
+                                type: integer
+                              memoryAggregationIntervalSeconds:
+                                format: int32
+                                minimum: 1
+                                type: integer
+                              minAllowed:
+                                additionalProperties:
+                                  anyOf:
+                                    - type: integer
+                                    - type: string
+                                  pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                  x-kubernetes-int-or-string: true
+                                type: object
+                              mode:
+                                enum:
+                                  - Auto
+                                  - "Off"
+                                type: string
+                              oomBumpUpRatio:
+                                anyOf:
+                                  - type: integer
+                                  - type: string
+                                pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                x-kubernetes-int-or-string: true
+                              oomMinBumpUp:
+                                anyOf:
+                                  - type: integer
+                                  - type: string
+                                pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                x-kubernetes-int-or-string: true
+                              startupBoost:
+                                properties:
+                                  cpu:
+                                    properties:
+                                      durationSeconds:
+                                        format: int32
+                                        type: integer
+                                      factor:
+                                        format: int32
+                                        type: integer
+                                      quantity:
+                                        anyOf:
+                                          - type: integer
+                                          - type: string
+                                        pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                        x-kubernetes-int-or-string: true
+                                      type:
+                                        enum:
+                                          - Factor
+                                          - Quantity
+                                        type: string
+                                    required:
+                                      - type
+                                    type: object
+                                    x-kubernetes-validations:
+                                      - message: factor is required when type is Factor and forbidden otherwise
+                                        rule: (self.type == 'Factor') == has(self.factor)
+                                      - message: quantity is required when type is Quantity and forbidden otherwise
+                                        rule: (self.type == 'Quantity') == has(self.quantity)
+                                type: object
+                            type: object
+                          type: array
+                      type: object
+                    updatePolicy:
+                      properties:
+                        evictAfterOOMSeconds:
+                          format: int32
+                          minimum: 1
+                          type: integer
+                        evictionRequirements:
+                          items:
+                            properties:
+                              changeRequirement:
+                                enum:
+                                  - TargetHigherThanRequests
+                                  - TargetLowerThanRequests
+                                type: string
+                              resources:
+                                items:
+                                  type: string
+                                type: array
+                            required:
+                              - changeRequirement
+                              - resources
+                            type: object
+                          type: array
+                        minReplicas:
+                          format: int32
+                          type: integer
+                        updateMode:
+                          enum:
+                            - "Off"
+                            - Initial
+                            - Recreate
+                            - InPlaceOrRecreate
+                            - InPlace
+                            - Auto
+                          type: string
+                      type: object
+                  type: object
                 writer:
                   properties:
                     basicAuth:
@@ -14016,11 +14858,15 @@ spec:
                                   type: string
                                 namespace:
                                   type: string
+                                useExtraService:
+                                  type: boolean
                               required:
                                 - name
                                 - namespace
                               type: object
                             type: array
+                          useExtraService:
+                            type: boolean
                         required:
                           - kind
                           - name
@@ -15018,6 +15864,16 @@ spec:
                   x-kubernetes-preserve-unknown-fields: true
                 unauthorizedUserAccessSpec:
                   properties:
+                    access_log:
+                      properties:
+                        filters:
+                          properties:
+                            skip_status_codes:
+                              items:
+                                type: integer
+                              type: array
+                          type: object
+                      type: object
                     default_url:
                       items:
                         type: string
@@ -15100,11 +15956,15 @@ spec:
                                       type: string
                                     namespace:
                                       type: string
+                                    useExtraService:
+                                      type: boolean
                                   required:
                                     - name
                                     - namespace
                                   type: object
                                 type: array
+                              useExtraService:
+                                type: boolean
                             required:
                               - kind
                               - name
@@ -15345,6 +16205,8 @@ spec:
                     - RollingUpdate
                   type: string
                 useDefaultResources:
+                  type: boolean
+                useLegacyNaming:
                   type: boolean
                 useProxyProtocol:
                   type: boolean
@@ -15788,6 +16650,8 @@ spec:
                   type: string
                 serviceAccountName:
                   type: string
+                useLegacyNaming:
+                  type: boolean
                 useStrictSecurity:
                   type: boolean
                 vminsert:
@@ -18335,6 +19199,11 @@ spec:
               type: object
             spec:
               properties:
+                backendType:
+                  enum:
+                    - VMCluster
+                    - VMSingle
+                  type: string
                 license:
                   properties:
                     forceOffline:
@@ -19636,11 +20505,15 @@ spec:
                                           type: string
                                         namespace:
                                           type: string
+                                        useExtraService:
+                                          type: boolean
                                       required:
                                         - name
                                         - namespace
                                       type: object
                                     type: array
+                                  useExtraService:
+                                    type: boolean
                                 required:
                                   - kind
                                   - name
@@ -22451,6 +23324,16 @@ spec:
                           x-kubernetes-preserve-unknown-fields: true
                         unauthorizedUserAccessSpec:
                           properties:
+                            access_log:
+                              properties:
+                                filters:
+                                  properties:
+                                    skip_status_codes:
+                                      items:
+                                        type: integer
+                                      type: array
+                                  type: object
+                              type: object
                             default_url:
                               items:
                                 type: string
@@ -22533,11 +23416,15 @@ spec:
                                               type: string
                                             namespace:
                                               type: string
+                                            useExtraService:
+                                              type: boolean
                                           required:
                                             - name
                                             - namespace
                                           type: object
                                         type: array
+                                      useExtraService:
+                                        type: boolean
                                     required:
                                       - kind
                                       - name
@@ -22778,6 +23665,8 @@ spec:
                             - RollingUpdate
                           type: string
                         useDefaultResources:
+                          type: boolean
+                        useLegacyNaming:
                           type: boolean
                         useProxyProtocol:
                           type: boolean
@@ -28066,6 +28955,13 @@ spec:
                         spec:
                           x-kubernetes-preserve-unknown-fields: true
                       type: object
+                    vmsingle:
+                      properties:
+                        name:
+                          type: string
+                        spec:
+                          x-kubernetes-preserve-unknown-fields: true
+                      type: object
                   type: object
                 zones:
                   items:
@@ -32335,6 +33231,13 @@ spec:
                           spec:
                             x-kubernetes-preserve-unknown-fields: true
                         type: object
+                      vmsingle:
+                        properties:
+                          name:
+                            type: string
+                          spec:
+                            x-kubernetes-preserve-unknown-fields: true
+                        type: object
                     required:
                       - name
                     type: object
@@ -34582,6 +35485,7 @@ spec:
                         items:
                           properties:
                             alert:
+                              default: ""
                               type: string
                             annotations:
                               additionalProperties:
@@ -34600,6 +35504,7 @@ spec:
                                 type: string
                               type: object
                             record:
+                              default: ""
                               type: string
                             update_entries_limit:
                               type: integer
@@ -44106,6 +45011,8 @@ spec:
                   type: array
                 useDefaultResources:
                   type: boolean
+                useLegacyNaming:
+                  type: boolean
                 useStrictSecurity:
                   type: boolean
                 useVMConfigReloader:
@@ -44379,6 +45286,144 @@ spec:
                     type: object
                     x-kubernetes-preserve-unknown-fields: true
                   type: array
+                vpa:
+                  properties:
+                    recommenders:
+                      items:
+                        properties:
+                          name:
+                            type: string
+                        required:
+                          - name
+                        type: object
+                      type: array
+                    resourcePolicy:
+                      properties:
+                        containerPolicies:
+                          items:
+                            properties:
+                              containerName:
+                                type: string
+                              controlledResources:
+                                items:
+                                  type: string
+                                type: array
+                              controlledValues:
+                                enum:
+                                  - RequestsAndLimits
+                                  - RequestsOnly
+                                type: string
+                              maxAllowed:
+                                additionalProperties:
+                                  anyOf:
+                                    - type: integer
+                                    - type: string
+                                  pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                  x-kubernetes-int-or-string: true
+                                type: object
+                              memoryAggregationIntervalCount:
+                                format: int64
+                                minimum: 1
+                                type: integer
+                              memoryAggregationIntervalSeconds:
+                                format: int32
+                                minimum: 1
+                                type: integer
+                              minAllowed:
+                                additionalProperties:
+                                  anyOf:
+                                    - type: integer
+                                    - type: string
+                                  pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                  x-kubernetes-int-or-string: true
+                                type: object
+                              mode:
+                                enum:
+                                  - Auto
+                                  - "Off"
+                                type: string
+                              oomBumpUpRatio:
+                                anyOf:
+                                  - type: integer
+                                  - type: string
+                                pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                x-kubernetes-int-or-string: true
+                              oomMinBumpUp:
+                                anyOf:
+                                  - type: integer
+                                  - type: string
+                                pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                x-kubernetes-int-or-string: true
+                              startupBoost:
+                                properties:
+                                  cpu:
+                                    properties:
+                                      durationSeconds:
+                                        format: int32
+                                        type: integer
+                                      factor:
+                                        format: int32
+                                        type: integer
+                                      quantity:
+                                        anyOf:
+                                          - type: integer
+                                          - type: string
+                                        pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                        x-kubernetes-int-or-string: true
+                                      type:
+                                        enum:
+                                          - Factor
+                                          - Quantity
+                                        type: string
+                                    required:
+                                      - type
+                                    type: object
+                                    x-kubernetes-validations:
+                                      - message: factor is required when type is Factor and forbidden otherwise
+                                        rule: (self.type == 'Factor') == has(self.factor)
+                                      - message: quantity is required when type is Quantity and forbidden otherwise
+                                        rule: (self.type == 'Quantity') == has(self.quantity)
+                                type: object
+                            type: object
+                          type: array
+                      type: object
+                    updatePolicy:
+                      properties:
+                        evictAfterOOMSeconds:
+                          format: int32
+                          minimum: 1
+                          type: integer
+                        evictionRequirements:
+                          items:
+                            properties:
+                              changeRequirement:
+                                enum:
+                                  - TargetHigherThanRequests
+                                  - TargetLowerThanRequests
+                                type: string
+                              resources:
+                                items:
+                                  type: string
+                                type: array
+                            required:
+                              - changeRequirement
+                              - resources
+                            type: object
+                          type: array
+                        minReplicas:
+                          format: int32
+                          type: integer
+                        updateMode:
+                          enum:
+                            - "Off"
+                            - Initial
+                            - Recreate
+                            - InPlaceOrRecreate
+                            - InPlace
+                            - Auto
+                          type: string
+                      type: object
+                  type: object
               type: object
             status:
               properties:
@@ -45082,6 +46127,16 @@ spec:
               type: object
             spec:
               properties:
+                access_log:
+                  properties:
+                    filters:
+                      properties:
+                        skip_status_codes:
+                          items:
+                            type: integer
+                          type: array
+                      type: object
+                  type: object
                 bearerToken:
                   type: string
                 default_url:
@@ -45233,11 +46288,15 @@ spec:
                                   type: string
                                 namespace:
                                   type: string
+                                useExtraService:
+                                  type: boolean
                               required:
                                 - name
                                 - namespace
                               type: object
                             type: array
+                          useExtraService:
+                            type: boolean
                         required:
                           - kind
                           - name
@@ -45438,6 +46497,8 @@ spec:
                     - key
                   type: object
                   x-kubernetes-map-type: atomic
+                useLegacyNaming:
+                  type: boolean
                 username:
                   type: string
               required:
@@ -47569,6 +48630,8 @@ spec:
                           type: object
                       type: object
                   type: object
+                useLegacyNaming:
+                  type: boolean
                 useStrictSecurity:
                   type: boolean
               type: object
@@ -48110,6 +49173,8 @@ spec:
                   type: array
                 useDefaultResources:
                   type: boolean
+                useLegacyNaming:
+                  type: boolean
                 useStrictSecurity:
                   type: boolean
                 volumeMounts:
@@ -48141,6 +49206,144 @@ spec:
                     type: object
                     x-kubernetes-preserve-unknown-fields: true
                   type: array
+                vpa:
+                  properties:
+                    recommenders:
+                      items:
+                        properties:
+                          name:
+                            type: string
+                        required:
+                          - name
+                        type: object
+                      type: array
+                    resourcePolicy:
+                      properties:
+                        containerPolicies:
+                          items:
+                            properties:
+                              containerName:
+                                type: string
+                              controlledResources:
+                                items:
+                                  type: string
+                                type: array
+                              controlledValues:
+                                enum:
+                                  - RequestsAndLimits
+                                  - RequestsOnly
+                                type: string
+                              maxAllowed:
+                                additionalProperties:
+                                  anyOf:
+                                    - type: integer
+                                    - type: string
+                                  pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                  x-kubernetes-int-or-string: true
+                                type: object
+                              memoryAggregationIntervalCount:
+                                format: int64
+                                minimum: 1
+                                type: integer
+                              memoryAggregationIntervalSeconds:
+                                format: int32
+                                minimum: 1
+                                type: integer
+                              minAllowed:
+                                additionalProperties:
+                                  anyOf:
+                                    - type: integer
+                                    - type: string
+                                  pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                  x-kubernetes-int-or-string: true
+                                type: object
+                              mode:
+                                enum:
+                                  - Auto
+                                  - "Off"
+                                type: string
+                              oomBumpUpRatio:
+                                anyOf:
+                                  - type: integer
+                                  - type: string
+                                pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                x-kubernetes-int-or-string: true
+                              oomMinBumpUp:
+                                anyOf:
+                                  - type: integer
+                                  - type: string
+                                pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                x-kubernetes-int-or-string: true
+                              startupBoost:
+                                properties:
+                                  cpu:
+                                    properties:
+                                      durationSeconds:
+                                        format: int32
+                                        type: integer
+                                      factor:
+                                        format: int32
+                                        type: integer
+                                      quantity:
+                                        anyOf:
+                                          - type: integer
+                                          - type: string
+                                        pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                        x-kubernetes-int-or-string: true
+                                      type:
+                                        enum:
+                                          - Factor
+                                          - Quantity
+                                        type: string
+                                    required:
+                                      - type
+                                    type: object
+                                    x-kubernetes-validations:
+                                      - message: factor is required when type is Factor and forbidden otherwise
+                                        rule: (self.type == 'Factor') == has(self.factor)
+                                      - message: quantity is required when type is Quantity and forbidden otherwise
+                                        rule: (self.type == 'Quantity') == has(self.quantity)
+                                type: object
+                            type: object
+                          type: array
+                      type: object
+                    updatePolicy:
+                      properties:
+                        evictAfterOOMSeconds:
+                          format: int32
+                          minimum: 1
+                          type: integer
+                        evictionRequirements:
+                          items:
+                            properties:
+                              changeRequirement:
+                                enum:
+                                  - TargetHigherThanRequests
+                                  - TargetLowerThanRequests
+                                type: string
+                              resources:
+                                items:
+                                  type: string
+                                type: array
+                            required:
+                              - changeRequirement
+                              - resources
+                            type: object
+                          type: array
+                        minReplicas:
+                          format: int32
+                          type: integer
+                        updateMode:
+                          enum:
+                            - "Off"
+                            - Initial
+                            - Recreate
+                            - InPlaceOrRecreate
+                            - InPlace
+                            - Auto
+                          type: string
+                      type: object
+                  type: object
               type: object
             status:
               properties:
