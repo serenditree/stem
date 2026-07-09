@@ -5,7 +5,7 @@ metadata:
   namespace: terra-testing
 spec:
   parallelism: 2
-  arguments: --tag testid=serenditree
+  arguments: --tag testid=serenditree --verbose
   script:
     configMap:
       name: testing
