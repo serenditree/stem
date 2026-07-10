@@ -13,7 +13,7 @@ global:
     compute1: ~
     storage1: ~
     storage2: ~
-  revision: "victoria"
+  revision: "dev"
   argocdNamespace: "terra-argocd"
   destinationServer: "https://kubernetes.default.svc"
   repository: "git@github.com:serenditree/stem.git"
