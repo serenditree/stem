@@ -36,6 +36,22 @@ victoria-metrics-k8s-stack:
     enabled: false
   kubeControllerManager:
     enabled: false
+  kubeEtcd:
+    enabled: false
+  defaultRules:
+    groups:
+      etcd:
+        enabled: false
+      kubernetes-system-scheduler:
+        enabled: false
+      kubernetes-system-controller-manager:
+        enabled: false
+      kube-scheduler.rules:
+        enabled: false
+      kube-prometheus-general.rules:
+        rules:
+          "count:up0":
+            enabled: false
 ########################################################################################################################
 # VictoriaLogs
 ########################################################################################################################
