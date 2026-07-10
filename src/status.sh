@@ -106,16 +106,6 @@ function sc_status_config() {
     done
 }
 
-# Prints the number of log- and trace-records per service.
-# TODO: reimplement against VictoriaLogs/VictoriaTraces LogsQL (/select/logsql/query on
-# vlsingle-terra-scope:9428 and vtsingle-terra-scope:10428) now that terra-traces (Quickwit) is gone.
-function sc_status_cluster_signal_stats() {
-    sc_heading 2 "Logs"
-    echo "Not yet implemented for VictoriaLogs."
-    sc_heading 2 "Traces"
-    echo "Not yet implemented for VictoriaTraces."
-}
-
 # Prints cluster status information.
 function sc_status_cluster() {
     sc_heading 1 "Context"
@@ -140,8 +130,6 @@ function sc_status_cluster() {
         else
             sc_heading 2 "error"
         fi
-        sc_heading 1 "Signals"
-        sc_status_cluster_signal_stats
     fi
 
     sc_heading 1 "Storage"

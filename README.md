@@ -50,7 +50,6 @@ ORDINAL  SERVICE            IMAGE                     TAG     PATH
 │   │   ├── streams     # Strimzi Operator
 │   │   ├── tekton      # Tekton Pipelines
 │   │   ├── testing     # K6 load testing
-│   │   ├── traces      # Qwickwit
 │   │   └── vault       # Openbao + External Secrets Operator
 │   └── tree            # App of Apps
 ├── cli-template.sh   # Argbash template for CLI

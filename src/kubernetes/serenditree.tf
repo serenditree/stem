@@ -91,18 +91,6 @@ resource "helm_release" "serenditree" {
         value = trimprefix(exoscale_sks_cluster.serenditree.endpoint, "https://")
       },
       {
-        name  = "terraTraces.parameters.quickwit.config.storage.s3.endpoint"
-        value = "https://sos-${var.zone_storage_1}.exo.io"
-      },
-      {
-        name  = "terraTraces.parameters.quickwit.config.storage.s3.region"
-        value = var.zone_storage_1
-      },
-      {
-        name  = "terraTraces.parameters.quickwit.config.default_index_root_uri"
-        value = "s3://${var.storage_traces}/indexes"
-      },
-      {
         name  = "terraGateway.parameters.loadBalancerID"
         value = module.serenditree_gateway.serenditree_nlb.id
       },

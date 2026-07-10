@@ -112,49 +112,6 @@ resource "terraform_data" "serenditree_data" {
   }
 }
 ########################################################################################################################
-# Traces
-########################################################################################################################
-resource "exoscale_iam_role" "serenditree_traces" {
-  name        = "serenditree-traces"
-  description = "Role that allows RW access to a single SOS bucket for telemetry signals."
-  editable    = false
-
-  policy = {
-    default_service_strategy = "deny"
-    services = {
-      sos = {
-        type = "rules"
-        rules = [
-          {
-            expression = "parameters.bucket != 'serenditree-traces'"
-            action     = "deny"
-          },
-          {
-            expression = "operation.matches('^(list|head|get|put)-objects?$')"
-            action     = "allow"
-          }
-        ]
-      }
-    }
-  }
-}
-
-resource "exoscale_iam_api_key" "serenditree_traces" {
-  name    = "serenditree-traces"
-  role_id = exoscale_iam_role.serenditree_traces.id
-}
-
-resource "terraform_data" "serenditree_traces" {
-  provisioner "local-exec" {
-    command = "./src/post-iam.sh"
-    environment = {
-      ACCESS = exoscale_iam_api_key.serenditree_traces.key
-      SECRET = exoscale_iam_api_key.serenditree_traces.secret
-      PREFIX = "serenditree/iam/traces"
-    }
-  }
-}
-########################################################################################################################
 # Scaler
 ########################################################################################################################
 resource "exoscale_iam_role" "serenditree_scaler" {

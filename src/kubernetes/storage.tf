@@ -89,11 +89,3 @@ resource "aws_s3_bucket_replication_configuration" "serenditree_backup_replicati
     }
   }
 }
-########################################################################################################################
-# Traces
-########################################################################################################################
-resource "aws_s3_bucket" "serenditree_traces" {
-  provider      = aws.src
-  bucket        = var.storage_traces
-  force_destroy = true
-}

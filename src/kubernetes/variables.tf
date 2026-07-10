@@ -118,12 +118,6 @@ variable "storage_backup_lifecycle" {
   type        = bool
   default     = false
 }
-
-variable "storage_traces" {
-  description = "Bucket for traces and logs."
-  type        = string
-  default     = "serenditree-traces"
-}
 ########################################################################################################################
 # Global
 ########################################################################################################################
