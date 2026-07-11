@@ -184,7 +184,7 @@ elif [[ " $* " =~ " up " ]] && [[ -z "$_ST_CONTEXT_CLUSTER" ]]; then
 ########################################################################################################################
 elif [[ " $* " =~ ( (tekton|tkn) ) ]]; then
     sc_heading 1 "Running tekton..."
-    kubectl create --namespace terra-tekton -f ./rc/run.yml &&
+    kubectl create --namespace tekton-pipelines -f ./rc/run.yml &&
         sleep 1s &&
-        tkn pipeline logs --namespace terra-tekton --last --follow branch
+        tkn pipeline logs --namespace tekton-pipelines --last --follow branch
 fi

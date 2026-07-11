@@ -1,5 +1,5 @@
 {{- if .Values.terraTekton.enabled }}
-{{ $path := printf "%s/%s" .Values.global.terraPath trimPrefix .Values.global.terraPrefix .Values.terraTekton.name }}
+{{ $path := printf "%s/%s" .Values.global.terraPath (trimPrefix .Values.global.terraPrefix .Values.terraTekton.name) }}
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application

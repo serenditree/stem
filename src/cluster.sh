@@ -268,9 +268,9 @@ function sc_cluster_clean() {
         --namespace serenditree \
         --output=jsonpath='{.items[?(@.spec.replicas==0)].metadata.name}' |
         xargs --no-run-if-empty kubectl --namespace serenditree delete rs
-    if kubectl get ns terra-tekton &>/dev/null; then
+    if kubectl get ns tekton-pipelines &>/dev/null; then
         # Pipeline runs except the two most recent ones.
-        tkn pipelinerun delete --keep 2 --namespace terra-tekton
+        tkn pipelinerun delete --keep 2 --namespace tekton-pipelines
     fi
 }
 
