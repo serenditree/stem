@@ -1,4 +1,5 @@
 {{- if .Values.terraTekton.enabled }}
+{{ $path := printf "%s/%s" .Values.global.terraPath trimPrefix .Values.global.terraPrefix .Values.terraTekton.name }}
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
@@ -12,18 +13,21 @@ metadata:
     - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
-  source:
-    repoURL: {{ .Values.global.repository | quote }}
-    path: "{{ .Values.global.terraPath }}/{{ trimPrefix .Values.global.terraPrefix .Values.terraTekton.name }}"
-    targetRevision: {{ .Values.terraTekton.revision | default .Values.global.revision | quote }}
-    helm:
-      parameters:
-        - name: global.wait
-          value: {{ .Values.global.wait | quote }}
-        - name: global.wave
-          value: {{ .Values.terraTekton.wave | quote }}
-        - name: global.context
-          value: {{ .Values.global.context }}
+  sources:
+    - repoURL: {{ .Values.global.repository | quote }}
+      path: "{{ $path }}/dashboard"
+      targetRevision: {{ .Values.terraTekton.revision | default .Values.global.revision | quote }}
+    - repoURL: {{ .Values.global.repository | quote }}
+      path: "{{ $path }}"
+      targetRevision: {{ .Values.terraTekton.revision | default .Values.global.revision | quote }}
+      helm:
+        parameters:
+          - name: global.wait
+            value: {{ .Values.global.wait | quote }}
+          - name: global.wave
+            value: {{ .Values.terraTekton.wave | quote }}
+          - name: global.context
+            value: {{ .Values.global.context }}
   destination:
     server: {{ .Values.global.destinationServer }}
     namespace: {{ .Values.terraTekton.namespace }}
