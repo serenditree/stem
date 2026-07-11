@@ -30,4 +30,11 @@ spec:
   syncPolicy:
     automated: {{ .Values.global.automated | toYaml | nindent 6 }}
     retry: {{ .Values.global.retry | toYaml | nindent 6  }}
+    syncOptions:
+      - RespectIgnoreDifferences=true
+  ignoreDifferences:
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      jqPathExpressions:
+        - '.spec.preserveUnknownFields'
 {{- end }}
