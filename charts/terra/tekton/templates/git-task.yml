@@ -34,6 +34,6 @@ spec:
   steps:
     - name: fetch
       image: alpine/git
-      workingdir: $(workspaces.git.path)
+      workingDir: $(workspaces.git.path)
       script: |
 {{ .Files.Get "resources/git.sh" | indent 8 }}
