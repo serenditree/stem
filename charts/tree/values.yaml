@@ -112,7 +112,7 @@ terraGateway:
     envoy: false
     loadBalancerID: ~
 terraTekton:
-  enabled: false
+  enabled: true
   wave: 7
   name: terra-tekton
   namespace: tekton-pipelines
