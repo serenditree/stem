@@ -28,6 +28,8 @@ spec:
             value: {{ .Values.terraTekton.wave | quote }}
           - name: global.context
             value: {{ .Values.global.context }}
+          - name: global.host
+            value: {{ .Values.global.host }}
   destination:
     server: {{ .Values.global.destinationServer }}
     namespace: {{ .Values.terraTekton.namespace }}
