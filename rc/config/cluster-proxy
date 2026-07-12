@@ -4,7 +4,7 @@ grafana http://127.0.0.1:8001/api/v1/namespaces/terra-scope/services/terra-scope
 victoria http://127.0.0.1:8001/api/v1/namespaces/terra-scope/services/http:vmsingle-terra-scope:8428/proxy/
 alertmanager http://127.0.0.1:8001/api/v1/namespaces/terra-scope/services/http:vmalertmanager-terra-scope:9093/proxy/
 hubble-ui http://127.0.0.1:8001/api/v1/namespaces/kube-system/services/http:hubble-ui:80/proxy/
-vault http://127.0.0.1:8001/api/v1/namespaces/terra-vault/services/http:vault:8200/proxy/
+vault http://127.0.0.1:8001/api/v1/namespaces/terra-vault/services/http:vault-ui:8200/proxy/
 
 branch-seed http://127.0.0.1:8001/api/v1/namespaces/serenditree/services/http:branch-seed:8080/proxy/
 branch-user http://127.0.0.1:8001/api/v1/namespaces/serenditree/services/http:branch-user:8080/proxy/

@@ -19,6 +19,8 @@ openbao:
       accessMode: ReadWriteOnce
     standalone:
       enabled: true
+  ui:
+    enabled: true
 external-secrets:
   fullnameOverride: secrets
   installCRDs: true
