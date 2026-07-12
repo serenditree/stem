@@ -1,2 +1,2 @@
 resources:
-  - https://infra.tekton.dev/tekton-releases/dashboard/latest/release-full.yaml
+  - https://github.com/tektoncd/dashboard/releases/download/v0.70.0/release-full.yaml

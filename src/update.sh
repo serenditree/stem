@@ -175,19 +175,38 @@ function sc_update_image() {
 
 # Checks versions of kustomize deployments.
 function sc_update_kustomize() {
+    # Inline kustomization in Application resources
     while read -r _repo _current; do
         [[ -z "$_ARG_YES" ]] && sc_heading 2 "$_repo"
         local _latest=$(
             curl --silent "https://api.github.com/repos/${_repo//*.com\//}/releases/latest" | jq -r '.tag_name'
         )
         if [[ -z "$_ARG_YES" ]]; then
-             [[ "$_current" != "$_latest" ]] && echo -n "$_BOLD"
+            [[ "$_current" != "$_latest" ]] && echo -n "$_BOLD"
             echo -e "current: ${_current}\nlatest: ${_latest}${_NORMAL}\n" | column -t
         else
             echo "Updating ${_repo} to ${_latest}."
             sed -Ei "s/(.*targetRevision: )${_current}/\1${_latest}/" "${_ST_HOME_STEM}/charts/tree/values.yaml"
         fi
     done < <(sed -En 's/.*(repoUrl|targetRevision): (.*)/\2/p' "${_ST_HOME_STEM}/charts/tree/values.yaml" | xargs -n 2)
+
+    # Kustomization.yaml
+    while read -r _kustomization; do
+        local _repo=$(sed -En "s%.*https://github.com/(.*)/releases/.*%\1%p" "$_kustomization")
+        sc_heading 2 "https://github.com/$_repo"
+        local _latest=$(curl --silent "https://api.github.com/repos/${_repo}/releases/latest" | jq -r '.tag_name')
+        local _current=$(sed -En 's/.*download\/([^/]+).*/\1/p' "$_kustomization")
+        if [[ -z "$_ARG_YES" ]]; then
+            [[ "$_current" != "$_latest" ]] && echo -n "$_BOLD"
+            echo -e "current: ${_current}\nlatest: ${_latest}${_NORMAL}\n" | column -t
+        else
+            echo "Updating ${_repo} to ${_latest}."
+            sed -Ei "s/(.*)${_current}(.*)/\1${_latest}\2/" "$_kustomization"
+        fi
+
+    done < <(find "$_ST_HOME_STEM" -name 'kustomization.y*' -exec realpath {} \;)
+
+    # Push
     if [[ $_ARG_YES -gt 1 ]]; then
         git -C "$_ST_HOME_STEM" commit -am 'Dependencies update;'
         git -C "$_ST_HOME_STEM" push
