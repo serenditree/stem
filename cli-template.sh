@@ -519,7 +519,7 @@ cluster)
         time sc_cluster_certificate
         ;;
     tekton)
-        time sc_plots_do "$(sc_args_to_pattern ${_ARG_LEFTOVERS[*]})" tekton
+        time sc_cluster_tekton "${_ARG_LEFTOVERS[*]}"
         ;;
     test)
         sc_test_run_cluster

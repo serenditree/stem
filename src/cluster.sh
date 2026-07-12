@@ -22,6 +22,16 @@ function sc_cluster_deploy() {
     [[ -n "$_apps" ]] && argocd app wait $_apps --health
 }
 
+# Starts a Tekton PipelineRun
+# $1: Pipeline to run
+function sc_cluster_tekton() {
+    local -r _pipeline=$1
+
+   kubectl create --namespace tekton-pipelines -f "${_ST_HOME_STEM}/rc/tekton/${_pipeline}.yml" &&
+        sleep 1s &&
+        tkn pipeline logs --namespace tekton-pipelines --last --follow "$_pipeline"
+}
+
 # Displays and returns status of control plane and worker nodes.
 function sc_cluster_status() {
     if [[ -n "${_ST_CONTEXT_OPENSHIFT_LOCAL}${_ST_CONTEXT_KUBERNETES_LOCAL}" ]]; then

@@ -179,12 +179,3 @@ elif [[ " $* " =~ " up " ]] && [[ -z "$_ST_CONTEXT_CLUSTER" ]]; then
     podman cp ${_VOLUME_SRC_SRC}/. ${_CONTAINER}:${_VOLUME_DST_SRC}
     echo "Starting build..."
     podman exec ${_CONTAINER} touch ${_VOLUME_DST_SRC}/release
-########################################################################################################################
-# TEKTON
-########################################################################################################################
-elif [[ " $* " =~ ( (tekton|tkn) ) ]]; then
-    sc_heading 1 "Running tekton..."
-    kubectl create --namespace tekton-pipelines -f ./rc/run.yml &&
-        sleep 1s &&
-        tkn pipeline logs --namespace tekton-pipelines --last --follow branch
-fi

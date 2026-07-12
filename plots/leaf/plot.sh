@@ -96,12 +96,3 @@ elif [[ " $* " =~ " up " ]] && [[ -z "$_ST_CONTEXT_CLUSTER" ]]; then
         --detach \
         serenditree/node-builder:latest \
         yarn run host
-########################################################################################################################
-# TEKTON
-########################################################################################################################
-elif [[ " $* " =~ ( (tkn|tekton) ) ]]; then
-    sc_heading 1 "Running tekton..."
-    kubectl create --namespace tekton-pipelines -f ./rc/run.yml &&
-        sleep 1s &&
-        tkn pipeline logs --namespace tekton-pipelines --last --follow leaf
-fi
