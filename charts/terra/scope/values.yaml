@@ -135,8 +135,8 @@ victoria-metrics-k8s-stack:
           slack_configs:
             - channel: "#alerts"
               send_resolved: true
-              title: "{{ range $i, $a := .Alerts }}{{ $i }}. {{ $a.Annotations.summary }}\n{{ end }}"
-              text: "{{ range $i, $a := .Alerts }}*{{ $i }}. {{ $a.Annotations.summary }}*\n{{ $a.Annotations.description }}\n\n{{ end }}"
+              title: "{{ range $i, $a := .Alerts }}{{ add $i 1 }}. {{ $a.Annotations.summary }}\n{{ end }}"
+              text: "{{ range $i, $a := .Alerts }}*{{ add $i 1 }}. {{ $a.Annotations.summary }}*\n{{ $a.Annotations.description }}\n\n{{ end }}"
         - name: "null"
 ########################################################################################################################
 # Grafana
