@@ -1,4 +1,6 @@
 date +%s > "$(results.start.path)"
+# Result on failure
+echo -n "x-sc-failure" >"$(results.sha.path)"
 
 mkdir -pv "$(params.subdirectory)"
 cd "$(params.subdirectory)" || exit 1
