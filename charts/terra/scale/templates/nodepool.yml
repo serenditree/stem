@@ -18,7 +18,8 @@ spec:
         - key: "node.kubernetes.io/instance-type"
           operator: In
           values:
-             {{- .Values.terraScale.karpenterInstanceTypes | toYaml | nindent 16 }}
+            - "standard.medium"
+            - "standard.large"
         - key: "topology.csi.exoscale.com/zone"
           operator: Exists
       expireAfter: Never
@@ -34,14 +35,50 @@ spec:
   limits:
     cpu: 20
     memory: 40Gi
-{{- if .Values.terraScale.karpenterReplicas }}
+---
+apiVersion: karpenter.sh/v1
+kind: NodePool
+metadata:
+  name: serenditree-build
+spec:
+  template:
+    metadata:
+      labels:
+        serenditree.io/node-role: build
+    spec:
+      nodeClassRef:
+        group: karpenter.exoscale.com
+        kind: ExoscaleNodeClass
+        name: standard
+      requirements:
+        - key: "node.kubernetes.io/instance-type"
+          operator: In
+          values:
+            - "standard.large"
+        - key: "topology.csi.exoscale.com/zone"
+          operator: Exists
+      expireAfter: Never
+      taints:
+        - key: serenditree.io/node-taint
+          value: "build"
+          effect: NoSchedule
+      startupTaints:
+        - key: node.cilium.io/agent-not-ready
+          value: "true"
+          effect: NoExecute
+  disruption:
+    consolidationPolicy: WhenEmptyOrUnderutilized
+    consolidateAfter: 20m
+    budgets:
+      - nodes: "20%"
+{{- if gt (.Values.terraScale.karpenterReplicas | int) 0 }}
 ---
 apiVersion: karpenter.sh/v1
 kind: NodePool
 metadata:
   name: serenditree-root
 spec:
-  replicas: 3
+  replicas: {{ .Values.terraScale.karpenterReplicas | int }}
   template:
     metadata:
       labels:
@@ -71,6 +108,6 @@ spec:
     budgets:
       - nodes: "20%"
   limits:
-    nodes: 4
+    nodes: {{ .Values.terraScale.karpenterReplicas | int }}
 {{- end }}
 {{- end }}

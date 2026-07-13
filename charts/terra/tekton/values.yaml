@@ -12,3 +12,14 @@ tekton-pipeline:
       pod-security.kubernetes.io/warn: restricted
       pod-security.kubernetes.io/audit: restricted
       app.kubernetes.io/part-of: tekton-pipelines
+  configDefaults:
+    default-pod-template: |
+      nodeSelector:
+        serenditree.io/node-role: build
+      tolerations:
+        - key: serenditree.io/node-taint
+          value: build
+          effect: NoSchedule
+          operator: Equal
+  featureFlags:
+    coschedule: "disabled"
