@@ -96,3 +96,4 @@ elif [[ " $* " =~ " up " ]] && [[ -z "$_ST_CONTEXT_CLUSTER" ]]; then
         --detach \
         serenditree/node-builder:latest \
         yarn run host
+fi

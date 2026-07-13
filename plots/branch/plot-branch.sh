@@ -179,3 +179,4 @@ elif [[ " $* " =~ " up " ]] && [[ -z "$_ST_CONTEXT_CLUSTER" ]]; then
     podman cp ${_VOLUME_SRC_SRC}/. ${_CONTAINER}:${_VOLUME_DST_SRC}
     echo "Starting build..."
     podman exec ${_CONTAINER} touch ${_VOLUME_DST_SRC}/release
+fi
