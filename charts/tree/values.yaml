@@ -123,8 +123,6 @@ terraScale:
   namespace: kube-system
   parameters:
     karpenter: ~
-    karpenterInstanceTypes:
-      - "standard.large"
     clusterAutoscaler: ~
     securityGroup: ~
     privateNetwork: ~

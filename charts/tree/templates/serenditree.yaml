@@ -76,12 +76,6 @@ spec:
           value: {{ .Values.terraScale.enabled | quote }}
         - name: terraScale.parameters.karpenter
           value:  {{ .Values.terraScale.parameters.karpenter | quote }}
-          {{- $index := 0 }}
-          {{- range .Values.terraScale.parameters.karpenterInstanceTypes }}
-        - name: terraScale.parameters.karpenterInstanceTypes[{{ $index }}]
-          value: {{ . | quote }}
-          {{- $index = add1 $index }}
-          {{- end }}
         - name: terraScale.parameters.clusterAutoscaler
           value:  {{ .Values.terraScale.parameters.clusterAutoscaler | quote }}
         - name: terraScale.parameters.securityGroup
@@ -90,7 +84,7 @@ spec:
           value: {{ .Values.terraScale.parameters.privateNetwork | quote }}
         - name: terraScale.parameters.antiAffinityGroup
           value: {{ .Values.terraScale.parameters.antiAffinityGroup | quote }}
-          {{- $index = 0 }}
+          {{- $index := 0 }}
           {{- range .Values.terraScale.parameters.autoscalingGroupNames }}
         - name: terraScale.parameters.autoscalingGroupNames[{{ $index }}]
           value: {{ . | quote }}

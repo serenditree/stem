@@ -6,10 +6,9 @@ global:
 terraScale:
   enabled: ~
   karpenter: ~
-  karpenterBaseline: false
-  karpenterBaselineName: terra-scale-baseline
   karpenterReplicas: false
   karpenterInstanceTypes:
+    - "standard.medium"
     - "standard.large"
   clusterAutoscaler: ~
   securityGroup: ~
