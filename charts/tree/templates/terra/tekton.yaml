@@ -15,7 +15,7 @@ spec:
   project: default
   sources:
     - repoURL: {{ .Values.global.repository | quote }}
-      path: "{{ $path }}/dashboard"
+      path: "{{ $path }}/components"
       targetRevision: {{ .Values.terraTekton.revision | default .Values.global.revision | quote }}
     - repoURL: {{ .Values.global.repository | quote }}
       path: "{{ $path }}"
