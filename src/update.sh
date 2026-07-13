@@ -191,16 +191,21 @@ function sc_update_kustomize() {
     done < <(sed -En 's/.*(repoUrl|targetRevision): (.*)/\2/p' "${_ST_HOME_STEM}/charts/tree/values.yaml" | xargs -n 2)
 
     # Kustomization.yaml
+    local -A _checked
     while read -r _kustomization; do
+        _checked=()
         while read -r _repo _current; do
-            sc_heading 2 "https://github.com/$_repo"
-            local _latest=$(curl -s "https://api.github.com/repos/${_repo}/releases/latest" | jq -r '.tag_name')
-            if [[ -z "$_ARG_YES" ]]; then
-                [[ "$_current" != "$_latest" ]] && echo -n "$_BOLD"
-                echo -e "current: ${_current}\nlatest: ${_latest}${_NORMAL}\n" | column -t
-            else
-                echo "Updating ${_repo} to ${_latest}."
-                sed -Ei "s/(.*)${_current}(.*)/\1${_latest}\2/" "$_kustomization"
+            if [[ -z "${_checked[$_repo]}" ]]; then
+                _checked[$_repo]=true
+                sc_heading 2 "https://github.com/$_repo"
+                local _latest=$(curl -s "https://api.github.com/repos/${_repo}/releases/latest" | jq -r '.tag_name')
+                if [[ -z "$_ARG_YES" ]]; then
+                    [[ "$_current" != "$_latest" ]] && echo -n "$_BOLD"
+                    echo -e "current: ${_current}\nlatest: ${_latest}${_NORMAL}\n" | column -t
+                else
+                    echo "Updating ${_repo} to ${_latest}."
+                    sed -Ei "s/(.*)${_current}(.*)/\1${_latest}\2/" "$_kustomization"
+                fi
             fi
         done < <(sed -En "s%.*https://github.com/(.*)/releases/download/([^/]+)/.*%\1 \2%p" "$_kustomization")
     done < <(find "$_ST_HOME_STEM" -name 'kustomization.y*' -exec realpath {} \;)
