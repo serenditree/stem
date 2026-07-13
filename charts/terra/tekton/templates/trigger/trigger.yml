@@ -9,6 +9,7 @@ spec:
   serviceAccountName: el-serenditree
   interceptors:
     - ref:
+        kind: ClusterInterceptor
         name: github
       params:
         - name: secretRef
@@ -19,6 +20,7 @@ spec:
           value:
             - pull_request
     - ref:
+        kind: ClusterInterceptor
         name: cel
       params:
         - name: filter
