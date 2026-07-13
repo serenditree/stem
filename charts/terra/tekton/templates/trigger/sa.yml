@@ -59,6 +59,7 @@ rules:
     resources:
       - clusterinterceptors
       - clustertriggerbindings
+      - interceptors
     verbs:
       - get
       - list
