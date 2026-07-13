@@ -184,6 +184,9 @@ export _ST_CONTEXT_PLAN="${_ST_CONTEXT_HOME}/serenditree.tfplan"
 ########################################################################################################################
 # COMPOSE
 ########################################################################################################################
-podman pod exists "pod_${_ST_POD}" &&
-    [[ $_ARG_COMMAND =~ ^(down|logs|log)$ ]] &&
+if [[ -z "$_ST_CONTEXT_TKN" ]] &&
+    podman pod exists "pod_${_ST_POD}" &&
+    [[ $_ARG_COMMAND =~ ^(down|logs|log)$ ]]
+then
     export _ARG_COMPOSE=on
+fi
