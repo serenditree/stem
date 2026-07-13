@@ -107,5 +107,5 @@ function sc_plots_template() {
     export _HEADER_SUBST=${_name^^}
     export _NAME_SUBST=$_name
     export _ORDINAL_SUBST=$_ordinal
-    envsubst '$_HEADER_SUBST $_NAME_SUBST $_ORDINAL_SUBST' <"${_ST_HOME_STEM}/rc/templates/plot.tpl" | $_pipe
+    envsubst '$_HEADER_SUBST $_NAME_SUBST $_ORDINAL_SUBST' <"${_ST_HOME_STEM}/rc/templates/plot-template.sh" | $_pipe
 }

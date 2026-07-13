@@ -64,7 +64,7 @@ function sc_context_init_noop() {
     local -r _tmp_key=/tmp/key.pem
     local -r _tmp_cert=/tmp/cert.pem
 
-    openssl req -x509 -newkey rsa:2048 -days 365 -noenc -config "${_ST_HOME_STEM}/rc/templates/openssl.cnf" \
+    openssl req -x509 -newkey rsa:2048 -days 365 -noenc -config "${_ST_HOME_STEM}/rc/config/openssl.cnf" \
         -keyout $_tmp_key \
         -out $_tmp_cert &>/dev/null
 

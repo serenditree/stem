@@ -25,11 +25,12 @@ function sc_cluster_deploy() {
 # Starts a Tekton PipelineRun
 # $1: Pipeline to run
 function sc_cluster_tekton() {
-    local -r _pipeline=$1
+    export _PIPELINE=$1
 
-   kubectl create --namespace tekton-pipelines -f "${_ST_HOME_STEM}/rc/tekton/${_pipeline}.yml" &&
+    envsubst '$_PIPELINE' <"${_ST_HOME_STEM}/rc/templates/pipeline-template.yml" |
+        kubectl create --namespace tekton-pipelines -f - &&
         sleep 1s &&
-        tkn pipeline logs --namespace tekton-pipelines --last --follow "$_pipeline"
+        tkn pipeline logs --namespace tekton-pipelines --last --follow "$_PIPELINE"
 }
 
 # Displays and returns status of control plane and worker nodes.

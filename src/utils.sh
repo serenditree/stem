@@ -122,7 +122,7 @@ function sc_completion() {
     )"
     export _CHARTS="$(sc_helm_charts | awk '{print $1}' | sort | xargs)"
 
-    envsubst '$_LOCAL $_CLUSTER $_LONG $_SHORT $_SERVICES $_CHARTS' <"${_ST_HOME_STEM}/rc/templates/completion.tpl" |
+    envsubst '$_LOCAL $_CLUSTER $_LONG $_SHORT $_SERVICES $_CHARTS' <"${_ST_HOME_STEM}/rc/templates/completion-template.sh" |
         sudo tee /etc/bash_completion.d/sc
 }
 export -f sc_completion
