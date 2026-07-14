@@ -32,21 +32,31 @@ spec:
                   -o jsonpath='{.items[?(@.metadata.annotations.serenditree\.io/wave=="{{ $wave }}")].metadata.name}' |
                   xargs
               )
-              echo "Waiting for application(s) $APPLICATIONS in sync-wave {{ $wave }} to become healthy..."
+              echo "Waiting for application(s) $APPLICATIONS in sync-wave {{ $wave }} to become synced and healthy..."
+
               STATUS="Unknown"
-              until [ "$STATUS" == "Healthy" ]; do
+              until [ "$STATUS" == "HealthySynced" ]; do
+                SYNC=$(
+                  kubectl get applications.argoproj.io \
+                    -o jsonpath='{.items[?(@.metadata.annotations.serenditree\.io/wave=="{{ $wave }}")].status.sync.status}'
+                )
+                HEALTH=$(
+                  kubectl get applications.argoproj.io \
+                    -o jsonpath='{.items[?(@.metadata.annotations.serenditree\.io/wave=="{{ $wave }}")].status.health.status}'
+                )
                 STATUS=$(
-                kubectl get applications.argoproj.io \
-                  -o jsonpath='{.items[?(@.metadata.annotations.serenditree\.io/wave=="{{ $wave }}")].status.health.status}' |
+                  echo -n "$SYNC $HEALTH" |
                   tr ' ' '\n' |
                   sort -u |
+                  xargs |
                   tr -d '[:space:]'
                 )
 
-                if [ "$STATUS" != "Healthy" ]; then
+                if [ "$STATUS" != "HealthySynced" ]; then
                   echo "Current status: ${STATUS}. Retrying in 10s..."
                   sleep 10
                 fi
               done
-              echo "Previous sync-wave is healthy. Proceeding..."
+
+              echo "Previous sync-wave is synced and healthy. Proceeding..."
 {{- end }}
