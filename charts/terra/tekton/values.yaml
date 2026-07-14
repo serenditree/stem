@@ -3,6 +3,11 @@ global:
   wait: ~
   wave: ~
   host: ~
+terraTekton:
+  pipelines:
+    serenditree:
+      - branch
+      - leaf
 tekton-pipeline:
   namespace:
     name: tekton-pipelines

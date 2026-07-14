@@ -1,8 +1,9 @@
+{{- range .Values.terraTekton.pipelines.serenditree }}
 ---
 apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
-  name: branch
+  name: {{ . }}
   labels:
     app.kubernetes.io/component: tekton
 spec:
@@ -16,9 +17,9 @@ spec:
     - name: repo-url
       type: string
       description: 'The git repository URL to clone from.'
-    - name: repo-branch
+    - name: repo-revision
       type: string
-      description: 'The git branch to clone.'
+      description: 'The git revision/branch to clone.'
   workspaces:
     - name: pipeline
   tasks:
@@ -48,7 +49,7 @@ spec:
         - name: url
           value: $(params.repo-url)
         - name: revision
-          value: $(params.repo-branch)
+          value: $(params.repo-revision)
         - name: subdirectory
           value: src
       workspaces:
@@ -71,18 +72,44 @@ spec:
         - name: buildah
           workspace: pipeline
   finally:
-    - name: finally
+    - name: finally-succeeded
+      when:
+        - input: $(tasks.status)
+          operator: in
+          values:
+            - 'Succeeded'
       taskRef:
         name: serenditree-finally
       params:
         - name: pipeline
-          value: branch
+          value: $(context.pipeline.name)
+        - name: run
+          value: $(context.pipelineRun.name)
         - name: start
           value: $(tasks.fetch-sc.results.start)
         - name: git-sha
           value: $(tasks.fetch-src.results.sha)
         - name: image-sha
           value: $(tasks.build.results.sha)
+        - name: status
+          value: $(tasks.status)
+        - name: details
+          value:
+            - '$(tasks.fetch-sc.status):fetch-sc'
+            - '$(tasks.fetch-src.status):fetch-src'
+            - '$(tasks.build.status):build'
+    - name: finally-failed
+      when:
+        - input: $(tasks.status)
+          operator: in
+          values:
+            - 'Failed'
+            - 'None'
+      taskRef:
+        name: serenditree-finally
+      params:
+        - name: pipeline
+          value: $(context.pipeline.name)
         - name: run
           value: $(context.pipelineRun.name)
         - name: status
@@ -92,3 +119,4 @@ spec:
             - '$(tasks.fetch-sc.status):fetch-sc'
             - '$(tasks.fetch-src.status):fetch-src'
             - '$(tasks.build.status):build'
+{{- end }}

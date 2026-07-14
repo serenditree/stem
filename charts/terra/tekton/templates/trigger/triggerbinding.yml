@@ -11,7 +11,7 @@ spec:
       value: $(body.repository.name)
     - name: repo-url
       value: $(body.pull_request.head.repo.clone_url)
-    - name: repo-branch
+    - name: repo-revision
       value: $(body.pull_request.head.sha)
     - name: pr-number
       value: $(body.number)

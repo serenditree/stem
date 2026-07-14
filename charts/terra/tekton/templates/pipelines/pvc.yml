@@ -1,8 +1,9 @@
+{{- range .Values.terraTekton.pipelines.serenditree }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: tekton-branch-workspace
+  name: tekton-{{ . }}-workspace
 spec:
   accessModes:
     - ReadWriteOnce
@@ -10,3 +11,4 @@ spec:
     requests:
       storage: 10Gi
   volumeMode: Filesystem
+{{- end }}

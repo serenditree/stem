@@ -39,8 +39,6 @@ spec:
       script: |
         env | grep _ST_ | sed -E 's/(.*(CREDENTIALS|PASSWORD)[^=]+=).*/\1***/' | sort
         mkdir -pv $_ST_MVN $_ST_CACHE
-        # Result on failure
-        echo -n "x-sc-failure" >"$(results.sha.path)"
     - name: build
       image: $(params.builder-image)
       workingDir: $(workspaces.buildah.path)

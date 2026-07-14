@@ -11,8 +11,8 @@ spec:
       description: 'The git repository name to clone from.'
     - name: repo-url
       description: 'The git repository URL to clone from.'
-    - name: repo-branch
-      description: 'The git branch/revision to clone.'
+    - name: repo-revision
+      description: 'The git revision/branch to clone.'
     - name: pr-number
       description: 'Number of the pull request that triggered the run.'
   resourcetemplates:
@@ -30,13 +30,13 @@ spec:
           serviceAccountName: pipelines
         params:
           - name: config
-            value: tekton-$(tt.params.repo-name)
+            value: tekton-serenditree
           - name: image
             value: $(tt.params.repo-name)
           - name: repo-url
             value: $(tt.params.repo-url)
-          - name: repo-branch
-            value: $(tt.params.repo-branch)
+          - name: repo-revision
+            value: $(tt.params.repo-revision)
         workspaces:
           - name: pipeline
             persistentVolumeClaim:
