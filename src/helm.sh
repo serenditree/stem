@@ -76,7 +76,7 @@ function sc_helm_push() {
     sc_heading 2 "CRDs"
     pushd "${_ST_HOME_STEM}/charts/soil/crds" >/dev/null || exit 1
     echo "Extracting CRDs..."
-    rm -f ./*.tgz
+    rm -fv ./*.tgz ./templates/*
     sc_helm_template crds
     helm package .
     helm push "$(ls ./*.tgz)" oci://quay.io/serenditree/charts
@@ -91,6 +91,39 @@ function sc_helm_values() {
         sed 's/service.beta.kubernetes.io\/exoscale-loadbalancer-id/exoscale-loadbalancer-id/' |
         tr ' ' '=' |
         sort -u
+}
+
+# Splits a YAML file into parts at document boundaries when it exceeds helm's 5MB file size limit.
+# $1: File to split
+function sc_helm_split_large() {
+    local -r _file="$1"
+    local -r _base="${_file%.yaml}"
+    local -r _tmpdir=$(mktemp -d)
+    local _part=1
+    local _part_file="${_base}-${_part}.yaml"
+    local _part_size=0
+
+    # Split into one file per YAML document
+    csplit \
+        --prefix="${_tmpdir}/doc-" \
+        --suffix-format='%04d.yaml' \
+        --quiet \
+        "$_file" '/^---$/' '{*}' 2>/dev/null
+
+    # Merge documents into parts under helm's 5MB file size limit
+    for _doc in "${_tmpdir}"/doc-*.yaml; do
+        local _doc_size=$(wc -c <"$_doc")
+        if (( _part_size > 0 && _part_size + _doc_size > 4500000 )); then
+            ((_part++))
+            _part_file="${_base}-${_part}.yaml"
+            _part_size=0
+        fi
+        cat "$_doc" >>"$_part_file"
+        (( _part_size += _doc_size ))
+    done
+
+    rm -rf "$_tmpdir" "$_file"
+    echo "Split ${_file##*/} into ${_part} parts."
 }
 
 # Saves extracted CRDs with annotations needed by helm.
@@ -113,8 +146,12 @@ function sc_helm_save_crds() {
         xargs helm template --include-crds --namespace "$_name" "$_name" . |
         yq "$_crds" >"$_out"
 
-    # Remove files without CRDs
-    [[ -s "$_out" ]] || rm "$_out"
+    # Remove files without CRDs; split if larger than helm's 5MB file size limit
+    if [[ ! -s "$_out" ]]; then
+        rm "$_out"
+    elif (( $(wc -c <"$_out") > 5242880 )); then
+        sc_helm_split_large "$_out"
+    fi
 }
 
 # Renders templates locally.
