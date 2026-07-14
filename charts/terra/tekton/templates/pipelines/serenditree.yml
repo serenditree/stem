@@ -79,6 +79,7 @@ spec:
         - build
       taskRef:
         name: serenditree-argocd
+      retries: 1
       params:
         - name: app
           value: {{ . }}
