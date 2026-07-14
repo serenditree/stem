@@ -204,7 +204,7 @@ function sc_cluster_keys() {
                 if [[ \"\$_key\" =~ /$ ]]; then
                     list_keys \"\$1\$_key\"
                 else
-                    bao kv get -format=pretty serenditree/\$1\$_key && echo
+                    bao kv get serenditree/\$1\$_key && echo
                 fi
             done
         }

@@ -71,6 +71,24 @@ spec:
       workspaces:
         - name: buildah
           workspace: pipeline
+    ####################################################################################################################
+    # DEPLOY
+    ####################################################################################################################
+    - name: deploy
+      runAfter:
+        - build
+      taskRef:
+        name: serenditree-argocd
+      params:
+        - name: app
+          value: {{ . }}
+        - name: kind
+          value: Deployment
+        - name: action
+          value: deploy
+    ####################################################################################################################
+    # FINALLY
+    ####################################################################################################################
   finally:
     - name: finally-succeeded
       when:
@@ -98,6 +116,7 @@ spec:
             - '$(tasks.fetch-sc.status):fetch-sc'
             - '$(tasks.fetch-src.status):fetch-src'
             - '$(tasks.build.status):build'
+            - '$(tasks.deploy.status):deploy'
     - name: finally-failed
       when:
         - input: $(tasks.status)
@@ -119,4 +138,5 @@ spec:
             - '$(tasks.fetch-sc.status):fetch-sc'
             - '$(tasks.fetch-src.status):fetch-src'
             - '$(tasks.build.status):build'
+            - '$(tasks.deploy.status):deploy'
 {{- end }}
