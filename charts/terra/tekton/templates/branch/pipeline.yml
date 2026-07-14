@@ -89,6 +89,6 @@ spec:
           value: $(tasks.status)
         - name: details
           value:
-            - 'fetch-sc:$(tasks.fetch-sc.status)'
-            - 'fetch-src:$(tasks.fetch-src.status)'
-            - 'build:$(tasks.build.status)'
+            - '$(tasks.fetch-sc.status):fetch-sc'
+            - '$(tasks.fetch-src.status):fetch-src'
+            - '$(tasks.build.status):build'

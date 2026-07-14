@@ -1,4 +1,4 @@
-date +%s > "$(results.start.path)"
+date +%s | tr -d '\n' > "$(results.start.path)"
 # Result on failure
 echo -n "x-sc-failure" >"$(results.sha.path)"
 
