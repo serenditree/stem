@@ -124,6 +124,10 @@ spec:
           operator: in
           values:
             - 'Failed'
+            - 'Cancelled'
+            - 'Completed'
+            - 'PipelineRunTimeout'
+            - 'CreateRunFailed'
             - 'None'
       taskRef:
         name: serenditree-finally
