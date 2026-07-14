@@ -170,9 +170,9 @@ function sc_terra_up_wait() {
         sc_cluster_expose argocd &>>$_tmp
 
         _state="$(argocd app list 2>>$_tmp)"
-        if grep -Eq " (OutOfSync|Synced|Unknown|Missing) " <<<"$_state"; then
+        if grep -Eq "\s+(Unknown|Missing|OutOfSync|Synced)\s+" <<<"$_state"; then
             _total=$(( $(wc -l <<<"$_state") - 1 ))
-            _healthy=$(grep -Ev "Error|Unknown" <<<"$_state" | grep -c " Healthy ")
+            _healthy=$(grep -Ec "\s+Synced\s+Healthy\s+" <<<"$_state")
 
             echo -en "\e[0J${_state}\nHealthy: ${_healthy}/${_total} Iteration: ${_iteration}"
 
