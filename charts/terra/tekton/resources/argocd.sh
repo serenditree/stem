@@ -1,11 +1,11 @@
+#!/usr/bin/env bash
 argocd login "$ARGOCD_SERVER" \
     --username "$ARGOCD_USERNAME" \
     --password "$ARGOCD_PASSWORD" \
-    --insecure \
-    --plaintext
+    --insecure
 
 if [[ "$(params.action)" == "deploy" ]]; then
-    argocd app actions "$(params.app)" restart \
+    argocd app actions run "$(params.app)" restart \
         --server "$ARGOCD_SERVER" \
         --kind "$(params.kind)" \
         --all
