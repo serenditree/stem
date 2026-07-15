@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -o errexit
 
-for GITHUB_REPO in nginx/nginx nginxinc/nginx-otel; do
+for GITHUB_REPO in nginx/nginx nginx/nginx-otel; do
     git clone https://github.com/${GITHUB_REPO}.git
 done
 
