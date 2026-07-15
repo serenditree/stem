@@ -31,7 +31,7 @@ _ST_HELP="Please type 'sc <help>' for a list of commands or $_ST_HELP_DETAIL"
 # ARG_OPTIONAL_INCREMENTAL([verbose],[v],[Verbose flag.])
 # ARG_OPTIONAL_INCREMENTAL([yes],[y],[Assumes yes on prompts.])
 # ARG_OPTIONAL_BOOLEAN([xissuer],[x],[Set cert-issuer to prod when stage is not prod and vice versa.])
-# ARG_OPTIONAL_SINGLE([scale],[s],[Machine auto-scaling.],[karpenter])
+# ARG_OPTIONAL_SINGLE([scale],[s],[Machine auto-scaling.])
 # ARG_OPTIONAL_SINGLE([resume],[],[Resume plots from the given plot.])
 # ARG_LEFTOVERS([Other arguments passed to command.])
 # ARG_DEFAULTS_POS([])
@@ -96,7 +96,7 @@ _arg_wait="off"
 _arg_verbose=0
 _arg_yes=0
 _arg_xissuer="off"
-_arg_scale="karpenter"
+_arg_scale=
 _arg_resume=
 
 
@@ -129,7 +129,7 @@ print_help()
     printf '\t%-20s%s\n' "-v, --verbose:" "Verbose flag."
     printf '\t%-20s%s\n' "-y, --yes:" "Assumes yes on prompts."
     printf '\t%-20s%s\n' "-x, --xissuer:" "Set cert-issuer to prod when stage is not prod and vice versa."
-    printf '\t%-20s%s\n' "-s, --scale:" "Machine auto-scaling. (default: 'karpenter')"
+    printf '\t%-20s%s\n' "-s, --scale:" "Machine auto-scaling. (no default)"
     printf '\t%-20s%s\n' "--resume:" "Resume plots from the given plot. (no default)"
 }
 

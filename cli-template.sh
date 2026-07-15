@@ -46,7 +46,7 @@ echo "Done"
 # ARG_OPTIONAL_INCREMENTAL([verbose], [v], [Verbose flag.])
 # ARG_OPTIONAL_INCREMENTAL([yes], [y], [Assumes yes on prompts.])
 # ARG_OPTIONAL_BOOLEAN([xissuer], [x], [Set cert-issuer to prod when stage is not prod and vice versa.])
-# ARG_OPTIONAL_SINGLE([scale], [s], [Machine auto-scaling.], [karpenter])
+# ARG_OPTIONAL_SINGLE([scale], [s], [Machine auto-scaling.])
 # ARG_OPTIONAL_SINGLE([resume], [], [Resume plots from the given plot.])
 # ARG_LEFTOVERS([Other arguments passed to command.])
 # ARG_DEFAULTS_POS()
