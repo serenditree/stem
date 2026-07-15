@@ -22,48 +22,6 @@ resource "terraform_data" "pre_bootstrap" {
   }
 }
 ########################################################################################################################
-# Karpenter
-########################################################################################################################
-resource "helm_release" "terra_scale" {
-  count = var.auto_scaler == "karpenter-only" ? 1 : 0
-
-  name          = "terra-scale"
-  chart         = "${var.charts}/terra/scale"
-  namespace     = "kube-system"
-  atomic        = true
-  wait          = true
-  wait_for_jobs = true
-
-  depends_on = [terraform_data.pre_bootstrap]
-
-  set = [
-    {
-      name  = "terraScale.karpenter"
-      value = "true"
-    },
-    {
-      name  = "terraScale.karpenterBaseline"
-      value = "true"
-    },
-    {
-      name  = "terraScale.clusterAutoscaler"
-      value = "false"
-    },
-    {
-      name  = "terraScale.securityGroup"
-      value = exoscale_security_group.serenditree.id
-    },
-    {
-      name  = "terraScale.privateNetwork"
-      value = exoscale_private_network.serenditree.id
-    },
-    {
-      name  = "terraScale.antiAffinityGroup"
-      value = exoscale_anti_affinity_group.serenditree["dev"].id
-    }
-  ]
-}
-########################################################################################################################
 # Cilium
 ########################################################################################################################
 resource "helm_release" "terra_cilium" {
@@ -76,7 +34,7 @@ resource "helm_release" "terra_cilium" {
   wait          = true
   wait_for_jobs = true
 
-  depends_on = [helm_release.terra_scale]
+  depends_on = [terraform_data.pre_bootstrap]
 
   set = [
     {
@@ -105,7 +63,7 @@ resource "helm_release" "terra_argocd" {
   depends_on = [helm_release.terra_cilium]
 }
 ########################################################################################################################
-# Post argocd
+# Post-argocd
 ########################################################################################################################
 resource "terraform_data" "post_argocd" {
   depends_on = [helm_release.terra_argocd]
@@ -118,7 +76,7 @@ resource "terraform_data" "post_argocd" {
   }
 }
 ########################################################################################################################
-# Cert-Manager
+# Certs
 ########################################################################################################################
 resource "helm_release" "terra_certs" {
   name             = "terra-certs"
@@ -148,6 +106,48 @@ resource "helm_release" "terra_certs" {
   ]
 }
 ########################################################################################################################
+# Scale
+########################################################################################################################
+resource "helm_release" "terra_scale" {
+  count = var.auto_scaler == "karpenter-only" ? 1 : 0
+
+  name          = "terra-scale"
+  chart         = "${var.charts}/terra/scale"
+  namespace     = "kube-system"
+  atomic        = true
+  wait          = true
+  wait_for_jobs = true
+
+  depends_on = [helm_release.terra_certs]
+
+  set = [
+    {
+      name  = "terraScale.karpenter"
+      value = "true"
+    },
+    {
+      name  = "terraScale.karpenterBaseline"
+      value = "true"
+    },
+    {
+      name  = "terraScale.clusterAutoscaler"
+      value = "false"
+    },
+    {
+      name  = "terraScale.securityGroup"
+      value = exoscale_security_group.serenditree.id
+    },
+    {
+      name  = "terraScale.privateNetwork"
+      value = exoscale_private_network.serenditree.id
+    },
+    {
+      name  = "terraScale.antiAffinityGroup"
+      value = exoscale_anti_affinity_group.serenditree["dev"].id
+    }
+  ]
+}
+########################################################################################################################
 # Vault
 ########################################################################################################################
 resource "helm_release" "terra_vault" {
@@ -160,16 +160,29 @@ resource "helm_release" "terra_vault" {
   create_namespace = true
   timeout          = 300
 
-  depends_on = [helm_release.terra_certs]
+  depends_on = [helm_release.terra_scale]
 }
 ########################################################################################################################
-# Post vault
+# Post-vault
 ########################################################################################################################
 resource "terraform_data" "post_vault" {
   depends_on = [helm_release.terra_vault]
 
   provisioner "local-exec" {
     command = "./src/post-vault.sh"
+    environment = {
+      KUBECONFIG = "${path.root}/${local_sensitive_file.serenditree_kubeconfig_file.filename}"
+    }
+  }
+}
+########################################################################################################################
+# Post-bootstrap
+########################################################################################################################
+resource "terraform_data" "post_bootstrap" {
+  depends_on = [terraform_data.post_vault]
+
+  provisioner "local-exec" {
+    command = "./src/post-bootstrap.sh"
     environment = {
       KUBECONFIG = "${path.root}/${local_sensitive_file.serenditree_kubeconfig_file.filename}"
     }
