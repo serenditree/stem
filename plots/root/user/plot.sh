@@ -22,7 +22,7 @@ fi
 if [[ " $* " =~ " build " ]]; then
     sc_heading 1 "Building ${_IMAGE}:${_TAG}"
     [[ -n "$_ARG_DRYRUN" ]] && exit 0
-    _CONTAINER_REF=$(buildah from $_ST_FROM_ROOT_USER)
+    _CONTAINER_REF=$(buildah from --pull $_ST_FROM_ROOT_USER)
 
     buildah add --chown 1001:0 $_CONTAINER_REF ./rc/0.0.1-init.sql /docker-entrypoint-initdb.d/
     # Removes preconfigured entrypoint-volumes to avoid anonymous local volumes.

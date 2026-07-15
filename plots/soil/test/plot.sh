@@ -25,7 +25,7 @@ if [[ " $* " =~ " build " ]]; then
     #-------------------------------------------------------------------------------------------------------------------
     # STEP BUILDER
     #-------------------------------------------------------------------------------------------------------------------
-    _BUILD_CONTAINER_REF=$(buildah from $_BUILDAH_ARGS $_ST_FROM_SOIL_TEST_BUILDER)
+    _BUILD_CONTAINER_REF=$(buildah from --pull $_BUILDAH_ARGS $_ST_FROM_SOIL_TEST_BUILDER)
     _BUILD_MOUNT_REF=$(buildah mount $_BUILD_CONTAINER_REF)
 
     sc_heading 2 "Building k6 with faker extension..."
@@ -37,7 +37,7 @@ if [[ " $* " =~ " build " ]]; then
     #-------------------------------------------------------------------------------------------------------------------
     # STEP PACKAGE
     #-------------------------------------------------------------------------------------------------------------------
-    _CONTAINER_REF=$(buildah from $_BUILDAH_ARGS $_ST_FROM_SOIL_TEST)
+    _CONTAINER_REF=$(buildah from --pull $_BUILDAH_ARGS $_ST_FROM_SOIL_TEST)
     _MOUNT_REF=$(buildah mount $_CONTAINER_REF)
 
     sc_heading 2 "Upgrading image..."

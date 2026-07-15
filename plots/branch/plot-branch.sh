@@ -38,7 +38,7 @@ if [[ "$_ST_JAVA_BUILD" == "native" ]] && [[ " $* " =~ " build " ]]; then
     #-------------------------------------------------------------------------------------------------------------------
     # STEP BUILDER
     #-------------------------------------------------------------------------------------------------------------------
-    _BUILD_CONTAINER_REF=$(buildah from $_BUILDAH_ARGS $_ST_FROM_SOIL_NATIVE_BUILDER)
+    _BUILD_CONTAINER_REF=$(buildah from --pull $_BUILDAH_ARGS $_ST_FROM_SOIL_NATIVE_BUILDER)
     _BUILD_MOUNT_REF=$(buildah mount $_BUILD_CONTAINER_REF)
 
     buildah copy --chown quarkus:quarkus $_BUILD_CONTAINER_REF $_VOLUME_SRC_SRC $_VOLUME_DST_SRC
@@ -56,7 +56,7 @@ if [[ "$_ST_JAVA_BUILD" == "native" ]] && [[ " $* " =~ " build " ]]; then
     #-------------------------------------------------------------------------------------------------------------------
     # STEP PACKAGE
     #-------------------------------------------------------------------------------------------------------------------
-    _CONTAINER_REF=$(buildah from $_BUILDAH_ARGS $_ST_FROM_SOIL_NATIVE)
+    _CONTAINER_REF=$(buildah from --pull $_BUILDAH_ARGS $_ST_FROM_SOIL_NATIVE)
 
     buildah add $_CONTAINER_REF \
         ${_BUILD_MOUNT_REF:?}/serenditree/src/leaves/leaf-${_BRANCH}/target/*-runner \

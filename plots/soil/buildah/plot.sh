@@ -19,12 +19,11 @@ if [[ " $* " =~ " build " ]]; then
     sc_heading 1 "Building buildah:${_TAG}"
     [[ -n "$_ARG_DRYRUN" ]] && exit 0
     _DESCRIPTION="Buildah image including findutils and jq."
-    _CONTAINER_REF=$(buildah from quay.io/buildah/stable)
-
-    sc_image_upgrade dnf $_CONTAINER_REF
+    _CONTAINER_REF=$(buildah from --pull quay.io/buildah/stable:latest)
 
     buildah run $_CONTAINER_REF -- dnf install findutils jq $_ST_DNF_OPTS
-    buildah run $_CONTAINER_REF -- dnf clean all
+
+    sc_image_upgrade dnf $_CONTAINER_REF
 
     buildah config --env DESCRIPTION="$_DESCRIPTION" $_CONTAINER_REF
     buildah config --label description="$_DESCRIPTION" $_CONTAINER_REF

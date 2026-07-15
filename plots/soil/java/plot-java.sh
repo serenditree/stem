@@ -55,7 +55,7 @@ if [[ " $* " =~ " build " ]]; then
     #-------------------------------------------------------------------------------------------------------------------
     elif [[ "$_ST_JAVA_BUILD" == "native" ]] && [[ "$_FLAVOR" == "builder" ]]; then
         _DESCRIPTION="GraalVM development kit (${_ST_JAVA_PACKAGE}) including curl."
-        _CONTAINER_REF=$(buildah from $_ST_FROM_SOIL_NATIVE_BUILDER)
+        _CONTAINER_REF=$(buildah from --pull $_ST_FROM_SOIL_NATIVE_BUILDER)
         _MOUNT_REF=$(buildah mount $_CONTAINER_REF)
 
         buildah add --chown 1000:0 $_CONTAINER_REF ./src $_ST_CONTAINER_ROOT

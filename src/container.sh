@@ -79,9 +79,9 @@ function sc_image_upgrade() {
             dnf clean all --installroot ${_reference:?} --noplugins
             ;;
         "apt")
-            buildah run --user 0:0 $_reference -- apt-get update
-            buildah run --user 0:0 $_reference -- apt-get upgrade -y
-            buildah run --user 0:0 $_reference -- apt-get clean
+            buildah run --user 0:0 $_reference -- apt update
+            buildah run --user 0:0 $_reference -- apt upgrade -y
+            buildah run --user 0:0 $_reference -- apt clean
             buildah run --user 0:0 $_reference -- rm -rf /var/lib/apt/lists/*
             ;;
     esac

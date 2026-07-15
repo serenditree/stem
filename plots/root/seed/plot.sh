@@ -22,7 +22,7 @@ fi
 if [[ " $* " =~ " build " ]]; then
     sc_heading 1 "Building ${_IMAGE}:${_TAG}"
     [[ -n "$_ARG_DRYRUN" ]] && exit 0
-    _CONTAINER_REF=$(buildah from $_ST_FROM_ROOT_SEED)
+    _CONTAINER_REF=$(buildah from --pull $_ST_FROM_ROOT_SEED)
 
     buildah run $_CONTAINER_REF -- /usr/share/opensearch/bin/opensearch-plugin install --batch repository-s3
 
