@@ -46,7 +46,7 @@ echo "Done"
 # ARG_OPTIONAL_INCREMENTAL([verbose], [v], [Verbose flag.])
 # ARG_OPTIONAL_INCREMENTAL([yes], [y], [Assumes yes on prompts.])
 # ARG_OPTIONAL_BOOLEAN([xissuer], [x], [Set cert-issuer to prod when stage is not prod and vice versa.])
-# ARG_OPTIONAL_SINGLE([scale], [s], [Machine auto-scaling.])
+# ARG_OPTIONAL_SINGLE([scale], [s], [Machine auto-scaling.], [karpenter])
 # ARG_OPTIONAL_SINGLE([resume], [], [Resume plots from the given plot.])
 # ARG_LEFTOVERS([Other arguments passed to command.])
 # ARG_DEFAULTS_POS()
@@ -164,13 +164,12 @@ function sc_help() {
     printf '\t%-20s%s\n' "update [comp]:" "Update components."
 
     printf '\n\t%s\n' "${_BOLD}Cluster commands:${_NORMAL}"
-    printf '\t%-20s%s\n' "up:" "Cluster start/setup. [--init] [--setup] [--wait] [--dashboard]"
+    printf '\t%-20s%s\n' "up:" "Cluster start/setup. [--init] [--setup] [--wait] [--scale]"
     printf '\t%-20s%s\n\n' "down:" "Cluster stop/deletion. [--reset|--delete] [--yes]"
 
     printf '\t%-20s%s\n' "backup:" "Setup backup cronjobs or run backups from cronjobs. [--setup]"
     printf '\t%-20s%s\n' "certificate:" "Prints certificate information."
     printf '\t%-20s%s\n' "clean:" "Deletes dispensable resources."
-    printf '\t%-20s%s\n' "dashboard:" "Launches the clusters dashboard."
     printf '\t%-20s%s\n' "database <db>:" "Open database console. {user|seed}"
     printf '\t%-20s%s\n' "deploy:" "Deploys new images."
     printf '\t%-20s%s\n' "expose:" "Port-forward operation-services. [--reset|--delete]"

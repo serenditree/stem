@@ -9,9 +9,6 @@ function sc_openshift_local_up() {
         crc stop
         crc start
     }
-    if [[ -n "$_ARG_DASHBOARD" ]]; then
-        crc console
-    fi
 }
 
 function sc_openshift_local_down() {
