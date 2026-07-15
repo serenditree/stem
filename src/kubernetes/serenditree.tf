@@ -8,7 +8,7 @@ resource "helm_release" "serenditree" {
   atomic    = true
   wait      = true
 
-  depends_on = [terraform_data.post_vault]
+  depends_on = [terraform_data.post_bootstrap]
   ######################################################################################################################
   # Values
   ######################################################################################################################

@@ -2,9 +2,9 @@
 ########################################################################################################################
 # Wait for pods
 ########################################################################################################################
-echo "Waiting for pods to become ready..."
+echo "Checking if all pods are ready..."
 kubectl wait pod \
     --for=condition=Ready \
     --all \
     --all-namespaces \
-    --timeout=300s
+    --timeout=180s
