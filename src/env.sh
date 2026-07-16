@@ -81,6 +81,7 @@ fi
 export _ST_VERSION_KUBERNETES=1.36.2
 export _ST_VERSION_JAVA=25
 export _ST_VERSION_NODE=24.x
+export _ST_VERSION_BUILDAH=v1.43.1
 export _ST_VERSION_GO=1.26
 export _ST_VERSION_K6=2.0.0
 export _ST_VERSION_TILESERVER=5.6.0
@@ -114,6 +115,7 @@ export _ST_FROM_ROOT_SEED=docker.io/opensearchproject/opensearch:${_ST_VERSION_O
 export _ST_FROM_ROOT_SEED_DASH=docker.io/opensearchproject/opensearch-dashboards:${_ST_VERSION_OPENSEARCH}
 export _ST_FROM_ROOT_USER=docker.io/postgres:${_ST_VERSION_POSTGRESQL}
 export _ST_FROM_ROOT_WIND_DASH=docker.io/obsidiandynamics/kafdrop:latest
+export _ST_FROM_SOIL_BUILDAH=quay.io/buildah/stable:${_ST_VERSION_BUILDAH}
 export _ST_FROM_SOIL_TEST=docker.io/grafana/k6:${_ST_VERSION_K6}
 export _ST_FROM_SOIL_TEST_BUILDER=docker.io/library/golang:${_ST_VERSION_GO}
 #export _ST_FROM_SOIL_NATIVE=quay.io/quarkus/ubi9-quarkus-micro-image:2.0
