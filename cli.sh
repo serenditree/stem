@@ -765,11 +765,11 @@ update)
         kafka)
             sc_update_kafka
             ;;
-        maven | mvn | java)
-            sc_update_maven
-            ;;
         tile*)
             sc_update_tileserver
+            ;;
+        maven | mvn | java)
+            sc_update_maven
             ;;
         yarn)
             sc_update_yarn
@@ -785,10 +785,10 @@ update)
             sc_update_kubernetes
             sc_heading 1 kafka
             sc_update_kafka
-            sc_heading 1 maven
-            sc_update_maven
             sc_heading 1 tileserver
             sc_update_tileserver
+            sc_heading 1 maven
+            sc_update_maven
             sc_heading 1 yarn
             sc_update_yarn
             ;;
