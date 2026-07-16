@@ -16,7 +16,7 @@ function sc_update_env() {
 
     if [[ -n "$_ARG_YES" ]]; then
         sed -Ei \
-           "s/(export _ST_VERSION_$(tr '[:lower:]' '[:upper:]' <<<"$_component")=)[0-9.]+/\1${_latest}/" \
+           "s/(export _ST_VERSION_$(tr '[:lower:]' '[:upper:]' <<<"$_component")=)v?[0-9.]+/\1${_latest}/" \
            "${_ST_HOME_STEM}/src/env.sh" &&
            echo "Updated ${_component} to version ${_latest}"
         if [[ $_ARG_YES -gt 1 ]]; then
@@ -134,43 +134,57 @@ function sc_update_helm() {
 # Updates base images or checks for upgrades.
 # $1: Pattern for image selection.
 function sc_update_image() {
-    if [[ -n "$_ARG_YES" ]]; then
-        env | grep "_ST_FROM_" | grep -E "$1" | cut -d'=' -f2 | xargs podman pull
-    else
-        env | grep "_ST_FROM_" | grep -v ":latest" | sort | cut -d'=' -f2 | while read -r _image; do
-            sc_heading 2 "$_image"
-            # get current
-            local _current=
-            case $_image in
-                *opensearch*)
-                    _current=$(skopeo inspect containers-storage:$_image |
-                        jq -r '.Labels."org.label-schema.version"')
-                    ;;
-                *postgres*)
-                    _current=$(skopeo inspect containers-storage:$_image |
-                        sed -En 's/.*PG_VERSION=([0-9.]+\.[0-9.]+).*/\1/p')
-                    ;;
-                *golang*)
-                    _current=$(skopeo inspect containers-storage:$_image |
-                        sed -En 's/.*GOLANG_VERSION=([0-9.]+).*/\1/p')
-                    ;;
-                *k6*|quay.io*)
-                    _current=${_image##*:}
-                    ;;
-            esac
-            # get latest
-            local _latest=$(
-                skopeo list-tags docker://${_image%:*} |
-                    jq -r '.Tags[]' |
-                    sed -En "/(^[[:digit:]]+\.[[:digit:]]+\.?[[:digit:]]*$|^jdk-${_ST_VERSION_JAVA})/p" |
-                    sort -Vr |
-                    head -n1
-            )
-            # output
-            [[ "$_current" != "$_latest" ]] && echo -n "$_BOLD"
-            echo -e "current: ${_current}\nlatest: ${_latest}${_NORMAL}" | column -t
-        done
-    fi
+    env | grep "_ST_FROM_" | grep -v ":latest" | sort | cut -d'=' -f2 | while read -r _image; do
+        sc_heading 2 "$_image"
+        # get current
+        local _component=
+        local _current=
+        local _v=
+        case $_image in
+            *opensearch*)
+                _current=$(skopeo inspect containers-storage:$_image |
+                    jq -r '.Labels."org.label-schema.version"')
+                ;;
+            *postgres*)
+                _current=$(skopeo inspect containers-storage:$_image |
+                    sed -En 's/.*PG_VERSION=([0-9.]+\.[0-9.]+).*/\1/p')
+                ;;
+            *golang*)
+                _current=$(skopeo inspect containers-storage:$_image |
+                    sed -En 's/.*GOLANG_VERSION=([0-9.]+).*/\1/p')
+                ;;
+            *buildah*)
+                _component=buildah
+                _current=${_image##*:}
+                _v=v
+                ;;
+            *k6*)
+                _component=k6
+                _current=${_image##*:}
+                ;;
+        esac
+        # get latest
+        local _latest=$(
+            skopeo list-tags docker://${_image%:*} |
+                jq -r '.Tags[]' |
+                grep -E "^${_v}[[:digit:]]+\.[[:digit:]]+\.?[[:digit:]]*$" |
+                sort -Vr |
+                head -n1
+        )
+        # output
+        [[ "$_current" != "$_latest" ]] && echo -n "$_BOLD"
+        echo -e "current: ${_current}\nlatest: ${_latest}${_NORMAL}" | column -t
+        # update
+        if [[ -n "$_ARG_YES" ]] && [[ "$_current" != "$_latest" ]]; then
+            if [[ -n "$_component" ]]; then
+                podman pull ${_image%:*}:$_latest &&
+                    podman rmi ${_image%:*}:$_current
+                sc_update_env "$_component" "$_current" "$_latest"
+            else
+                podman pull $_image
+            fi
+        fi
+    done
 }
 
 # Checks versions of kustomize deployments.
