@@ -1,3 +1,4 @@
+#!/usr/bin/env ash
 date +%s | tr -d '\n' > "$(results.start.path)"
 
 mkdir -pv "$(params.subdirectory)"

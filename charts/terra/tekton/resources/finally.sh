@@ -1,3 +1,4 @@
+#!/usr/bin/env ash
 if [[ -n "$(params.start)" ]]; then
     DURATION=$(($(date +%s) - $(params.start)))
     MINUTES=$((DURATION / 60))
