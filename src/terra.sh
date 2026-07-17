@@ -236,14 +236,14 @@ function sc_terra_up() {
 # Deletes scaler resources.
 function sc_terra_down_scaler() {
     echo "Deleting scaler resources..."
-    sc_login argocd
+    _ARG_DELETE="" sc_login argocd
     argocd app set terra-argocd/serenditree --parameter terraScale.enabled=false
     argocd app sync terra-argocd/serenditree
     argocd app wait terra-argocd/serenditree --sync
 
     until ! argocd app get terra-argocd/terra-scale &>/dev/null; do
         sleep 2
-        sc_login argocd
+        _ARG_DELETE="" sc_login argocd
     done
 }
 
@@ -269,7 +269,9 @@ function sc_terra_down() {
             jq -r ".configuration.root_module.resources[] | select(.type == \"helm_release\") | .address" |
             xargs tofu -chdir="$_ST_CONTEXT_HOME" state rm -var=zone_storage_1="${_ST_ZONE_STORAGE_1}"
 
-    sc_prompt "Delete scaler resources?" && sc_terra_down_scaler
+    kubectl get applications.argoproj.io --namespace terra-argocd terra-scale &>/dev/null &&
+        sc_prompt "Delete scaler resources?" &&
+        sc_terra_down_scaler
 
     if sc_prompt "Destroy terraform resources?"; then
         for _cmd in "destroy -compact-warnings -target=module.serenditree_gateway" "destroy"; do
@@ -277,5 +279,6 @@ function sc_terra_down() {
         done
     fi
 
-    sc_prompt "Delete volumes?" && sc_terra_down_volumes
+    sc_prompt "Delete volumes?" &&
+        sc_terra_down_volumes
 }
