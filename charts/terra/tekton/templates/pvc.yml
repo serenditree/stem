@@ -12,3 +12,17 @@ spec:
     requests:
       storage: 20Gi
   volumeMode: Filesystem
+{{- range .Values.terraTekton.pipelines.serenditree }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: tekton-{{ . }}-workspace
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  volumeMode: Filesystem
+{{- end }}
