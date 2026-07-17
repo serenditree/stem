@@ -37,17 +37,6 @@ spec:
   ignoreDifferences:
     - group: ""
       kind: Secret
-      name: {{ .Values.terraScope.name }}-validation
-      namespace: {{ .Values.terraScope.name }}
-      jsonPointers:
-        - /data
-    - group: admissionregistration.k8s.io
-      kind: ValidatingWebhookConfiguration
-      name: {{ .Values.terraScope.name }}-admission
-      jqPathExpressions:
-        - '.webhooks[]?.clientConfig.caBundle'
-    - group: ""
-      kind: Secret
       jsonPointers:
         - /data/admin-password
     - group: apps

@@ -3,6 +3,10 @@ global:
   wave: ~
 victoria-metrics-k8s-stack:
   fullnameOverride: terra-scope
+  victoria-metrics-operator:
+    admissionWebhooks:
+      certManager:
+        enabled: true
 ########################################################################################################################
 # VictoriaMetrics
 ########################################################################################################################
