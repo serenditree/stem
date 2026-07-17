@@ -21,8 +21,8 @@ metadata:
   labels:
     app.kubernetes.io/instance: default
     app.kubernetes.io/part-of: tekton-pipelines
-    pipeline.tekton.dev/release: "v1.12.2"
-    version: "v1.12.2"
+    pipeline.tekton.dev/release: "v1.14.0"
+    version: "v1.14.0"
     app.kubernetes.io/managed-by: Helm
   annotations:
     meta.helm.sh/release-name: terra-tekton
@@ -860,8 +860,8 @@ metadata:
   labels:
     app.kubernetes.io/instance: default
     app.kubernetes.io/part-of: tekton-pipelines
-    pipeline.tekton.dev/release: "v1.12.2"
-    version: "v1.12.2"
+    pipeline.tekton.dev/release: "v1.14.0"
+    version: "v1.14.0"
     app.kubernetes.io/managed-by: Helm
   annotations:
     meta.helm.sh/release-name: terra-tekton
@@ -3224,6 +3224,8 @@ spec:
                             once we're confident old PipelineRuns have been cleaned up.
                             See issue #8359 for context.
                           type: boolean
+                        enableTerminationMessageCompression:
+                          type: boolean
                         enableWaitExponentialBackoff:
                           type: boolean
                         enforceNonfalsifiability:
@@ -3602,6 +3604,8 @@ spec:
                                       once we're confident old PipelineRuns have been cleaned up.
                                       See issue #8359 for context.
                                     type: boolean
+                                  enableTerminationMessageCompression:
+                                    type: boolean
                                   enableWaitExponentialBackoff:
                                     type: boolean
                                   enforceNonfalsifiability:
@@ -3872,6 +3876,8 @@ spec:
                                             This field is not used and can be removed in a future release
                                             once we're confident old PipelineRuns have been cleaned up.
                                             See issue #8359 for context.
+                                          type: boolean
+                                        enableTerminationMessageCompression:
                                           type: boolean
                                         enableWaitExponentialBackoff:
                                           type: boolean
@@ -6317,6 +6323,8 @@ spec:
                             once we're confident old PipelineRuns have been cleaned up.
                             See issue #8359 for context.
                           type: boolean
+                        enableTerminationMessageCompression:
+                          type: boolean
                         enableWaitExponentialBackoff:
                           type: boolean
                         enforceNonfalsifiability:
@@ -6499,8 +6507,8 @@ metadata:
   labels:
     app.kubernetes.io/instance: default
     app.kubernetes.io/part-of: tekton-pipelines
-    pipeline.tekton.dev/release: "v1.12.2"
-    version: "v1.12.2"
+    pipeline.tekton.dev/release: "v1.14.0"
+    version: "v1.14.0"
     app.kubernetes.io/managed-by: Helm
   annotations:
     meta.helm.sh/release-name: terra-tekton
@@ -7319,8 +7327,10 @@ spec:
                         x-kubernetes-list-type: atomic
                       pipelineRef:
                         description: |-
-                          PipelineRef is a reference to a pipeline definition
-                          Note: PipelineRef is in preview mode and not yet supported
+                          PipelineRef is a reference to a pipeline definition.
+                          This is an alpha field. You must set the "enable-api-fields" feature flag
+                          to "alpha" for this field to be supported. When enabled, the referenced
+                          Pipeline is executed as a child PipelineRun owned by the parent PipelineRun.
                         type: object
                         properties:
                           apiVersion:
@@ -7355,8 +7365,10 @@ spec:
                             type: string
                       pipelineSpec:
                         description: |-
-                          PipelineSpec is a specification of a pipeline
-                          Note: PipelineSpec is in preview mode and not yet supported
+                          PipelineSpec is a specification of a pipeline.
+                          This is an alpha field. You must set the "enable-api-fields" feature flag
+                          to "alpha" for this field to be supported. When enabled, the embedded
+                          Pipeline is executed as a child PipelineRun owned by the parent PipelineRun.
                           Specifying PipelineSpec can be disabled by setting
                           `disable-inline-spec` feature flag.
                           See Pipeline.spec (API version: tekton.dev/v1)
@@ -7658,8 +7670,10 @@ spec:
                         x-kubernetes-list-type: atomic
                       pipelineRef:
                         description: |-
-                          PipelineRef is a reference to a pipeline definition
-                          Note: PipelineRef is in preview mode and not yet supported
+                          PipelineRef is a reference to a pipeline definition.
+                          This is an alpha field. You must set the "enable-api-fields" feature flag
+                          to "alpha" for this field to be supported. When enabled, the referenced
+                          Pipeline is executed as a child PipelineRun owned by the parent PipelineRun.
                         type: object
                         properties:
                           apiVersion:
@@ -7694,8 +7708,10 @@ spec:
                             type: string
                       pipelineSpec:
                         description: |-
-                          PipelineSpec is a specification of a pipeline
-                          Note: PipelineSpec is in preview mode and not yet supported
+                          PipelineSpec is a specification of a pipeline.
+                          This is an alpha field. You must set the "enable-api-fields" feature flag
+                          to "alpha" for this field to be supported. When enabled, the embedded
+                          Pipeline is executed as a child PipelineRun owned by the parent PipelineRun.
                           Specifying PipelineSpec can be disabled by setting
                           `disable-inline-spec` feature flag.
                           See Pipeline.spec (API version: tekton.dev/v1)
@@ -8207,8 +8223,8 @@ metadata:
   labels:
     app.kubernetes.io/instance: default
     app.kubernetes.io/part-of: tekton-pipelines
-    pipeline.tekton.dev/release: "v1.12.2"
-    version: "v1.12.2"
+    pipeline.tekton.dev/release: "v1.14.0"
+    version: "v1.14.0"
     app.kubernetes.io/managed-by: Helm
   annotations:
     meta.helm.sh/release-name: terra-tekton
@@ -9366,8 +9382,8 @@ metadata:
   labels:
     app.kubernetes.io/instance: default
     app.kubernetes.io/part-of: tekton-pipelines
-    pipeline.tekton.dev/release: "v1.12.2"
-    version: "v1.12.2"
+    pipeline.tekton.dev/release: "v1.14.0"
+    version: "v1.14.0"
     app.kubernetes.io/managed-by: Helm
   annotations:
     meta.helm.sh/release-name: terra-tekton
@@ -11245,6 +11261,8 @@ spec:
                             once we're confident old PipelineRuns have been cleaned up.
                             See issue #8359 for context.
                           type: boolean
+                        enableTerminationMessageCompression:
+                          type: boolean
                         enableWaitExponentialBackoff:
                           type: boolean
                         enforceNonfalsifiability:
@@ -11515,6 +11533,8 @@ spec:
                                   This field is not used and can be removed in a future release
                                   once we're confident old PipelineRuns have been cleaned up.
                                   See issue #8359 for context.
+                                type: boolean
+                              enableTerminationMessageCompression:
                                 type: boolean
                               enableWaitExponentialBackoff:
                                 type: boolean
@@ -13395,6 +13415,8 @@ spec:
                             once we're confident old PipelineRuns have been cleaned up.
                             See issue #8359 for context.
                           type: boolean
+                        enableTerminationMessageCompression:
+                          type: boolean
                         enableWaitExponentialBackoff:
                           type: boolean
                         enforceNonfalsifiability:
@@ -13657,6 +13679,8 @@ spec:
                                   This field is not used and can be removed in a future release
                                   once we're confident old PipelineRuns have been cleaned up.
                                   See issue #8359 for context.
+                                type: boolean
+                              enableTerminationMessageCompression:
                                 type: boolean
                               enableWaitExponentialBackoff:
                                 type: boolean
@@ -16748,8 +16772,8 @@ metadata:
   labels:
     app.kubernetes.io/instance: default
     app.kubernetes.io/part-of: tekton-pipelines
-    pipeline.tekton.dev/release: "v1.12.2"
-    version: "v1.12.2"
+    pipeline.tekton.dev/release: "v1.14.0"
+    version: "v1.14.0"
     app.kubernetes.io/managed-by: Helm
   annotations:
     meta.helm.sh/release-name: terra-tekton
@@ -18243,8 +18267,6 @@ spec:
                 stepTemplate:
                   description: StepTemplate
                   type: object
-                  required:
-                    - name
                   properties:
                     args:
                       description: Args
@@ -23969,8 +23991,8 @@ metadata:
   labels:
     app.kubernetes.io/instance: default
     app.kubernetes.io/part-of: tekton-pipelines
-    pipeline.tekton.dev/release: "v1.12.2"
-    version: "v1.12.2"
+    pipeline.tekton.dev/release: "v1.14.0"
+    version: "v1.14.0"
     app.kubernetes.io/managed-by: Helm
   annotations:
     meta.helm.sh/release-name: terra-tekton
