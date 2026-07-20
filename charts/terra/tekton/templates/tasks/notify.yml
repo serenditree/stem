@@ -2,11 +2,11 @@
 apiVersion: tekton.dev/v1
 kind: Task
 metadata:
-  name: serenditree-finally
+  name: serenditree-notify
   labels:
     app.kubernetes.io/component: tekton
 spec:
-  description: 'Task to react to and notify about pipeline completion.'
+  description: 'Task notify about pipeline completion.'
   params:
     - name: pipeline
       type: string
@@ -34,7 +34,7 @@ spec:
       description: 'Array of task:status pairs.'
   steps:
     - name: notify
-      image: alpine/curl
+      image: docker.io/alpine/curl:latest
       env:
         - name: WEBHOOK
           valueFrom:
@@ -44,4 +44,4 @@ spec:
       args:
         - $(params.details)
       script: |
-{{ .Files.Get "resources/finally.sh" | indent 8 }}
+{{ .Files.Get "resources/notify.sh" | indent 8 }}

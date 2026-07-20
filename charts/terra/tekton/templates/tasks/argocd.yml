@@ -14,6 +14,7 @@ spec:
     - name: kind
       description: 'Kind of the resource to deploy.'
       type: string
+      default: 'Deployment'
     - name: action
       description: 'Action to run {sync|deploy}.'
       type: string

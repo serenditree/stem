@@ -33,7 +33,7 @@ spec:
       description: 'The git repository will be fetched onto the volume backing this workspace.'
   steps:
     - name: fetch
-      image: alpine/git
+      image: docker.io/alpine/git:latest
       workingDir: $(workspaces.git.path)
       script: |
 {{ .Files.Get "resources/git.sh" | indent 8 }}
