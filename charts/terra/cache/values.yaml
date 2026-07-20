@@ -6,7 +6,13 @@ terraCache:
   dragonfly: false
 valkey:
   fullnameOverride: terra-cache
-  replicaCount: 3
+  replica:
+    enabled: true
+    replicas: 2
+    persistence:
+      size: 10Gi
+  podDisruptionBudget:
+    enabled: true
 dragonfly:
   fullnameOverride: terra-cache
   replicaCount: 3
