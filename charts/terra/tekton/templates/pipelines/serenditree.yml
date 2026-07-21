@@ -121,6 +121,10 @@ spec:
             - '$(tasks.deploy.status):deploy'
     - name: finally-revert
       when:
+        - input: $(tasks.build.status)
+          operator: in
+          values:
+            - 'Succeeded'
         - input: $(tasks.deploy.status)
           operator: in
           values:
