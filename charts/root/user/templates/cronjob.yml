@@ -13,6 +13,7 @@ spec:
         metadata:
           labels:
             serenditree.io/policy: fence-root-user
+            serenditree.io/job: backup
         spec:
           volumes:
             - name: user-backup

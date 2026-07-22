@@ -16,6 +16,7 @@ spec:
         metadata:
           labels:
             serenditree.io/policy: fence-root-seed
+            serenditree.io/job: backup
         spec:
           containers:
             - name: seed-backup

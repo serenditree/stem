@@ -113,6 +113,10 @@ function sc_cluster_restore() {
             _latest_snapshot=$_latest envsubst '$_latest_snapshot' <"${_ST_HOME_STEM}/rc/jobs/restore-${_comp}.yml" |
                 kubectl create --namespace serenditree --filename -
         done
+        kubectl wait --for=condition=complete job \
+            --namespace=serenditree \
+            --selector="serenditree.io/job=restore" \
+            --timeout=120s
     else
         echo "Error. Aborting..."
         exit 1
@@ -126,6 +130,10 @@ function sc_cluster_backup() {
             --from=cronjob/root-${_comp}-backup \
             --namespace serenditree
     done
+    kubectl wait --for=condition=complete job \
+        --namespace=serenditree \
+        --selector="serenditree.io/job=backup" \
+        --timeout=120s
 }
 
 # Prints cluster logs.
