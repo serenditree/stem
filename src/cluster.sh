@@ -113,6 +113,7 @@ function sc_cluster_restore() {
             _latest_snapshot=$_latest envsubst '$_latest_snapshot' <"${_ST_HOME_STEM}/rc/jobs/restore-${_comp}.yml" |
                 kubectl create --namespace serenditree --filename -
         done
+        sleep .5s
         kubectl wait --for=condition=complete job \
             --namespace=serenditree \
             --selector="serenditree.io/job=restore" \
@@ -130,6 +131,7 @@ function sc_cluster_backup() {
             --from=cronjob/root-${_comp}-backup \
             --namespace serenditree
     done
+    sleep .5s
     kubectl wait --for=condition=complete job \
         --namespace=serenditree \
         --selector="serenditree.io/job=backup" \
