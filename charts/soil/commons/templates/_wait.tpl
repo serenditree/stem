@@ -9,7 +9,7 @@ metadata:
   namespace: terra-argocd
   annotations:
     argocd.argoproj.io/hook: PreSync
-    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded,BeforeHookCreation
   labels:
     serenditree.io/hook: wait
 spec:
