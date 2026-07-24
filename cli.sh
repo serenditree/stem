@@ -10,7 +10,7 @@ _ST_HELP="Please type 'sc <help>' for a list of commands or $_ST_HELP_DETAIL"
 # ARG_OPTIONAL_BOOLEAN([all],[a],[All...])
 # ARG_OPTIONAL_BOOLEAN([compose],[c],[Run or build for podman compose.])
 # ARG_OPTIONAL_BOOLEAN([delete],[],[Deletion flag.])
-# ARG_OPTIONAL_BOOLEAN([dryrun],[D],[Activates dryrun mode.])
+# ARG_OPTIONAL_BOOLEAN([dryrun],[d],[Activates dryrun mode.])
 # ARG_OPTIONAL_BOOLEAN([expose],[E],[Exposes database ports on local pods.])
 # ARG_OPTIONAL_BOOLEAN([help],[h],[Command help. Please type sc <help> for a list of commands!])
 # ARG_OPTIONAL_BOOLEAN([init],[],[Initialization flag.])
@@ -28,6 +28,7 @@ _ST_HELP="Please type 'sc <help>' for a list of commands or $_ST_HELP_DETAIL"
 # ARG_OPTIONAL_BOOLEAN([test],[T],[Sets the target stage to test. (default is dev)])
 # ARG_OPTIONAL_BOOLEAN([upgrade],[],[Upgrade flag.])
 # ARG_OPTIONAL_BOOLEAN([wait],[w],[Wait for completion.])
+# ARG_OPTIONAL_BOOLEAN([debug],[D],[Debug flag.])
 # ARG_OPTIONAL_INCREMENTAL([verbose],[v],[Verbose flag.])
 # ARG_OPTIONAL_INCREMENTAL([yes],[y],[Assumes yes on prompts.])
 # ARG_OPTIONAL_BOOLEAN([xissuer],[x],[Set cert-issuer to prod when stage is not prod and vice versa.])
@@ -62,7 +63,7 @@ evaluate_strictness()
 
 begins_with_short_option()
 {
-    local first_option all_short_options='acDEhklnoPTwvyxs'
+    local first_option all_short_options='acdEhklnoPTwDvyxs'
     first_option="${1:0:1}"
     test "$all_short_options" = "${all_short_options/$first_option/}" && return 1 || return 0
 }
@@ -93,6 +94,7 @@ _arg_setup="off"
 _arg_test="off"
 _arg_upgrade="off"
 _arg_wait="off"
+_arg_debug="off"
 _arg_verbose=0
 _arg_yes=0
 _arg_xissuer="off"
@@ -102,13 +104,13 @@ _arg_resume=
 
 print_help()
 {
-    printf 'Usage: %s [-a|--all] [-c|--compose] [--delete] [-D|--dryrun] [-E|--expose] [-h|--help] [--init] [--insert] [--integration] [-k|--kubernetes] [-l|--local] [-n|--notify] [--open] [-o|--openshift] [-P|--prod] [--reset] [--restore] [--setup] [-T|--test] [--upgrade] [-w|--wait] [-v|--verbose] [-y|--yes] [-x|--xissuer] [-s|--scale <arg>] [--resume <arg>] [--] <command> ... \n' " sc" && echo
+    printf 'Usage: %s [-a|--all] [-c|--compose] [--delete] [-d|--dryrun] [-E|--expose] [-h|--help] [--init] [--insert] [--integration] [-k|--kubernetes] [-l|--local] [-n|--notify] [--open] [-o|--openshift] [-P|--prod] [--reset] [--restore] [--setup] [-T|--test] [--upgrade] [-w|--wait] [-D|--debug] [-v|--verbose] [-y|--yes] [-x|--xissuer] [-s|--scale <arg>] [--resume <arg>] [--] <command> ... \n' " sc" && echo
     printf '\t%-20s%s\n' "<command>:" "Command to execute. Please type sc <help> for a list of commands!"
     printf '\t%-20s%s\n' "... :" "Other arguments passed to command."
     printf '\t%-20s%s\n' "-a, --all:" "All..."
     printf '\t%-20s%s\n' "-c, --compose:" "Run or build for podman compose."
     printf '\t%-20s%s\n' "--delete:" "Deletion flag."
-    printf '\t%-20s%s\n' "-D, --dryrun:" "Activates dryrun mode."
+    printf '\t%-20s%s\n' "-d, --dryrun:" "Activates dryrun mode."
     printf '\t%-20s%s\n' "-E, --expose:" "Exposes database ports on local pods."
     printf '\t%-20s%s\n' "-h, --help:" "Command help. Please type sc <help> for a list of commands!"
     printf '\t%-20s%s\n' "--init:" "Initialization flag."
@@ -126,6 +128,7 @@ print_help()
     printf '\t%-20s%s\n' "-T, --test:" "Sets the target stage to test. (default is dev)"
     printf '\t%-20s%s\n' "--upgrade:" "Upgrade flag."
     printf '\t%-20s%s\n' "-w, --wait:" "Wait for completion."
+    printf '\t%-20s%s\n' "-D, --debug:" "Debug flag."
     printf '\t%-20s%s\n' "-v, --verbose:" "Verbose flag."
     printf '\t%-20s%s\n' "-y, --yes:" "Assumes yes on prompts."
     printf '\t%-20s%s\n' "-x, --xissuer:" "Set cert-issuer to prod when stage is not prod and vice versa."
@@ -180,16 +183,16 @@ parse_commandline()
                 _arg_delete="on"
                 test "${1:0:5}" = "--no-" && _arg_delete="off"
                 ;;
-            -D|--no-dryrun|--dryrun)
+            -d|--no-dryrun|--dryrun)
                 _arg_dryrun="on"
                 test "${1:0:5}" = "--no-" && _arg_dryrun="off"
                 ;;
-            -D*)
+            -d*)
                 _arg_dryrun="on"
-                _next="${_key##-D}"
+                _next="${_key##-d}"
                 if test -n "$_next" -a "$_next" != "$_key"
                 then
-                    { begins_with_short_option "$_next" && shift && set -- "-D" "-${_next}" "$@"; } || die "The short option '$_key' can't be decomposed to ${_key:0:2} and -${_key:2}, because ${_key:0:2} doesn't accept value and '-${_key:2:1}' doesn't correspond to a short option."
+                    { begins_with_short_option "$_next" && shift && set -- "-d" "-${_next}" "$@"; } || die "The short option '$_key' can't be decomposed to ${_key:0:2} and -${_key:2}, because ${_key:0:2} doesn't accept value and '-${_key:2:1}' doesn't correspond to a short option."
                 fi
                 ;;
             -E|--no-expose|--expose)
@@ -332,6 +335,18 @@ parse_commandline()
                     { begins_with_short_option "$_next" && shift && set -- "-w" "-${_next}" "$@"; } || die "The short option '$_key' can't be decomposed to ${_key:0:2} and -${_key:2}, because ${_key:0:2} doesn't accept value and '-${_key:2:1}' doesn't correspond to a short option."
                 fi
                 ;;
+            -D|--no-debug|--debug)
+                _arg_debug="on"
+                test "${1:0:5}" = "--no-" && _arg_debug="off"
+                ;;
+            -D*)
+                _arg_debug="on"
+                _next="${_key##-D}"
+                if test -n "$_next" -a "$_next" != "$_key"
+                then
+                    { begins_with_short_option "$_next" && shift && set -- "-D" "-${_next}" "$@"; } || die "The short option '$_key' can't be decomposed to ${_key:0:2} and -${_key:2}, because ${_key:0:2} doesn't accept value and '-${_key:2:1}' doesn't correspond to a short option."
+                fi
+                ;;
             -v|--verbose)
                 _arg_verbose=$((_arg_verbose + 1))
                 ;;
@@ -453,6 +468,7 @@ export _ARG_TEST=${_arg_test/off/}
 
 export _ARG_ALL=${_arg_all/off/}
 export _ARG_DRYRUN=${_arg_dryrun/off/}
+export _ARG_DEBUG=${_arg_debug/off/}
 export _ARG_VERBOSE=${_arg_verbose/0/}
 export _ARG_YES=${_arg_yes/0/}
 export _ARG_NOTIFY=${_arg_notify/off/}
@@ -484,9 +500,10 @@ export _ARG_INTEGRATION=${_arg_integration/off/}
 
 export _ARG_HELP=${_arg_help/off/}
 ########################################################################################################################
-# EXIT ON ERROR
+# SHELL OPTIONS
 ########################################################################################################################
 [[ -n "$_ST_CONTEXT_TKN" ]] && set -o errexit
+[[ -n "${_ST_DEBUG}${_ARG_DEBUG}" ]] && set -o xtrace
 ########################################################################################################################
 # IMPORT
 ########################################################################################################################

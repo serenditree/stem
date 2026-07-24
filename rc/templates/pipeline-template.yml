@@ -12,7 +12,7 @@ spec:
     serviceAccountName: pipelines
   params:
     - name: config
-      value: tekton-serenditree
+      value: tekton-serenditree${_DEBUG}
     - name: image
       value: ${_PIPELINE}
     - name: repo-url

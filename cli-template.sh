@@ -25,7 +25,7 @@ echo "Done"
 # ARG_OPTIONAL_BOOLEAN([all], [a], [All...])
 # ARG_OPTIONAL_BOOLEAN([compose], [c], [Run or build for podman compose.])
 # ARG_OPTIONAL_BOOLEAN([delete], [], [Deletion flag.])
-# ARG_OPTIONAL_BOOLEAN([dryrun], [D], [Activates dryrun mode.])
+# ARG_OPTIONAL_BOOLEAN([dryrun], [d], [Activates dryrun mode.])
 # ARG_OPTIONAL_BOOLEAN([expose], [E], [Exposes database ports on local pods.])
 # ARG_OPTIONAL_BOOLEAN([help], [h], [Command help. Please type sc <help> for a list of commands!])
 # ARG_OPTIONAL_BOOLEAN([init], [], [Initialization flag.])
@@ -43,6 +43,7 @@ echo "Done"
 # ARG_OPTIONAL_BOOLEAN([test], [T], [Sets the target stage to test. (default is dev)])
 # ARG_OPTIONAL_BOOLEAN([upgrade], [], [Upgrade flag.])
 # ARG_OPTIONAL_BOOLEAN([wait], [w], [Wait for completion.])
+# ARG_OPTIONAL_BOOLEAN([debug], [D], [Debug flag.])
 # ARG_OPTIONAL_INCREMENTAL([verbose], [v], [Verbose flag.])
 # ARG_OPTIONAL_INCREMENTAL([yes], [y], [Assumes yes on prompts.])
 # ARG_OPTIONAL_BOOLEAN([xissuer], [x], [Set cert-issuer to prod when stage is not prod and vice versa.])
@@ -69,6 +70,7 @@ export _ARG_TEST=${_arg_test/off/}
 
 export _ARG_ALL=${_arg_all/off/}
 export _ARG_DRYRUN=${_arg_dryrun/off/}
+export _ARG_DEBUG=${_arg_debug/off/}
 export _ARG_VERBOSE=${_arg_verbose/0/}
 export _ARG_YES=${_arg_yes/0/}
 export _ARG_NOTIFY=${_arg_notify/off/}
@@ -100,9 +102,10 @@ export _ARG_INTEGRATION=${_arg_integration/off/}
 
 export _ARG_HELP=${_arg_help/off/}
 ########################################################################################################################
-# EXIT ON ERROR
+# SHELL OPTIONS
 ########################################################################################################################
 [[ -n "$_ST_CONTEXT_TKN" ]] && set -o errexit
+[[ -n "${_ST_DEBUG}${_ARG_DEBUG}" ]] && set -o xtrace
 ########################################################################################################################
 # IMPORT
 ########################################################################################################################

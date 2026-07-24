@@ -26,8 +26,9 @@ function sc_cluster_deploy() {
 # $1: Pipeline to run
 function sc_cluster_tekton() {
     export _PIPELINE=$1
+    [[ -n "$_ARG_DEBUG" ]] && export _DEBUG=-debug
 
-    envsubst '$_PIPELINE' <"${_ST_HOME_STEM}/rc/templates/pipeline-template.yml" |
+    envsubst '$_PIPELINE $_DEBUG' <"${_ST_HOME_STEM}/rc/templates/pipeline-template.yml" |
         kubectl create --namespace tekton-pipelines -f - &&
         sleep 1s &&
         tkn pipeline logs --namespace tekton-pipelines --last --follow "$_PIPELINE"
