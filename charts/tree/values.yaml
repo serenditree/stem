@@ -85,26 +85,26 @@ terraStreams:
       enabled: false
 terraCollect:
   enabled: true
-  wave: 3
+  wave: 2
   name: terra-collect
   namespace: terra-collect
 terraScope:
   enabled: true
-  wave: 3
+  wave: 2
   name: terra-scope
   namespace: terra-scope
 terraCache:
-  wave: 3
+  wave: 2
   name: terra-cache
   namespace: terra-cache
 terraTesting:
   enabled: true
-  wave: 3
+  wave: 2
   name: terra-testing
   namespace: terra-testing
 terraGateway:
   enabled: true
-  wave: 4
+  wave: 3
   name: terra-gateway
   namespace: terra-gateway
   parameters:
@@ -113,12 +113,12 @@ terraGateway:
     loadBalancerID: ~
 terraTekton:
   enabled: true
-  wave: 7
+  wave: 5
   name: terra-tekton
   namespace: tekton-pipelines
 terraScale:
   enabled: false
-  wave: 7
+  wave: 5
   name: terra-scale
   namespace: kube-system
   parameters:
@@ -136,12 +136,12 @@ terraScale:
 ########################################################################################################################
 rootUser:
   enabled: true
-  wave: 5
+  wave: 3
   name: root-user
   namespace: serenditree
 rootSeed:
   enabled: true
-  wave: 5
+  wave: 3
   name: root-seed
   namespace: serenditree
   parameters:
@@ -150,12 +150,12 @@ rootSeed:
       region: ~
 rootWind:
   enabled: true
-  wave: 5
+  wave: 3
   name: root-wind
   namespace: serenditree
 rootMap:
   enabled: true
-  wave: 5
+  wave: 3
   name: root-map
   namespace: serenditree
 ########################################################################################################################
@@ -163,7 +163,7 @@ rootMap:
 ########################################################################################################################
 branch:
   enabled: true
-  wave: 6
+  wave: 4
   name: branch
   namespace: serenditree
   parameters:
@@ -174,6 +174,6 @@ branch:
 ########################################################################################################################
 leaf:
   enabled: true
-  wave: 6
+  wave: 4
   name: leaf
   namespace: serenditree
