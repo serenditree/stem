@@ -101,7 +101,7 @@ function sc_status_config() {
         sc_heading 1 "Branch-${_branch^}"
         # shellcheck disable=SC2038,SC2016
         find "${_ST_HOME_BRANCH}/leaves" \
-            -regextype posix-extended -regex ".*/leaf-${_branch}/src/.*/(serenditree|branch).yml" |
+            -regextype posix-extended -regex ".*/leaf-${_branch}/src/.*/application.yml" |
             xargs yq eval-all '. as $item ireduce ({}; . * $item) | ... comments=""'
     done
 }
