@@ -10,7 +10,7 @@ terraGateway:
   name: serenditree
   proxyName: serenditree-proxy
   loadBalancerID: ~
-  cacheHost: ~
+  cacheHosts: []
   rateLimits:
     - name: leaf
       average: 10

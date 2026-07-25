@@ -1,6 +1,11 @@
 global:
   wait: ~
   wave: ~
+terraCache:
+  name: terra-cache
+  shards: 3
+  valkeyHelm: false
+  valkeyOperator: true
 valkey:
   fullnameOverride: terra-cache
   replica:

@@ -1,0 +1,18 @@
+{{- if .Values.terraCache.valkeyOperator  }}
+---
+apiVersion: valkey.io/v1alpha1
+kind: ValkeyCluster
+metadata:
+  name: {{ .Values.terraCache.name }}
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+spec:
+  shards: {{ .Values.terraCache.shards }}
+  replicas: 0
+  workloadType: StatefulSet
+  config:
+    maxmemory: "256mb"
+    maxmemory-policy: "allkeys-lru"
+    save: ""
+    appendonly: "no"
+{{- end }}

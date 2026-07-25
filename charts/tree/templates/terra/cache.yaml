@@ -22,6 +22,8 @@ spec:
           value: {{ .Values.global.wait | quote }}
         - name: global.wave
           value: {{ .Values.terraCache.wave | quote }}
+        - name: terraCache.shards
+          value: {{ .Values.terraCache.shards | quote }}
   destination:
     server: {{ .Values.global.destinationServer }}
     namespace: {{ .Values.terraCache.namespace }}

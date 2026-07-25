@@ -13,6 +13,8 @@ spec:
     period: {{ .period }}
     redis:
       endpoints:
-        - {{ $.Values.terraGateway.cacheHost }}
+        {{- range $.Values.terraGateway.cacheHosts }}
+        - {{ . }}
+        {{- end }}
 {{- end }}
 {{- end }}

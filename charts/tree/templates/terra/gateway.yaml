@@ -34,10 +34,22 @@ spec:
           value: {{ .Values.terraGateway.parameters.traefik | quote }}
         - name: terraGateway.loadBalancerID
           value: {{ .Values.terraGateway.parameters.loadBalancerID }}
-        - name: terraGateway.cacheHost
-          value: "terra-cache.{{ .Values.terraCache.namespace }}.svc.{{ .Values.global.clusterDomain }}:6379"
+        {{- $cacheHosts := list }}
+        {{- range $i := until (int .Values.terraCache.shards) }}
+        {{- $cacheHosts = append $cacheHosts
+        (printf
+          "valkey-%s-%d-0-0.valkey-%s.%s.svc.%s:6379"
+          $.Values.terraCache.name
+          $i
+          $.Values.terraCache.name
+          $.Values.terraCache.namespace
+          $.Values.global.clusterDomain
+        ) }}
+        {{- end }}
+        - name: terraGateway.cacheHosts
+          value: "{{ printf "{%s}" (join "," $cacheHosts) }}"
         - name: gateway-helm.config.envoyGateway.rateLimit.backend.redis.url
-          value: "terra-cache.{{ .Values.terraCache.namespace }}.svc.{{ .Values.global.clusterDomain }}:6379"
+          value: {{ join "," $cacheHosts | quote }}
         - name: traefik.tracing.otlp.grpc.endpoint
           value: "collect.{{ .Values.terraCollect.namespace }}.svc.{{ .Values.global.clusterDomain }}:4317"
         - name: traefik.service.annotations.service\.beta\.kubernetes\.io/exoscale-loadbalancer-id

@@ -97,6 +97,7 @@ terraCache:
   wave: 2
   name: terra-cache
   namespace: terra-cache
+  shards: 3
 terraTesting:
   enabled: true
   wave: 2
