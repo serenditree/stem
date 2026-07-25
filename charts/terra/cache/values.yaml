@@ -1,9 +1,6 @@
 global:
   wait: ~
   wave: ~
-terraCache:
-  valkey: true
-  dragonfly: false
 valkey:
   fullnameOverride: terra-cache
   replica:
@@ -13,6 +10,3 @@ valkey:
       size: ""
   podDisruptionBudget:
     enabled: true
-dragonfly:
-  fullnameOverride: terra-cache
-  replicaCount: 3
