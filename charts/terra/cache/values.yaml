@@ -7,10 +7,10 @@ terraCache:
 valkey:
   fullnameOverride: terra-cache
   replica:
-    enabled: true
-    replicas: 2
+    enabled: false
+    replicas: 3
     persistence:
-      size: 10Gi
+      size: ""
   podDisruptionBudget:
     enabled: true
 dragonfly:
