@@ -315,3 +315,67 @@ function sc_update_yarn() {
     fi
     popd &>/dev/null || exit 1
 }
+
+# Subroutine for sc_update_tools.
+function sc_update_tools_sub() {
+    local _latest=$1
+    local _installed=$2
+    local _exit=1
+
+    [[ "$_latest" != "$_installed" ]] && echo -e "$_BOLD"
+    echo -e "installed:\t[$_installed]\nlatest: \t[$_latest]${_NORMAL}"
+
+    if [[ "$_latest" != "$_installed" ]]; then
+        [[ -n "${_ARG_YES}" ]] && read -rp "update? [y/N]: " _PROCEED
+        if [[ -n "${_ARG_YES}" ]] || [[ "$_PROCEED" == "y" ]]; then
+            _exit=0
+        fi
+    fi
+
+    return $_exit
+}
+
+# Installs/updates tools that are unavailable in package managers.
+function sc_update_tools() {
+    local _installed
+    local _latest
+
+    # argocd
+    if [[ $* =~ (argocd|^$) ]]; then
+        sc_heading 2 argocd
+        _installed="$(command -v argocd >/dev/null && argocd version --client -o json | jq -r '.client.Version')"
+        _latest=$(curl -s https://api.github.com/repos/argoproj/argo-cd/releases/latest | jq -r '.tag_name')
+        if sc_update_tools_sub "$_latest" "${_installed%+*}"; then
+            curl -L  "https://github.com/argoproj/argo-cd/releases/download/${_latest}/argocd-linux-amd64" \
+            -o "$_ST_BIN/argocd"
+            chmod +x "$_ST_BIN/argocd"
+            argocd completion bash | sudo tee /etc/bash_completion.d/argocd >/dev/null
+        fi
+    fi
+
+    # exo
+    if [[ $* =~ (exo( |$)|^$) ]]; then
+        sc_heading 2 exo
+        _installed="v$(command -v exo >/dev/null && exo version | cut -d' ' -f2)"
+        _latest=$(curl -s https://api.github.com/repos/exoscale/cli/releases/latest | jq -r '.tag_name')
+        if sc_update_tools_sub "$_latest" "$_installed"; then
+            local _tar=exoscale-cli_${_latest#v}_linux_amd64.tar.gz
+            curl -L "https://github.com/exoscale/cli/releases/download/${_latest}/${_tar}" -o "/tmp/${_tar}"
+            tar -xzf "/tmp/${_tar}" -C "$_ST_BIN" exo
+            exo completion bash | sudo tee /etc/bash_completion.d/exo &>/dev/null
+        fi
+    fi
+
+    # tekton
+    if [[ $* =~ (tekton|^$) ]]; then
+        sc_heading 2 tekton
+        _installed="v$(command -v tkn >/dev/null && tkn version --component client | head -n1 | cut -d' ' -f3)"
+        _latest=$(curl -s https://api.github.com/repos/tektoncd/cli/releases/latest | jq -r '.name')
+        if sc_update_tools_sub "$_latest" "$_installed"; then
+            local _tar=tkn_${_latest#v}_Linux_x86_64.tar.gz
+            curl -L "https://github.com/tektoncd/cli/releases/download/${_latest}/${_tar}" -o "/tmp/${_tar}"
+            tar -xzf "/tmp/${_tar}" -C "$_ST_BIN" tkn
+        fi
+    fi
+}
+

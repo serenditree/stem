@@ -759,7 +759,7 @@ test)
     ;;
 update)
     if [[ -n "$_ARG_HELP" ]]; then
-        sc_heading 2 "sc update <comp> [--yes] [--yes]"
+        sc_heading 2 "sc update [comp] [--yes] [--yes] [--all]"
         echo "Update components. Without specification, all components are updated or checked for latest versions."
         printf '\n\t%-20s%s\n' "helm" "Update chart versions."
         printf '\n\t%-20s%s' "{image* | img}" "Update base images or check for upgrades."
@@ -769,6 +769,7 @@ update)
         printf '\n\t%-20s%s\n' "{maven | mvn | java}" "Update maven dependencies."
         printf '\n\t%-20s%s' "tile*" "Update Tileserver."
         printf '\n\t%-20s%s\n' "yarn" "Update node modules."
+        printf '\n\t%-20s%s\n' "tools" "Update tools."
     else
         case ${_ARG_SUB_COMMAND} in
         helm)
@@ -795,6 +796,9 @@ update)
         yarn)
             sc_update_yarn
             ;;
+        tools)
+            sc_update_tools "${_ARG_LEFTOVERS[*]:1}"
+            ;;
         "")
             sc_heading 1 helm
             sc_update_helm
@@ -812,6 +816,10 @@ update)
             sc_update_maven
             sc_heading 1 yarn
             sc_update_yarn
+            if [[ -n "$_ARG_ALL" ]]; then
+                sc_heading 1 tools
+                sc_update_tools
+            fi
             ;;
         *)
             echo "Unknown component '${_ARG_SUB_COMMAND}'. Enter sc update --help for available components!"
