@@ -1,0 +1,31 @@
+global:
+  context: ~
+  wait: ~
+  wave: ~
+  host: ~
+terraTekton:
+  pipelines:
+    serenditree:
+      - branch
+      - leaf
+tekton-pipeline:
+  namespace:
+    name: tekton-pipelines
+    create: true
+    labels:
+      pod-security.kubernetes.io/enforce: privileged
+      app.kubernetes.io/part-of: tekton-pipelines
+  configDefaults:
+    default-pod-template: |
+      nodeSelector:
+        serenditree.io/node-role: build
+      tolerations:
+        - key: serenditree.io/node-taint
+          value: build
+          effect: NoSchedule
+          operator: Equal
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+  featureFlags:
+    coschedule: "disabled"
